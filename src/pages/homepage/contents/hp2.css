@@ -1,0 +1,13 @@
+.hp2 {
+    background-color: #000000; /* Warna background untuk Hp1 */
+    background-image: url('../gambar/2.png'); /* Path relatif ke gambar */
+    background-size: cover;
+    background-position: center; /* Memusatkan gambar */
+    background-repeat: no-repeat; /* Menghindari pengulangan gambar */
+    width: 100%; /* Lebar elemen mengikuti ukuran wadah */
+    height: 100vh; /* Tinggi elemen mengikuti viewport */
+    margin: 0 auto;
+    padding: 0;
+    position: relative;
+}
+

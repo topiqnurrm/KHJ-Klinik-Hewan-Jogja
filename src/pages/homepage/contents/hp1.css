@@ -1,0 +1,125 @@
+@font-face {
+  font-family: "SansSerifBldFLF";
+  src: url("/assets/fonts/SansSerifBldFLF.ttf") format("truetype"),
+       url("/assets/fonts/SansSerifFLF.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+p.noted {
+  color: #08A78B !important;
+  background-color: #fff8dc;
+  padding: 5px; 
+  border-radius: 5px;
+  width: fit-content;
+}
+
+.hp1 {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f3f3f3;
+  background-image: url('../gambar/1.png');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  max-width: 1200px;
+  padding-bottom: 50px;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.left-section {
+  flex: 2;
+  text-align: left;
+  padding: 2rem;
+  color: white;
+}
+
+.left-section h1 {
+  font-family: "SansSerifBldFLF", sans-serif;
+  font-size: 2.18rem;
+  line-height: 1;
+}
+
+.left-section p {
+  font-family: "SansSerifFLF", sans-serif;
+  font-size: 1.45rem;
+  margin-top: 10px;
+  line-height: 1;
+}
+
+.cta-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 30px;
+  border: 1.4px solid white;
+  border-radius: 30px;
+  background-color: transparent;
+  color: white;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.1s ease-in-out;
+  font-family: "SansSerifBldFLF", sans-serif;
+  width: fit-content;
+}
+
+.cta-button:hover {
+  background-color: white;
+  color: #08A78B;
+}
+
+.right-section {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.animated-image {
+  max-width: 100%;
+  height: auto;
+  animation: float 3s infinite alternate;
+}
+
+@keyframes float {
+  from {
+      transform: translateY(0px);
+  }
+  to {
+      transform: translateY(-10px);
+  }
+}
+
+.image-slider {
+  position: absolute;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.slider-dot {
+  cursor: pointer;
+  transition: transform 0.3s;
+  height: 7px; /* Tinggi dasar */
+}
+
+.slider-dot.active {
+  transform: scale(1.2);
+}
+
+

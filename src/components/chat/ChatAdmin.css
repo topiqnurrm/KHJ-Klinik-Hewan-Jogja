@@ -1,0 +1,30 @@
+.chat-button {
+    position: fixed;
+    bottom: 80px;
+    right: 40px;
+    background-color: #08A78B; /* Warna hijau */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 1000; /* Pastikan di atas elemen lain */
+}
+  
+.chat-button:hover {
+    background-color: #08A78B;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+  
+.chat-icon {
+    width: 20px;
+    height: 20px;
+}
+  
