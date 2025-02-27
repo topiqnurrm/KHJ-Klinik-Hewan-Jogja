@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import React from "react";
 import "./hp1.css";
-import dokter from "../gambar/dokter.png";
-import periksa from "../gambar/daftar.png";
-import prks from "../gambar/dfrhitam.png";
-import aktif from "../gambar/aktif.png";
-import nonaktif from "../gambar/nonaktif.png";
-import islam from "../gambar/22.png";
-import konghucu from "../gambar/11.png";
+import dokter from "./gambar/dokter.png";
+import periksa from "./gambar/daftar.png";
+import prks from "./gambar/dfrhitam.png";
+import aktif from "./gambar/aktif.png";
+import nonaktif from "./gambar/nonaktif.png";
+import islam from "./gambar/22.png";
+import konghucu from "./gambar/11.png";
 
 function Hp1() {
   const slides = [dokter, konghucu, islam]; // Daftar gambar slide

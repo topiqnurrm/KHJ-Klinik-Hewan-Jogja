@@ -1,0 +1,145 @@
+@font-face {
+  font-family: "SansSerifBldFLF";
+  src: url("/assets/fonts/SansSerifBldFLF.ttf") format("truetype"),
+       url("/assets/fonts/SansSerifFLF.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.hp5 * {
+  font-family: "SansSerifFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+}
+
+.hp5 {
+    background-image: url('./gambar/5.png'); /* Background dari SS */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    margin: 0 auto; /* Pastikan elemen berada di tengah */
+    padding: 0;
+    position: relative;
+  
+    justify-content: center;
+    text-align: center; 
+    height: 100vh; /* Pastikan tinggi mengikuti viewport */
+    width: 100%; /* Pastikan lebar mengikuti viewport */
+    box-sizing: border-box;
+    padding-top: 160px;
+}
+
+.hp5 .content-wrapper {
+    display: flex;
+    justify-content: space-between;
+    /* align-items: center; */
+    width: 90%;
+    max-width: 1200px;
+    background: rgba(0, 0, 0, 0.12); /* Transparan background */
+    /* padding: 20px; */
+    border-radius: 10px;
+    margin-bottom: 0px;
+}
+
+/* Logo & Judul */
+.hp5 .logo-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding-right: 100px;
+}
+
+.hp5 .clinic-logo {
+    width: 80px;
+    /* margin-bottom: 10px; */
+    margin-top: 40px;
+}
+
+.hp5 .clinic-name {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    color: white;
+}
+
+/* Kontak & Sosial Media */
+.hp5 .contact-section, .social-section {
+    flex: 1;
+    text-align: left;
+    color: white;
+}
+
+.social-section h3 {
+    font-family: "SansSerifBldFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.hp5 h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.hp5 .contact-section h3 {
+  font-family: "SansSerifBldFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.hp5 .contact-item, .social-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.hp5 .contact-item img, .social-item img {
+    width: 30px;
+    margin-right: 10px;
+}
+
+.hp5 .contact-item p, .social-item p {
+    font-size: 1rem;
+}
+
+/* Sosial Media - Hover Effect */
+.hp5 .social-item a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+}
+
+.social-item a:hover img {
+    transform: scale(1.1);
+    transition: 0.3s ease-in-out;
+}
+
+.social-item p:hover {
+    text-decoration: underline;
+}
+
+/* Garis Horizontal */
+.hp5 .divider {
+    width: 90%;
+    height: 1px;
+    background: white;
+    margin: 20px 0;
+    border: none;
+}
+
+/* Copyright */
+.hp5 .copyright {
+    font-size: 0.9rem;
+    text-align: center;
+    color: white;
+    margin-top: 10px;
+}

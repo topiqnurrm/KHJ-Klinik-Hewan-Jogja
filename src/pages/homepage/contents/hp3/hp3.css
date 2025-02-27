@@ -1,0 +1,224 @@
+@font-face {
+  font-family: "SansSerifBldFLF";
+  src: url("/assets/fonts/SansSerifBldFLF.ttf") format("truetype"),
+       url("/assets/fonts/SansSerifFLF.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+  .hp3 * {
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Style untuk seluruh halaman */
+.hp3 {
+  background-color: #000000; /* Warna background untuk Hp1 */
+  background-image: url('./gambar/3.png'); /* Path relatif ke gambar */
+  background-size: cover;
+  background-position: center; /* Memusatkan gambar */
+  background-repeat: no-repeat; /* Menghindari pengulangan gambar */
+  margin: 0 auto; /* Pastikan elemen berada di tengah */
+  padding: 0;
+  position: relative;
+
+  display: flex;
+  flex-direction: column; /* Susun elemen secara vertikal */
+  justify-content: center;
+  /* align-items: center; */
+  /* text-align: center;  */
+  height: 100vh; /* Pastikan tinggi mengikuti viewport */
+  width: 100%; /* Pastikan lebar mengikuti viewport */
+  box-sizing: border-box;
+}
+
+/* Bagian Atas */
+.hp3 .header h1{
+  /* width: 100%; */
+  /* background-color: #38AB97; */
+  text-align: left;
+  /* color: white; */
+  padding-left: 69px;
+  padding-top: 20PX;
+  font-size: 1.85rem;
+}
+
+/* Bagian Bawah: Grid 2 kolom */
+.hp3 .main-content {
+  justify-content: flex-start;
+  display: flex;
+  /* width: 100%; */
+  padding-left: 69px;
+  padding-top: 3px;
+  /* padding-right: 10px; */
+  /* gap: 100px; */
+  margin: 0;
+  font-size: 13.5px; /* Tambahkan ukuran font */
+}
+
+/* Kiri: Layanan Daftar Online */
+.hp3 .left-section {
+  /* flex: 2; */
+  /* background: white; */
+  padding-top: 0px;
+  padding-left: 0px;
+  margin: 0;
+  padding-right: 0px;
+  /* border-radius: 10px; */
+  /* box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); */
+}
+
+.hp3 .left-section h2 {
+  color: #38AB97;
+}
+
+.hp3 .left-section ol {
+  padding-left: 15px;
+}
+
+.hp3 .left-section li {
+  color: #3F4254;
+  font-family: "SansSerifFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 0.96rem;
+  line-height: 1.1;
+  margin-bottom: 3px;
+}
+
+.hp3 li span {
+  color: #3F4254;
+  font-family: "SansSerifBldFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 0.96rem;
+  line-height: 1;
+}
+
+/* Kanan: Informasi Layanan */
+.hp3 .right-section {
+  flex: 1; /* Kurangi ukuran flex untuk mengecilkan bagian kanan */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Mulai dari atas */
+  padding-top: 3px;
+  gap: 20px; /* Jarak antar elemen */
+}
+
+/* Kotak Informasi Layanan */
+.hp3 .info-box {
+  background-size: cover;
+  background-color: #38AB97;
+  background-position: center;
+  color: #ffffff;
+  padding: 0px 40px 10px 20px;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  text-align: left;
+  
+  font-family: "SansSerifBldFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 0.96rem;
+  line-height: 1;
+}
+
+.hp3 .info-box h3 {
+  font-size: 18px;
+  font-family: "SansSerifBldFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 0.96rem;
+  line-height: 1;
+  margin-top: 20px;
+}
+
+.hp3 .info-box ul {
+  list-style-type: none;
+  padding-left: 15px;
+  padding-top: 0px;
+}
+
+.hp3 .info-box li {
+  list-style-type: disc;
+  margin: 0;
+}
+
+.hp3 .info-box li span {
+  color: #ffffff;
+  font-family: "SansSerifBldFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 0.96rem;
+  line-height: 1;
+}
+
+/* Wadah utama */
+.hp3 .container {
+  display: inline-block; /* Agar ukurannya sesuai dengan kontennya */
+  text-align: center;
+  background-color: transparent;
+  padding: 10px; /* Sesuaikan padding agar tidak terlalu besar */
+  border-radius: 10px;
+  transition: background-color 0s ease-in-out;
+  border: 1.5px solid #38AB97;
+  max-width: fit-content; /* Batasi lebar agar sesuai dengan konten */
+}
+
+/* Hover efek: mengubah warna latar */
+.hp3 .container:hover {
+  background-color: #38AB97;
+}
+
+/* Bagian teks */
+.hp3 .top-text p {
+  font-size: 16px;
+  color: #38AB97;
+  margin: 5px 0; /* Kurangi margin agar tidak membuat kotak membesar */
+}
+
+/* Bagian gambar */
+.hp3 .bottom-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px; /* Kurangi jarak antar gambar */
+}
+
+/* Ukuran gambar */
+.hp3 .layanan {
+  width: 60px;
+  height: auto;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.hp3 .qr-img {
+  width: 150px; /* Kurangi ukuran jika terlalu besar */
+  height: auto;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+/* Hover efek untuk gambar */
+.hp3 .container:hover .layanan,
+.hp3 .container:hover .qr-img {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Efek hover pada teks */
+.hp3 .container:hover .top-text p {
+  color: white;
+}
+
+
+
+/* Responsive */
+/* @media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+    width: 95%;
+  }
+} */

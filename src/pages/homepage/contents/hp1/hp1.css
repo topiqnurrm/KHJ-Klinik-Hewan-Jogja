@@ -20,7 +20,7 @@ p.noted {
   height: 100vh;
   overflow: hidden;
   background-color: #f3f3f3;
-  background-image: url('../gambar/1.png');
+  background-image: url('./gambar/1.png');
   background-size: cover;
   background-position: center;
   display: flex;
@@ -50,6 +50,8 @@ p.noted {
   font-family: "SansSerifBldFLF", sans-serif;
   font-size: 2.18rem;
   line-height: 1;
+  font-weight: normal;
+  font-style: normal;
 }
 
 .left-section p {
@@ -57,6 +59,8 @@ p.noted {
   font-size: 1.45rem;
   margin-top: 10px;
   line-height: 1;
+  font-weight: normal;
+  font-style: normal;
 }
 
 .cta-button {
@@ -105,7 +109,8 @@ p.noted {
 
 .image-slider {
   position: absolute;
-  bottom: 90px;
+  padding-top: 420px;
+  /* bottom: 90px; */
   left: 50%;
   transform: translateX(-50%);
   display: flex;

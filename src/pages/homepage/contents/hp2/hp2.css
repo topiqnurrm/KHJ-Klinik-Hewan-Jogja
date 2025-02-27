@@ -1,0 +1,197 @@
+@font-face {
+    font-family: "SansSerifBldFLF";
+    src: url("/assets/fonts/SansSerifBldFLF.ttf") format("truetype"),
+         url("/assets/fonts/SansSerifFLF.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  /* .hp2 * {
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+} */
+
+  /* body {
+    font-family: "SansSerifBldFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+} */
+
+  .hp2 {
+  background-color: #000000; /* Warna background untuk Hp1 */
+  background-image: url('./gambar/2.png'); /* Path relatif ke gambar */
+  background-size: cover;
+  background-position: center; /* Memusatkan gambar */
+  background-repeat: no-repeat; /* Menghindari pengulangan gambar */
+  margin: 0 auto; /* Pastikan elemen berada di tengah */
+  padding: 0;
+  position: relative;
+
+  display: flex;
+  flex-direction: column; /* Susun elemen secara vertikal */
+  justify-content: center;
+  align-items: center; /* Tengahkan secara horizontal */
+  text-align: center; /* Tengahkan teks */
+  height: 100vh; /* Pastikan tinggi mengikuti viewport */
+  width: 100%; /* Pastikan lebar mengikuti viewport */
+  box-sizing: border-box;
+}
+  
+  .hp2 .content-wrapper {
+    width: 100%;
+    /* max-width: 1440px; */
+    /* background: white; */
+    padding: 10px 0px 0px 0px;
+    /* box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); */
+    /* border-radius: 8px; */
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start; /* Pastikan elemen mulai dari atas */
+    margin: 0 auto; /* Tengahkan elemen */
+    justify-content: center;
+  }
+  
+  .header {
+    /* text-align: center; */
+    /* margin-bottom: 20px; */
+    padding-top: 0px;
+  }
+
+  .header h1 {
+    font-family: "SansSerifBldFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 1.85rem;
+    margin-bottom: -10px;
+    color: #1A516F; /* Warna font */
+  }
+  .header p {
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 1.3rem;
+    line-height: 1;
+    color: #33374A;
+  }
+  .ini{
+    color: #1CAE95;
+  }
+  
+  .left-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 43px; /* Mengatur jarak antar tombol */
+    padding-top: 10px;
+    /* align-items: center; */
+    margin-top: 300;
+    padding-left: 20px;
+    padding-right: 60px;
+  }
+
+  .middle {
+    /* width: 200px;  */
+    height: 320px; /* Tentukan tinggi jika diperlukan */
+    border-right: 1.7px solid rgba(10, 120, 101, 0.7);
+    box-shadow: -3px 0px 5px rgba(0, 0, 0, 0.2), /* Bayangan kiri */
+                 3px 0px 5px rgba(0, 0, 0, 0.2);  /* Bayangan kanan */
+}
+
+  
+  .menu-button {
+    display: flex;
+    align-items: center; /* Menyusun ikon dan teks sejajar */
+    justify-content: center; /* Pusatkan isi tombol secara horizontal */
+    gap: 15px; /* Jarak antara ikon dan teks */
+    background: white;
+    color: #333;
+    border: none;
+    padding: 17px 30px;
+    width: 295px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    font-family: "SansSerifFLF", sans-serif;
+    font-size: 18px;
+    /* font-weight: bold; */
+    box-shadow: 3px 3px 10px rgba(0.1, 0.1, 0.1, 0.2); /* Efek bayangan halus */
+    text-align: left; /* Pastikan teks sejajar kiri */
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 0.96rem;
+    line-height: 1;
+  }
+  .menu-button img {
+    width: 50px; /* Sesuaikan ukuran ikon */
+    height: auto;
+  }
+  .menu-button:hover {
+    transform: scale(1.05); /* Efek hover agar tombol sedikit membesar */
+    box-shadow: 4px 6px 15px rgba(0, 0, 0, 0.2), 
+                -1px -1px 15px rgba(0, 0, 0, 0.1); /* Bayangan di kiri atas */
+  }
+  .menu-button:hover {
+    transform: translateY(-10px);
+    /* background: #005f7a; */
+  }
+  
+
+  
+  /* Bagian Kanan */
+  .right-content {
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    gap: 20px;
+    padding-left: 60px;
+  }
+  
+  .image-buttons {
+    display: flex;
+    gap: 35px; /* Jarak antara tombol */
+}
+
+.image-buttons button {
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 0.96rem;
+    line-height: 1;
+    /* padding: 5px 15px; */
+    border-radius: 10px; /* Membuat sudut tombol lebih bulat */
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease; /* Animasi lebih halus */
+    border: 1.5px solid #36A995; /* Border default */
+    color: #33374A; /* Warna teks default */
+    background: transparent; /* Latar belakang transparan */
+    width: 135px; /* Panjang tetap */
+    height: 28px; /* Tinggi tetap */
+    align-items: center; /* Pusatkan teks vertikal */
+    justify-content: center; /* Pusatkan teks horizontal */
+    text-align: center;
+}
+
+.image-buttons button.active {
+    background: #36A995; /* Warna hijau seperti contoh */
+    color: white;
+    border: 2px solid #36A995; /* Sesuaikan dengan warna background */
+}
+  
+.image-container {
+  width: 670px; /* Lebar tetap */
+  height: 264px; /* Sesuaikan tinggi */
+  overflow: hidden; /* Menghindari gambar keluar */
+  position: relative;
+  /* border-radius: 5px; */
+  /* box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); */
+  overflow-y: auto; /* Aktifkan scroll vertikal jika gambar lebih tinggi */
+}
+
+.image-container img {
+  width: 100%; /* Supaya gambar selalu pas dalam wadah */
+  height: auto;
+  /* object-fit: cover; */
+  max-height: none; /* Jangan batasi tinggi gambar */
+  display: block;
+}
