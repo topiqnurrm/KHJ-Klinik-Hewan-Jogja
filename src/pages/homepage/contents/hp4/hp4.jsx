@@ -9,8 +9,8 @@ function Hp4() {
       <div className="content-wrapper">
         {/* Tombol Navigasi */}
         <nav className="navigation">
-          <button onClick={() => setActivePage("page1")}>Page 1sa</button>
-          <button onClick={() => setActivePage("page2")}>Page 2s</button>
+          <button onClick={() => setActivePage("page1")}>Page 1</button>
+          <button onClick={() => setActivePage("page2")}>Page 2</button>
           <button onClick={() => setActivePage("page3")}>Page 3g</button>
           <button onClick={() => setActivePage("page4")}>Page 4ss</button>
         </nav>
