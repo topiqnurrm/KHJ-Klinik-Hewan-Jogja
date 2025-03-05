@@ -12,7 +12,7 @@ function Hp4() {
           <button onClick={() => setActivePage("page1")}>Page 1s</button>
           <button onClick={() => setActivePage("page2")}>Page 2d</button>
           <button onClick={() => setActivePage("page3")}>Page 3g</button>
-          <button onClick={() => setActivePage("page4")}>Page 4</button>
+          <button onClick={() => setActivePage("page4")}>Page 4f</button>
         </nav>
 
         {/* Halaman yang Ditampilkan */}
