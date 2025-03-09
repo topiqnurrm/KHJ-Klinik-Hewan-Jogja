@@ -1,7 +1,7 @@
 @font-face {
   font-family: "SansSerifBldFLF";
-  src: url("/assets/fonts/SansSerifBldFLF.ttf") format("truetype"),
-       url("/assets/fonts/SansSerifFLF.ttf") format("truetype");
+  src: url("/src/components/fonts/SansSerifBldFLF.ttf") format("truetype"),
+       url("/src/components/fonts/SansSerifFLF.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }

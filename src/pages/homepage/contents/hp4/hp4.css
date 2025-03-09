@@ -1,14 +1,21 @@
 @font-face {
   font-family: "SansSerifBldFLF";
-  src: url("/assets/fonts/SansSerifBldFLF.ttf") format("truetype"),
-       url("/assets/fonts/SansSerifFLF.ttf") format("truetype");
+  src: url("/src/components/fonts/SansSerifBldFLF.ttf") format("truetype"),
+       url("/src/components/fonts/SansSerifFLF.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
+.hp4 * {
+  font-family: "SansSerifFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  color: #3F4254;
+}
+
 .hp4 {
   background-color: #000;
-  background-image: url('./gambar/4.png'); /* Path relatif ke gambar */
+  background-image: url("./gambar/4.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -24,29 +31,140 @@
 
 .hp4 .content-wrapper {
   width: 100%;
-  padding: 10px 0px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: center; /* Pusatkan secara vertikal */
+  min-height: 100vh; /* Sesuaikan dengan tinggi layar */
 }
 
-.hp4 .navigation {
+
+/* Bagian Atas (Navigasi) */
+.hp4 .top-bar {
+  width:100%;
   display: flex;
+  align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
+  padding: 10px;
+  padding-left: 280px;
+  /* background-color: #eafaf1; */
+  border-radius: 10px;
+  margin-bottom: -10px;
 }
 
-.hp4 .navigation button {
-  padding: 10px;
-  background-color: #fff;
+.hp4 .tab {
+  padding: 10px 20px;
+  border: 1px solid #38ab97;
+  background: white;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+  font-size: 1.2rem; 
+}
+
+/* Efek Hover */
+.hp4 .tab:hover {
+  background: #ecfcf7;
+  border-color: #38ab97;
+  color: #38ab97;
+}
+
+/* Efek Saat Aktif */
+.hp4 .tab.active {
+  background: #38ab97;
+  color: white;
+  border-color: #38ab97;
+}
+
+/* Bagian Bawah */
+.hp4 .bottom-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* width: 80%; */
+  padding: 0px;
+  /* background-color: #eafaf1; */
+  border-radius: 20px;
+}
+
+/* Tombol Navigasi Kiri dan Kanan */
+.hp4 .nav-button_kanan {
+  /* font-size: 24px; */
+  /* height: 500px; */
+  background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
+  color: #00897b;
+  padding-bottom: 70px;
+}
+
+.hp4 .nav-button_kiri {
+  /* font-size: 24px; */
+  /* height: 500px; */
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #00897b;
+  padding-bottom: 70px;
+  padding-left: 10px;
+}
+
+.hp4 .nav-button_kiri img{
+  height: 175px;
+}
+
+.hp4 .nav-button_kanan img{
+  height: 175px;
+}
+
+/* Wadah Konten Tengah */
+.hp4 .content-box {
+  /* background-color: #000; */
+  background-image: url("./gambar/bghalaman.png");
+  background-size: contain; /* Menyesuaikan lebar dengan wadah tanpa memotong */
+  background-position: center top;
+  background-repeat: no-repeat;
+  flex-grow: 1;
+  height: 350px;
+  width: 922px;
+  border-radius: 15px;
+  padding: 20px;
+  /* box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); */
+  text-align: center;
+  margin-left: -17px;
+  margin-right: -11px;
 }
 
 .hp4 .page {
   font-size: 24px;
   color: rgb(0, 0, 0);
   text-align: center;
+}
+
+.hp4 .nav-button_kanan .nav-button_kiri :disabled {
+  opacity: 0.5; /* Transparan untuk tombol yang nonaktif */
+  cursor: not-allowed; /* Ubah kursor agar terlihat tidak bisa diklik */
+}
+
+.hp4 .content-wrapper .header h1 {
+  font-family: "SansSerifBldFLF", sans-serif;
+  /* width: 100%; */
+  /* background-color: #38AB97; */
+  /* color: white; */
+  padding-left: 69px;
+  font-size: 1.85rem;
+  text-align: right;
+}
+
+.hp4 .content-wrapper .header {  
+  padding-top: 30px;
+  padding-right: 101px;
+  width: 100%;
+}
+
+.hp4 span {
+  color: #38AB97; /* Warna teks */
+  font-size: 2rem; /* Ukuran teks lebih besar */
+  padding-left: 20px; /* Padding kiri */
+  padding-right: 20px; /* Padding kanan */
 }

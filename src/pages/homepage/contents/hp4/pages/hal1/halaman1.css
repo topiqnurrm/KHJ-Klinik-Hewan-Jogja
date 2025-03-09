@@ -1,0 +1,59 @@
+@font-face {
+  font-family: "SansSerifBldFLF";
+  src: url("/src/components/fonts/SansSerifBldFLF.ttf") format("truetype"),
+       url("/src/components/fonts/SansSerifFLF.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.hal1 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* background-color: #38ab97; */
+    padding-left: 40px;
+    border-radius: 10px;
+    width: 100%;
+    height: 70%;
+    margin-top: 10px;
+    grid-auto-rows: min-content;
+  }
+  
+  .hal1 .form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* color: #8C8C8C; */
+  }
+  
+  .hal1 label {
+    font-family: "SansSerifBldFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    /* font-size: 14px; */
+    color: #3F4254;
+    padding-bottom: 10px;
+    font-size: 0.95rem;
+  }
+  
+  .hal1 input {
+    background: #ecfcf7;
+    border: 1px solid #333;
+    border-radius: 7px;
+    color: #666;
+    padding: 7px;;
+    font-size: 0.95rem; 
+    margin-bottom: 15px;
+    width: 350px;
+  }
+  
+  .hal1 .form-group_full-width {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    grid-column: span 2;
+  }
+
+  .hal1 .form-group_full-width input {
+    width: 810px;
+  }
+  
