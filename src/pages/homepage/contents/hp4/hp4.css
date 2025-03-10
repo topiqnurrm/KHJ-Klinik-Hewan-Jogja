@@ -141,10 +141,12 @@
   text-align: center;
 }
 
-.hp4 .nav-button_kanan .nav-button_kiri :disabled {
-  opacity: 0.5; /* Transparan untuk tombol yang nonaktif */
-  cursor: not-allowed; /* Ubah kursor agar terlihat tidak bisa diklik */
+.hp4 .nav-button_kiri:disabled,
+.hp4 .nav-button_kanan:disabled {
+  opacity: 0.5; /* Membuat tombol lebih transparan */
+  cursor: not-allowed; /* Mengubah kursor menjadi tidak bisa diklik */
 }
+
 
 .hp4 .content-wrapper .header h1 {
   font-family: "SansSerifBldFLF", sans-serif;

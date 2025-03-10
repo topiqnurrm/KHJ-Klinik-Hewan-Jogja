@@ -1,0 +1,20 @@
+#root {
+    width: 100%; /* Atau 1440px jika ingin lebar tetap */
+    max-width: 1440px; 
+    /* max-width: 100%; */
+    height: 100vh; /* Mengisi seluruh tinggi viewport */
+    margin: 0 auto; /* Agar tetap di tengah */
+    background-color: aqua; /* Bisa diganti atau dihapus setelah selesai */
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  html, body {
+    height: 100%; /* Pastikan tinggi html dan body mengisi layar */
+    overflow-x: hidden; /* Mencegah scroll horizontal */
+    overflow-y: auto; /* Mengizinkan scroll vertikal */
+    margin: 0 auto;
+    padding: 0;
+  }
+  

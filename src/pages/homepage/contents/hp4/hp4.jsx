@@ -35,11 +35,11 @@ function Hp4() {
     <section id="hp4" className="hp4">
       <div className="content-wrapper">
         <div className="header">
-          <h1>Daftar Booking</h1>
+          <h1>Booking Online</h1>
         </div>
         <nav className="top-bar">
           <button className={`tab ${activeTab === "data-user" ? "active" : ""}`} onClick={() => setActiveTab("data-user")}>
-            Data User
+            Data Klien
           </button>
           <span>+</span>
           <button className={`tab ${activeTab === "data-pasien" ? "active" : ""}`} onClick={() => setActiveTab("data-pasien")}>

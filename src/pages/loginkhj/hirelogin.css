@@ -1,0 +1,8 @@
+.hirelogin {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column; /* Mengatur konten dalam kolom vertikal */
+    /* justify-content: center;
+    align-items: center;  */
+}
