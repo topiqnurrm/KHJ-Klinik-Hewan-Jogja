@@ -1,8 +1,10 @@
 import React from 'react';
 
+import './dashboard.css';
+
 const Dashboard = () => {
     return (
-        <div>
+        <div className='dashboard'>
             <h1>Dashboard</h1>
             <p>Welcome to the admin dashboard!</p>
         </div>

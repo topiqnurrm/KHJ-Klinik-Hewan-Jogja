@@ -1,0 +1,91 @@
+@font-face {
+    font-family: "SansSerifBldFLF";
+    src: url("../assets/fonts/SansSerifBldFLF.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+.admin_nav {
+    width: 100%; /* Lebar full agar tidak terpengaruh parent */
+    /* height: 50px; */
+    height: 8%;
+    background-color: #267065; /* Warna transparan */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 24px;
+    /* padding-left: 132px; */
+
+    /* Sticky navbar */
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000; /* Pastikan selalu di atas */
+}
+
+.admin_nav .logo {
+    height: 35px;
+    /* padding-left: 70px; */
+}
+
+.admin_nav .message-icon {
+    display: flex;
+    width: 832px;
+    justify-content: center;
+    padding: 0;
+    font-family: "SansSerifBldFLF", sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    font-style: normal;
+    color: #dddddd;
+}
+
+.admin_nav .message-icon a{
+    color:#dddddd;
+}
+
+.admin_nav .message-icon span:hover {
+    color: #ffffff; /* Warna saat di hover */
+    text-shadow: 0 0 10px #38AB97; /* Efek cahaya warna 38AB97 */
+}
+
+/* WADAH USER OVAL */
+.admin_nav .user-img {
+    border: none;
+    width: 23px;
+    height: 23px;
+    object-fit: cover;
+    position: relative;
+    filter: brightness(0) invert(1); /* Membuat gambar berwarna putih */
+}
+
+.admin_nav .exit {
+    display: flex;
+    align-items: center;
+    background-color: #2F3B37; /* Warna default pink */
+    padding: 6.2px 15px;
+    gap: 10px;
+    transition: background-color 0s ease;
+    /* margin-left: 700px; */
+}
+
+.admin_nav .exit span {
+    color: #dddddd;
+}
+
+.admin_nav .exit img {
+    filter: brightness(0) invert(0.87);
+}
+
+/* Efek Hover pada User Profile */
+.admin_nav .exit:hover {
+    background-color: #74371f; /* Warna hover */
+}
+
+.admin_nav .user-id {
+    font-size: 13px; /* Ubah ukuran teks */
+    /* font-weight: bold; */
+    color: white;
+    font-family: "SansSerifBldFLF", sans-serif; /* Gunakan font custom */
+}
