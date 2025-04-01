@@ -38,6 +38,12 @@ const UserSchema = new mongoose.Schema({
     tanggal: {
         type: Date,
         default: Date.now
+    },
+    gambar: {
+        type: String,
+        required: true,
+        default: 'images/default-image.jpg',
+        maxlength: 255
     }
 }, { timestamps: true });
 
