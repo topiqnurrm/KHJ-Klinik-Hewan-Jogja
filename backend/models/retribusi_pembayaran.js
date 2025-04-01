@@ -70,11 +70,6 @@ const RetribusiPembayaranSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    status_retribusi: {
-        type: String,
-        enum: ['menunggu', 'batal'],
-        required: true
-    },
     id_kunjungan: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Kunjungan',
@@ -84,6 +79,10 @@ const RetribusiPembayaranSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    tanggal_bayar: {
+        type: Date,
+        default: null
     }
 }, { timestamps: true });
 

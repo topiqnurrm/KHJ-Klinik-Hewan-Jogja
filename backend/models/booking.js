@@ -17,7 +17,7 @@ const BookingSchema = new mongoose.Schema({
     },
     status_booking: {
         type: String,
-        enum: ['menunggu', 'setuju', 'tolak'],
+        enum: ['menunggu', 'disetujui', 'ditolak', 'dibatalkan', 'selesai'],
         required: true
     },
     tanggal: {
@@ -27,6 +27,14 @@ const BookingSchema = new mongoose.Schema({
     keluhan: {
         type: String,
         required: true
+    },
+    catatan: {
+        type: String,
+        required: false
+    },
+    tanggal_selesai: {
+        type: Date,
+        default: null
     }
 }, { timestamps: true });
 

@@ -15,15 +15,16 @@ const KunjunganSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    kedatangan: {
-        type: String,
-        enum: ['menunggu', 'datang', 'tidak'],
-        required: true
-    },
     status_kunjungan: {
         type: String,
-        enum: ['proses', 'rawat', 'rip', 'selesai'],
+        enum: ['diproses', 'inap'],
         required: true
+    },
+    no_antri: {
+        type: String,
+        required: true,
+        maxlength: 10,
+        minlength: 1
     }
 }, { timestamps: true });
 
