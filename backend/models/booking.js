@@ -6,18 +6,30 @@ const BookingSchema = new mongoose.Schema({
         ref: 'Pasien',
         required: true
     },
-    id_user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
+    administrasis1: [
+        {
+            id_user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+                required: false
+            },
+            catatan: {
+                type: Text,
+                required: false
+            },
+            tanggal: {
+                type: Date,
+                default: Date.now
+            },
+        }
+    ],
     pilih_tanggal: {
         type: Date,
         required: true
     },
     status_booking: {
         type: String,
-        enum: ['menunggu', 'disetujui', 'ditolak', 'dibatalkan', 'selesai'],
+        enum: ['menunggu', 'disetujui', 'ditolak'],
         required: true
     },
     tanggal: {
@@ -28,14 +40,27 @@ const BookingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    catatan: {
-        type: String,
-        required: false
-    },
     tanggal_selesai: {
         type: Date,
         default: null
-    }
+    },
+    pelayanans1: [
+        {
+            id_pelayanan: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Pelayanan',
+                required: true
+            },
+            jumlah: {
+                type: Number,
+                required: true
+            },
+            tanggal: {
+                type: Date,
+                default: Date.now
+            },
+        }
+    ]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', BookingSchema);

@@ -3,13 +3,13 @@ const mongoose = require('mongoose');
 const RekamMedisSchema = new mongoose.Schema({
     diagnosa: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
         maxlength: 255
     },
     berat_badan: {
         type: mongoose.Types.Decimal128,
-        required: true,
+        required: false,
         validate: {
             validator: function(value) {
                 return /^\d{1,6}(\.\d{1,2})?$/.test(value.toString());
@@ -19,7 +19,7 @@ const RekamMedisSchema = new mongoose.Schema({
     },
     suhu_badan: {
         type: mongoose.Types.Decimal128,
-        required: true,
+        required: false,
         validate: {
             validator: function(value) {
                 return /^\d{1,5}(\.\d{1,2})?$/.test(value.toString());
@@ -29,7 +29,7 @@ const RekamMedisSchema = new mongoose.Schema({
     },
     pemeriksaan: {
         type: String,
-        required: true
+        required: false
     },
     tanggal: {
         type: Date,
@@ -37,18 +37,64 @@ const RekamMedisSchema = new mongoose.Schema({
     },
     hasil: {
         type: String,
-        required: true
+        required: false
     },
     id_kunjungan: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Kunjungan',
         required: true
     },
-    id_user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    }
+    dokters: [
+        {
+            id_user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+                required: true
+            },
+            hasil: {
+                type: Text,
+                required: false
+            },
+            tanggal: {
+                type: Date,
+                default: Date.now
+            },
+        }
+    ],
+    produks: [
+        {
+            id_produk: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Produk',
+                required: false
+            },
+            jumlah: {
+                type: Number,
+                required: false
+            },
+            tanggal: {
+                type: Date,
+                default: Date.now
+            },
+        }
+    ],
+    pelayanans2: [
+        {
+            id_pelayanan: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Pelayanan',
+                required: true
+            },
+            jumlah: {
+                type: Number,
+                required: true
+            },
+            tanggal: {
+                type: Date,
+                default: Date.now
+            },
+        }
+    ],
 }, { timestamps: true });
 
 module.exports = mongoose.model('RekamMedis', RekamMedisSchema);

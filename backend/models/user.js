@@ -33,7 +33,7 @@ const UserSchema = new mongoose.Schema({
     aktor: {
         type: String,
         required: true,
-        enum: ['superadmin', 'administrasi', 'pembayaran', 'dokter', 'klien']
+        enum: ['superadmin', 'administrasi', 'pembayaran', 'dokter', 'klien', 'paramedis']
     },
     tanggal: {
         type: Date,
@@ -44,6 +44,15 @@ const UserSchema = new mongoose.Schema({
         required: true,
         default: 'images/default-image.jpg',
         maxlength: 255
+    },
+    gender: {
+        type: String,
+        enum: ['Laki-laki', 'Perempuan'],
+        required: true
+    },
+    tanggal_lahir: { 
+        type: Date, 
+        required: true 
     }
 }, { timestamps: true });
 

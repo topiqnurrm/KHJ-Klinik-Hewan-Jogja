@@ -1,11 +1,23 @@
 const mongoose = require('mongoose');
 
 const KunjunganSchema = new mongoose.Schema({
-    id_user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
+    administrasis2: [
+        {
+            id_user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+                required: true
+            },
+            catatan: {
+                type: Text,
+                required: true
+            },
+            tanggal: {
+                type: Date,
+                default: Date.now
+            },
+        }
+    ],
     id_booking: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Booking',
@@ -17,7 +29,7 @@ const KunjunganSchema = new mongoose.Schema({
     },
     status_kunjungan: {
         type: String,
-        enum: ['diproses', 'inap'],
+        enum: ['diproses', 'inap', 'dibatalkan'],
         required: true
     },
     no_antri: {

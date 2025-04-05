@@ -36,6 +36,12 @@ const PasienSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    umur: {
+        type: Number,
+        required: false,
+        min: 0,
+        max: 999 
     }
 }, { timestamps: true });
 

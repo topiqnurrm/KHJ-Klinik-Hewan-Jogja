@@ -53,7 +53,7 @@ const RetribusiPembayaranSchema = new mongoose.Schema({
     },
     metode_bayar: {
         type: String,
-        enum: ['cash', 'debit', 'kredit', 'transfer', 'qris'],
+        enum: ['cash', 'debit', 'kredit', 'transfer', 'qris', 'ovo', 'gopay', 'dana', 'linkaja'],
         required: true
     },
     kembali: {
@@ -72,7 +72,7 @@ const RetribusiPembayaranSchema = new mongoose.Schema({
     },
     status_retribusi: {
         type: String,
-        enum: ['pembayaran', 'ambil_obat'],
+        enum: ['pembayaran', 'ambil_obat', 'selesai'],
         required: true
     },
     id_kunjungan: {
@@ -88,7 +88,11 @@ const RetribusiPembayaranSchema = new mongoose.Schema({
     tanggal_bayar: {
         type: Date,
         default: null
-    }
+    },
+    tanggal_ambil_obat: {
+        type: Date,
+        default: null
+    },
 }, { timestamps: true });
 
 module.exports = {
