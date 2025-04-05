@@ -52,7 +52,7 @@ const RekamMedisSchema = new mongoose.Schema({
                 required: true
             },
             hasil: {
-                type: Text,
+                type: String,
                 required: false
             },
             tanggal: {

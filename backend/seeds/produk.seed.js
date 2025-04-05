@@ -4,6 +4,7 @@ const Produk = require('../models/produk');
 // Data produk yang akan dimasukkan ke dalam koleksi produk
 const data = [
   {
+    _id: new mongoose.Types.ObjectId('67f026757099fba35c613525'),
     nama: 'Obat Cacing',
     kategori: 'antibiotik', // Anda bisa sesuaikan kategori sesuai kebutuhan
     jenis: 'tablet', // Anda bisa sesuaikan jenis sesuai kebutuhan
@@ -12,6 +13,7 @@ const data = [
     id_user: new mongoose.Types.ObjectId('67f023259a0e77614f51a077') // id_user untuk admin
   },
   {
+    _id: new mongoose.Types.ObjectId('67f026757099fba35c613526'),
     nama: 'Vaksin Rabies',
     kategori: 'vaksin_hewan_kesayangan',
     jenis: 'vial',
@@ -20,6 +22,7 @@ const data = [
     id_user: new mongoose.Types.ObjectId('67f023259a0e77614f51a077') // id_user untuk admin
   },
   {
+    _id: new mongoose.Types.ObjectId('67f026757099fba35c613527'),
     nama: 'Vitamin C',
     kategori: 'suplemen',
     jenis: 'tablet',

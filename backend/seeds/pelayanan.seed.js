@@ -4,6 +4,7 @@ const Pelayanan = require('../models/pelayanan');
 // Data yang akan dimasukkan ke dalam koleksi pelayanan
 const data = [
   {
+    _id: new mongoose.Types.ObjectId('67f026757099fba35c613520'),
     nama: 'Vaksinasi Rabies',
     kategori: 'tindakan_umum',
     harga_ternak: mongoose.Types.Decimal128.fromString('75000.00'),
@@ -12,6 +13,7 @@ const data = [
     id_user: new mongoose.Types.ObjectId('67f023259a0e77614f51a077') // id_user untuk admin
   },
   {
+    _id: new mongoose.Types.ObjectId('67f026757099fba35c613521'),
     nama: 'Cek Kesehatan Hewan',
     kategori: 'tindakan_khusus',
     harga_ternak: mongoose.Types.Decimal128.fromString('100000.00'),
@@ -20,6 +22,7 @@ const data = [
     id_user: new mongoose.Types.ObjectId('67f023259a0e77614f51a077') // id_user untuk admin
   },
   {
+    _id: new mongoose.Types.ObjectId('67f026757099fba35c613522'),
     nama: 'Sterilisasi Hewan',
     kategori: 'tindakan_khusus',
     harga_ternak: mongoose.Types.Decimal128.fromString('200000.00'),

@@ -9,7 +9,12 @@ const KunjunganSchema = new mongoose.Schema({
                 required: true
             },
             catatan: {
-                type: Text,
+                type: String,
+                required: true
+            },
+            status_kunjungan: {
+                type: String,
+                enum: ['diproses', 'inap', 'dibatalkan'],
                 required: true
             },
             tanggal: {

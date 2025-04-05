@@ -95,6 +95,4 @@ const RetribusiPembayaranSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-module.exports = {
-    RetribusiPembayaran: mongoose.model('RetribusiPembayaran', RetribusiPembayaranSchema)
-};
+module.exports = mongoose.model('RetribusiPembayaran', RetribusiPembayaranSchema)
