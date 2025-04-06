@@ -85,7 +85,18 @@ const data = [
     gambar: 'images/default-image.jpg',
     gender: 'Perempuan',
     tanggal_lahir: new Date("1995-09-30")
-  }
+  },
+  {
+    email: 'klien2@example.com',
+    nama: 'Klien 2',
+    telepon: '08123456782',
+    alamat: 'Jl. Klien No. 11',
+    password: 'klien123',
+    aktor: 'klien',
+    gambar: 'images/default-image.jpg',
+    gender: 'Perempuan',
+    tanggal_lahir: new Date("2000-03-10")
+  },
 ];
 
 async function seed() {
