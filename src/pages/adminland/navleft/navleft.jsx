@@ -11,13 +11,14 @@ import kunjunganIcon from "./gambar/kunjungan.png";
 import kasirIcon from "./gambar/kasir.png";
 import pasienIcon from "./gambar/pasien.png";
 import bookingIcon from "./gambar/booking.png";
+import farmasiIcon from "./gambar/farmasi.png";
 
 const NavLeft = ({ activeMenu, setActiveMenu }) => {
     const [openDatabase, setOpenDatabase] = useState(false);
     const [openTransaksi, setOpenTransaksi] = useState(false);
 
     const isDatabaseActive = ["Pengguna", "Pasien", "Obat", "Tindakan"].includes(activeMenu);
-    const isTransaksiActive = ["Booking", "Kunjungan", "Kasir"].includes(activeMenu);
+    const isTransaksiActive = ["Booking", "Kunjungan", "Kasir", "Farmasi"].includes(activeMenu);
 
     const handleMenuClick = (menu) => {
         if (menu === "Database") {
@@ -33,7 +34,7 @@ const NavLeft = ({ activeMenu, setActiveMenu }) => {
 
     return (
         <nav className="nav-left">
-            <h2 className="nav-title">Navigasi</h2>
+            {/* <h2 className="nav-title">Navigasi</h2> */}
 
             <ul className="nav-list">
                 <li className={`nav-item ${activeMenu === "Dashboard" ? "active" : ""}`}
@@ -42,10 +43,16 @@ const NavLeft = ({ activeMenu, setActiveMenu }) => {
                     <span>Dashboard</span>
                 </li>
 
+                {/* <li className={`nav-item ${isDatabaseActive ? "active" : ""}`} 
+                    onClick={() => handleMenuClick("Database")}>
+                    <img src={databaseIcon} alt="Database" className="icon" />
+                    <span>Manajemen</span>
+                </li> */}
                 <li className={`nav-item ${isDatabaseActive ? "active" : ""}`} 
                     onClick={() => handleMenuClick("Database")}>
                     <img src={databaseIcon} alt="Database" className="icon" />
-                    <span>Database</span>
+                    <span>Manajemen</span>
+                    <span className="tanda">{openDatabase ? "▼" : "►"}</span>
                 </li>
                 {openDatabase && (
                     <ul className="dropdown">
@@ -63,15 +70,21 @@ const NavLeft = ({ activeMenu, setActiveMenu }) => {
                         </li>
                         <li className={`dropdown-item ${activeMenu === "Tindakan" ? "submenu-active" : ""}`} 
                             onClick={() => handleSubmenuClick("Tindakan")}>
-                            <img src={tindakanIcon} alt="Tindakan" className="icon" /> Tindakan
+                            <img src={tindakanIcon} alt="Tindakan" className="icon" /> Layanan
                         </li>
                     </ul>
                 )}
 
+                {/* <li className={`nav-item ${isTransaksiActive ? "active" : ""}`} 
+                    onClick={() => handleMenuClick("Transaksi Klinik")}>
+                    <img src={transaksiIcon} alt="Transaksi Klinik" className="icon" />
+                    <span>Aktivitas</span>
+                </li> */}
                 <li className={`nav-item ${isTransaksiActive ? "active" : ""}`} 
                     onClick={() => handleMenuClick("Transaksi Klinik")}>
                     <img src={transaksiIcon} alt="Transaksi Klinik" className="icon" />
-                    <span>Transaksi Klinik</span>
+                    <span>Aktivitas</span>
+                    <span className="tanda">{openTransaksi ? "▼" : "►"}</span>
                 </li>
                 {openTransaksi && (
                     <ul className="dropdown">
@@ -86,6 +99,10 @@ const NavLeft = ({ activeMenu, setActiveMenu }) => {
                         <li className={`dropdown-item ${activeMenu === "Kasir" ? "submenu-active" : ""}`} 
                             onClick={() => handleSubmenuClick("Kasir")}>
                             <img src={kasirIcon} alt="Kasir" className="icon" /> Kasir
+                        </li>
+                        <li className={`dropdown-item ${activeMenu === "Farmasi" ? "submenu-active" : ""}`} 
+                            onClick={() => handleSubmenuClick("Farmasi")}>
+                            <img src={farmasiIcon} alt="Farmasi" className="icon" /> Farmasi
                         </li>
                     </ul>
                 )}

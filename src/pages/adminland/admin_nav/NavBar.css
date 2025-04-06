@@ -8,7 +8,7 @@
 .admin_nav {
     width: 100%; /* Lebar full agar tidak terpengaruh parent */
     /* height: 50px; */
-    height: 8%;
+    height: 50px;
     background-color: #267065; /* Warna transparan */
     display: flex;
     align-items: center;

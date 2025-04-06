@@ -50,9 +50,9 @@ function Hp3() {
             <li><span>Mengisi Data Hewan Pasien.</span> <br/>Masukkan data hewan, keluhan, dan informasi lain yang diperlukan untuk pemeriksaan.</li>
             {/* <li><span>Memilih Jenis Layanan.</span> <br/>Setelah memilih Booking Online, Anda akan diminta memilih jenis layanan medis.</li> */}
             <li><span>Layanan Medis dan Non-Medis.</span> <br/>Pilih layanan yang Anda butuhkan.</li>
-            <li><span>Konfirmasi Pendaftaran.</span> <br/>Setelah pendaftaran, Anda akan menerima konfirmasi melalui WhatsApp dari petugas administrasi. Anda juga dapat memantau perkembangan pemeriksaan di bagian history (kanan atas).</li>
-            <li><span>Datang untuk Pemeriksaan.</span> <br/>Jika semua sudah terkonfirmasi dan sudah tiba waktunya pemeriksaan sesuai jadwal, maka datanglah ke klinik kami sesuai jadwal anda (akan mendapatkan urutan pemeriksaan).</li>
-            <li><span>Pembayaran dan Penyelesaian.</span> <br/>Lakukan pembayaran sesuai layanan yang telah diberikan dan layanan Anda selesai.</li>
+            <li><span>Konfirmasi Pendaftaran.</span> <br/>Setelah pendaftaran, Anda akan bisa konsultasi melalui WhatsApp petugas administrasi. Anda juga dapat memantau perkembangan pemeriksaan di bagian riwayat pemeriksaan hewan saya (kanan atas).</li>
+            <li><span>Datang untuk Pemeriksaan.</span> <br/>Jika semua sudah terkonfirmasi dan sudah tiba waktunya pemeriksaan sesuai jadwal, maka datanglah ke klinik kami sesuai jadwal anda (akan mendapatkan nomor antri).</li>
+            <li><span>Pembayaran dan Pengambilan Obat.</span> <br/>Lakukan pembayaran dan pengambilan obat dan layanan Anda selesai.</li>
           </ol>
         </div>
 
@@ -83,14 +83,14 @@ function Hp3() {
               setQrCodeSrc(qrCode);
               setBgColor('#EFFFFA'); // Kembalikan warna awal
             }}
-          onClick={() => openPopup(flowchart, "Lihat Flowchart Pengguna Online")}>
+          onClick={() => openPopup(flowchart, "Lihat flowchart booking online")}>
 
             <div className="bottom-image">
               <img src={layananSrc} alt="Layanan" className="layanan" />
               <img src={qrCodeSrc} alt="QR Code" className="qr-img" />
             </div>
             <div className="top-text">
-              <p>Lihat flowchart pengguna online</p>
+              <p>Lihat flowchart booking online</p>
             </div>
           </div>
 

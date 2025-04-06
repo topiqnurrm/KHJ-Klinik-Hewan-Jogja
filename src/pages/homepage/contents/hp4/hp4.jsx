@@ -39,29 +39,29 @@ function Hp4() {
         </div>
         <nav className="top-bar">
           <button className={`tab ${activeTab === "data-user" ? "active" : ""}`} onClick={() => setActiveTab("data-user")}>
-            Data Klien
+            1. Data Klien
           </button>
-          <span>+</span>
+          <span> </span>
           <button className={`tab ${activeTab === "data-pasien" ? "active" : ""}`} onClick={() => setActiveTab("data-pasien")}>
-            Data Pasien
+            2. Data Pasien
           </button>
-          <span>=</span>
+          <span> </span>
           <button className={`tab ${activeTab === "pelayanan" ? "active" : ""}`} onClick={() => setActiveTab("pelayanan")}>
-            Pelayanan
+            3. Pelayanan
           </button>
-          <span>→</span>
+          <span> </span>
           <button className={`tab ${activeTab === "konfirmasi" ? "active" : ""}`} onClick={() => setActiveTab("konfirmasi")}>
-            Konfirmasi
+            4. Konfirmasi
           </button>
         </nav>
 
         <div className="bottom-container">
           <button
             className="nav-button_kiri"
-            onClick={handleLeftClick}
-            disabled={activeTab === "data-user"}
-            onMouseEnter={() => setLeftHover(true)}
-            onMouseLeave={() => setLeftHover(false)}
+            // onClick={handleLeftClick}
+            // disabled={activeTab === "data-user"}
+            // onMouseEnter={() => setLeftHover(true)}
+            // onMouseLeave={() => setLeftHover(false)}
           >
             <img src={leftHover ? kiriHover : kiri} alt="Kiri" />
           </button>
@@ -73,9 +73,9 @@ function Hp4() {
           </div>
           <button
             className="nav-button_kanan"
-            onClick={handleRightClick}
+            // onClick={handleRightClick}
             disabled={activeTab === "konfirmasi"}
-            onMouseEnter={() => setRightHover(true)}
+            // onMouseEnter={() => setRightHover(true)}
             onMouseLeave={() => setRightHover(false)}
           >
             <img src={rightHover ? kananHover : kanan} alt="Kanan" />

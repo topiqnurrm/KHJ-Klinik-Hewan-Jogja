@@ -11,6 +11,7 @@ import Kasir from './contents/kasir/kasir.jsx';
 import Laporan from './contents/laporan/laporan.jsx';
 import Pasien from './contents/pasien/pasien.jsx';
 import Booking from './contents/booking/booking.jsx';
+import Farmasi from './contents/farmasi/farmasi.jsx';
 
 import "./hireadmin.css";
 
@@ -38,6 +39,8 @@ const HomePage = () => {
                 return <Kasir />;
             case "Laporan":
                 return <Laporan />;
+            case "Farmasi":
+                return <Farmasi />;
             default:
                 return <Dashboard />; // Default ke Dashboard jika tidak ada yang cocok
         }

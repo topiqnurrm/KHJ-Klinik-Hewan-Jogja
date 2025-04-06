@@ -6,15 +6,21 @@
     position: fixed;
     top: 0;
     left: 0;
-    padding-top: 60px;
+    padding-top: 50px;
 }
 
-.nav-left .nav-title {
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* .nav-left .nav-title {
     color: #dddddd;
     font-size: 18px;
     text-align: center;
     margin-bottom: 20px;
-}
+} */
 
 .nav-left .nav-list {
     list-style: none;
@@ -85,7 +91,7 @@
 
 /* Submenu aktif */
 .nav-left .dropdown-item.submenu-active {
-    background-color: #267065; /* Warna kuning */
+    background-color: #2b7267; /* Warna kuning */
     color: white;
     /* border-radius: 6px; */
 }
@@ -94,4 +100,10 @@
 .nav-left .nav-item.active {
     background-color: #236158;
     color: white;
+}
+
+.tanda {
+    margin-left: auto;   
+    padding-right: 10px;   
+    font-size: 12px;
 }

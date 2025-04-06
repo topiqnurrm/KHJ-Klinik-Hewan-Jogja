@@ -44,7 +44,8 @@
   width:100%;
   display: flex;
   align-items: center;
-  gap: 10px;
+  /* gap: 10px; */
+  gap: 0px;
   padding: 10px;
   padding-left: 280px;
   /* background-color: #eafaf1; */
@@ -93,7 +94,7 @@
   /* height: 500px; */
   background: none;
   border: none;
-  cursor: pointer;
+  /* cursor: pointer; */
   color: #00897b;
   padding-bottom: 70px;
 }
@@ -103,7 +104,7 @@
   /* height: 500px; */
   background: none;
   border: none;
-  cursor: pointer;
+  /* cursor: pointer; */
   color: #00897b;
   padding-bottom: 70px;
   padding-left: 10px;
