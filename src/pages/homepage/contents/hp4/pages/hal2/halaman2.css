@@ -26,23 +26,38 @@
   font-style: normal;
   font-size: 0.95rem;
 
-  text-align: center;
-  color: #2e2e2e;
+  /* text-align: center; */
+  color: #3F4254;
   margin: 0px;
   padding: 0px;
   /* margin-bottom: 20px; */
 }
 
 .judul1 {
-  pointer-events: none;
-  justify-content: center;
-  padding-bottom: 10px;
+  display: flex;
+  /* align-items: center; */
+  gap: 10px;
+  padding-left: 20px;
+
 }
 
+.search-input {
+  padding: 2px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  outline: none;
+  min-width: 180px;
+  margin-bottom: 8px;
+}
+
+
 .judul2 {
-  pointer-events: none;
-  justify-content: center;
+  display: flex;
+  justify-content: flex-start; /* atau hapus saja justify-content */
+  padding-left: 10px;
   padding-bottom: 10px;
+  pointer-events: none;
 }
 
 .hlmhwn2 {
@@ -52,7 +67,8 @@
   padding: 0px;
   border-radius: 10px;
   font-family: "SansSerifBldFLF", sans-serif;
-  gap: 30px; /* pastikan tidak ada jarak antar child */
+  gap: 35px; /* pastikan tidak ada jarak antar child */
+  padding-left: 10px;
 }
 
   .hlmhwn2 .daftar-hewan {
@@ -64,7 +80,7 @@
     inset -5px 0 5px rgba(0, 0, 0, 0.05), 
     inset 0 5px 5px rgba(0, 0, 0, 0.05); /* Shadow atas, kanan, kiri ada, bawah tidak */
 
-    width: 45%;
+    width: 46%;
     height: 257px;
     overflow-y: auto;   /* bikin scroll vertikal kalau isi lebih banyak */
     overflow-x: hidden; /* cegah scroll horizontal */
@@ -86,7 +102,7 @@
     inset -5px 0 5px rgba(0, 0, 0, 0.05), 
     inset 0 5px 5px rgba(0, 0, 0, 0.05); /* Shadow atas, kanan, kiri ada, bawah tidak */
 
-    width: 48%;
+    width: 46%;
     height: 237px;
     overflow-y: auto;   /* bikin scroll vertikal kalau isi lebih banyak */
     overflow-x: hidden; /* cegah scroll horizontal */

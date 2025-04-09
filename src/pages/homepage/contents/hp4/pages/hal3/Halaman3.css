@@ -24,6 +24,20 @@
     align-items: flex-start;
     margin-bottom: 15px;
   }
+
+  .ha13 .form-group-pilih-hewan {
+    width: 100px;
+  }
+
+  .hal3 .select-layanan {
+    width: 365px !important;
+  }
+
+  .hal3 .keluhan {
+    width: 349px !important;
+    resize: none;
+    /* height: 50px; */
+  }
   
   .hal3 label {
     font-family: "SansSerifBldFLF", sans-serif;
@@ -31,6 +45,10 @@
     font-size: 0.95rem;
     padding-bottom: 10px;
     color: #3F4254;
+  }
+
+  .hal3 .warna {
+    color: #666
   }
   
   .hal3 input,
@@ -65,10 +83,10 @@
   }
   
   .date-input-wrapper input {
-    width: 100%;
-    padding-right: 40px;
+    width: 349px;
+    /* padding-right: 40px; */
   }
-  
+
   .date-input-wrapper img {
     position: absolute;
     right: 10px;
@@ -79,3 +97,42 @@
     pointer-events: none;
   }
   
+
+
+
+
+
+.hal3 .simpan {
+  grid-column: span 2;
+  width: 825px;
+  /* justify-content: center; */
+}
+
+  .hal3 .btn-simpan {
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 0.95rem;
+    color: #3F4254;
+    font-weight: normal;
+    width: 150px;
+
+    margin-top: 10px;
+    padding: 10px 30px;
+    border: 1px solid #38ab97;
+    color: #38ab97;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .hal3 .btn-simpan:hover {
+    background-color: #38ab97;
+    color: white;
+  }
+  
+
+
