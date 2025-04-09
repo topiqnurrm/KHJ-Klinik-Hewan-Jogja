@@ -33,7 +33,7 @@ const customSelectStyles = {
   }),
   singleValue: (provided) => ({
     ...provided,
-    color: "#666",
+    color: "#3F4254",
   }),
   placeholder: (provided) => ({
     ...provided,
@@ -115,7 +115,7 @@ function Halaman3() {
 
       <div className="form-group">
         <label className="warna">Pilih Jenis Layanan *</label>
-        <input type="text" value="Onsite (Booking Online)" readOnly />
+        <input className="warna" type="text" value="Onsite (Booking Online)" readOnly />
       </div>
 
       <div className="form-group">
@@ -131,7 +131,7 @@ function Halaman3() {
 
       <div className="form-group">
         <label className="warna">Pilih Lokasi Pemeriksaan *</label>
-        <input type="text" value="Klinik Hewan A" readOnly />
+        <input className="warna" type="text" value="Klinik Hewan A" readOnly />
       </div>
 
       {/* Tombol Simpan */}

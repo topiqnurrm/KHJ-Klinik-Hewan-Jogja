@@ -60,7 +60,7 @@
     padding: 7px;
     font-size: 0.95rem;
     width: 350px;
-    color: #666;
+    color: #3F4254;
   }
   
   .hal3 textarea {
@@ -84,6 +84,7 @@
   
   .date-input-wrapper input {
     width: 349px;
+    color: #3F4254;
     /* padding-right: 40px; */
   }
 
