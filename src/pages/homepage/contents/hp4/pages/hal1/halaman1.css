@@ -29,10 +29,10 @@
     font-family: "SansSerifBldFLF", sans-serif;
     font-weight: normal;
     font-style: normal;
+    font-size: 0.95rem;
+    padding-bottom: 10px;
     /* font-size: 14px; */
     color: #3F4254;
-    padding-bottom: 10px;
-    font-size: 0.95rem;
   }
   
   .hal1 input {

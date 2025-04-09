@@ -1,0 +1,81 @@
+@font-face {
+    font-family: "SansSerifBldFLF";
+    src: url("/src/components/fonts/SansSerifBldFLF.ttf") format("truetype"),
+         url("/src/components/fonts/SansSerifFLF.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  .hal3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-left: 40px;
+    border-radius: 10px;
+    width: 100%;
+    height: auto;
+    margin-top: 10px;
+    grid-auto-rows: min-content;
+  }
+  
+  .hal3 .form-group,
+  .hal3 .form-group_full-width {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 15px;
+  }
+  
+  .hal3 label {
+    font-family: "SansSerifBldFLF", sans-serif;
+    font-weight: normal;
+    font-size: 0.95rem;
+    padding-bottom: 10px;
+    color: #3F4254;
+  }
+  
+  .hal3 input,
+  .hal3 select,
+  .hal3 textarea {
+    background: #ecfcf7;
+    border: 1px solid #333;
+    border-radius: 7px;
+    padding: 7px;
+    font-size: 0.95rem;
+    width: 350px;
+    color: #666;
+  }
+  
+  .hal3 textarea {
+    resize: vertical;
+    width: 100%;
+  }
+  
+  .hal3 .form-group_full-width {
+    grid-column: span 2;
+  }
+  
+  .hal3 .form-group_full-width input,
+  .hal3 .form-group_full-width textarea {
+    width: 810px;
+  }
+  
+  .date-input-wrapper {
+    position: relative;
+    width: 350px;
+  }
+  
+  .date-input-wrapper input {
+    width: 100%;
+    padding-right: 40px;
+  }
+  
+  .date-input-wrapper img {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+  }
+  
