@@ -1,26 +1,53 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./login.css";
 import logoKHJ from "./gambar/logoKHJ.png";
 import userIcon from "./gambar/user-icon.png";
 import lockIcon from "./gambar/lock-icon.png";
 
 const Login = () => {
-  const navigate = useNavigate(); // Hook untuk navigasi
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleLogin = () => {
+    if (!username || !password) {
+      setError("Email dan password harus diisi.");
+      
+      // Hilangkan error setelah 2 detik
+      setTimeout(() => {
+        setError("");
+      }, 2000);
+
+      return;
+    }
+
     if (username === "admin" && password === "admin") {
-      navigate("/hireadmin"); // Redirect ke HireAdmin jika admin
+      navigate("/hireadmin");
     } else {
-      navigate("/homepage"); // Redirect ke Homepage jika bukan admin
+      navigate("/homepage");
     }
   };
 
   const handleGuestLogin = () => {
-    navigate("/homepage"); // Redirect ke Homepage sebagai Guest
+    navigate("/homepage");
   };
+
+  const handleGoToRegister = () => {
+    navigate("/registrasi");
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Enter") {
+        handleLogin();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [username, password]);
 
   return (
     <div className="login-container">
@@ -32,7 +59,7 @@ const Login = () => {
           <img src={userIcon} alt="User Icon" className="input-icon" />
           <input 
             type="text" 
-            placeholder="Username / Email" 
+            placeholder="Email" 
             value={username} 
             onChange={(e) => setUsername(e.target.value)} 
           />
@@ -48,8 +75,15 @@ const Login = () => {
           />
         </div>
 
+        {/* Tampilkan error dan auto hilang */}
+        {error && (
+          <p style={{ color: "red", fontSize: "0.9rem", marginTop: "-5px", transition: "opacity 0.5s ease" }}>
+            {error}
+          </p>
+        )}
+
         <div className="button-group">
-          <button className="register-btn">Registrasi</button>
+          <button className="register-btn" onClick={handleGoToRegister}>Registrasi</button>
           <button className="login-btn" onClick={handleLogin}>Login</button>
         </div>
 

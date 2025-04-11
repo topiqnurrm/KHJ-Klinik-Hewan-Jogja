@@ -14,7 +14,7 @@ function Halaman1() {
   return (
     <div className="hal1">
       <div className="form-group">
-        <label>ID Klien *</label>
+        <label>ID Klien</label>
         <input type="text" value={user?.user_id || ''} readOnly style={{ color: "#8C8C8C" }} />
       </div>
       <div className="form-group">
