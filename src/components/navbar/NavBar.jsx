@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import logo from "./image/logo.png";
 import ada0 from "./shop/0ada.png";
 import ada1 from "./shop/1ada.png";
@@ -6,6 +6,7 @@ import kosong0 from "./shop/0kosong.png";
 import kosong1 from "./shop/1kosong.png";
 import userImg from "./image/user.png";
 import "./NavBar.css";
+import ProfilePopup from "../userprofile/userprofile";
 
 const NavBar = () => {
     const [hasMessage, setHasMessage] = useState(true); // Status pesan
@@ -40,6 +41,13 @@ const NavBar = () => {
             sections.forEach((section) => observer.unobserve(section));
         };
     }, []);
+
+    const [showProfile, setShowProfile] = useState(false);
+    const profileButtonRef = useRef(null);  // Tambahin ref
+
+    const handleProfileClick = () => {
+        setShowProfile((prev) => !prev);  // TOGGLE, bukan set true saja
+    };
 
     return (
         <nav className="navbar">
@@ -98,10 +106,26 @@ const NavBar = () => {
             </a>
 
             {/* Profil Pengguna */}
-            <a href="#profil" className="user-profile" style={{ textDecoration: "none" }}>
+            <a 
+                href="#profil" 
+                className="user-profile" 
+                style={{ textDecoration: "none" }}
+                ref={profileButtonRef}
+                onClick={(e) => {
+                    e.preventDefault(); 
+                    handleProfileClick();  // toggle show/hide
+                }}
+            >
                 <span className="user-id">{userId}</span>
                 <img src={userImg} alt="User" className="user-img" />
             </a>
+
+            <ProfilePopup 
+                isVisible={showProfile} 
+                onClose={() => setShowProfile(false)} 
+                triggerRef={profileButtonRef}
+            />
+
         </nav>
     );
 };
