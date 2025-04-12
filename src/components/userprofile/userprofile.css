@@ -14,7 +14,7 @@
     z-index: 1001;
 }
 
-.profile-card {
+.profile-popup .profile-card {
     background: white;
     /* background-color: rgba(255, 255, 255, 0.5); 
     backdrop-filter: blur(5px); */
@@ -25,13 +25,13 @@
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
-.profile-header {
+.profile-popup .profile-header {
     display: flex;
     align-items: center;
     margin-bottom: 15px;
 }
 
-.profile-photo {
+.profile-popup .profile-photo {
     width: 55px;
     height: 55px;
     border-radius: 8px;
@@ -39,7 +39,7 @@
     margin-right: 12px;
 }
 
-.profile-text h4 {
+.profile-popup .profile-text h4 {
     margin: 0;
     color: #333;
 
@@ -49,7 +49,7 @@
     font-size: 0.95rem;
 }
 
-.profile-text p {
+.profile-popup .profile-text p {
     margin: 4px 0 0 0;
     color: #777;
 
@@ -59,13 +59,13 @@
     font-size: 0.95rem;
 }
 
-.profile-actions {
+.profile-popup .profile-actions {
     display: flex;
     justify-content: space-between;
     margin-top: 10px;
 }
 
-.btn-edit, .btn-logout {
+.profile-popup .btn-edit, .btn-logout {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -80,30 +80,30 @@
     font-size: 0.95rem;
 }
 
-.icon {
+.profile-popup .icon {
     padding-right: 10px;
 }
 
-.btn-edit {
+.profile-popup .btn-edit {
     background-color: #47BE7D;
     color: white;
 }
 
-.btn-logout {
+.profile-popup .btn-logout {
     background-color: #BF4749;
     color: white;
 }
 
-.btn-edit .icon, .btn-logout .icon {
+.profile-popup .btn-edit .icon, .btn-logout .icon {
     font-size: 16px;
 }
 
-.btn-edit:hover {
+.profile-popup .btn-edit:hover {
     background-color: #3da76d; /* Hijau lebih gelap */
     transition: background-color 0.3s ease;
 }
 
-.btn-logout:hover {
+.profile-popup .btn-logout:hover {
     background-color: #a83d3e; /* Merah lebih gelap */
     transition: background-color 0.3s ease;
 }
