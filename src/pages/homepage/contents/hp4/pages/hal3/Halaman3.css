@@ -137,3 +137,7 @@
   
 
 
+  .hal3 input[type="date"].empty {
+    color: #aaa;  /* warna mirip placeholder */
+  }
+  

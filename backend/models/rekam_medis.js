@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const RekamMedisSchema = new mongoose.Schema({
     diagnosa: {
@@ -97,4 +97,4 @@ const RekamMedisSchema = new mongoose.Schema({
     ],
 }, { timestamps: true });
 
-module.exports = mongoose.model('RekamMedis', RekamMedisSchema);
+export default mongoose.model('RekamMedis', RekamMedisSchema);

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const PelayananSchema = new mongoose.Schema({
     nama: {
@@ -56,4 +56,4 @@ const PelayananSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Pelayanan', PelayananSchema);
+export default mongoose.model('Pelayanan', PelayananSchema);

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const KunjunganSchema = new mongoose.Schema({
     administrasis2: [
@@ -45,4 +45,4 @@ const KunjunganSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Kunjungan', KunjunganSchema);
+export default mongoose.model('Kunjungan', KunjunganSchema);

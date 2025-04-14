@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
-const RekamMedis = require('../models/rekam_medis');
-const Kunjungan = require('../models/kunjungan'); // Mengambil model Kunjungan
-const User = require('../models/user'); // Mengambil model User
-const Pelayanan = require('../models/pelayanan'); // Mengambil model Pelayanan
-const Produk = require('../models/produk'); // Mengambil model Produk
+import mongoose from 'mongoose';
+import RekamMedis from '../models/rekam_medis.js';
+import Kunjungan from '../models/kunjungan.js'; // Mengambil model Kunjungan
+import User from '../models/user.js'; // Mengambil model User
+import Pelayanan from '../models/pelayanan.js'; // Mengambil model Pelayanan
+import Produk from '../models/produk.js'; // Mengambil model Produk
 
 // Ambil ID Kunjungan, User, Pelayanan dan Produk yang valid dari database
 const sampleKunjunganId1 = new mongoose.Types.ObjectId('67f0b9514af6f61ed1ec3f42'); // Ganti dengan ID Kunjungan yang valid
@@ -98,4 +98,4 @@ async function seed() {
   }
 }
 
-module.exports = seed;
+export default seed;

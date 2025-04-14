@@ -103,7 +103,8 @@ function Halaman3() {
         <label>Pilih Waktu Pemeriksaan *</label>
         <div className="date-input-wrapper">
           <input
-            className="date-input"
+            // className="date-input"
+            className={selectedDate === "" ? "empty" : ""}
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}

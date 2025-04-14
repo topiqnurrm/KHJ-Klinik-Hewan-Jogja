@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const RetribusiPembayaranSchema = new mongoose.Schema({
     subtotal_obat: {
@@ -95,4 +95,4 @@ const RetribusiPembayaranSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-module.exports = mongoose.model('RetribusiPembayaran', RetribusiPembayaranSchema)
+export default mongoose.model('RetribusiPembayaran', RetribusiPembayaranSchema);

@@ -59,7 +59,8 @@ const Registrasi = () => {
     alamat: "",
     password: "",
     gender: null,
-    tanggal_lahir: ""
+    tanggal_lahir: "",
+    aktor: "klien",
   });
 
   const genderOptions = [
@@ -76,22 +77,68 @@ const Registrasi = () => {
 
   const [error, setError] = useState("");
 
-  const handleRegistrasi = () => {
+  const handleRegistrasi = async () => {
     const { nama, email, telepon, alamat, password, gender, tanggal_lahir } = form;
-
+  
     if (!nama || nama.length > 100) return showError("Nama wajib diisi dan maksimal 100 karakter.");
     if (!email || !validateEmail(email) || email.length > 100) return showError("Email wajib diisi, format harus valid, dan maksimal 100 karakter.");
+    if (!password || password.length < 6) return showError("Password wajib diisi dan minimal 6 karakter.");
     if (!password || password.length > 100) return showError("Password wajib diisi dan maksimal 100 karakter.");
     if (!telepon || !validatePhone(telepon) || telepon.length > 20) return showError("Telepon wajib diisi, hanya angka atau +, maksimal 20 karakter.");
     if (!alamat) return showError("Alamat wajib diisi.");
     if (!gender || !["Laki-laki", "Perempuan"].includes(gender.value)) return showError("Gender wajib dipilih.");
     if (!tanggal_lahir) return showError("Tanggal lahir wajib diisi.");
-
+  
     const tahun = parseInt(tanggal_lahir.split("-")[0], 10);
     if (tahun < 1900 || tahun > 2099) return showError("Tahun lahir harus antara 1900 dan 2099.");
+  
+    try {
+      const response = await fetch('http://localhost:5000/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nama,
+          email,
+          password,
+          telepon,
+          alamat,
+          aktor: 'klien',
+          gender: gender.value,
+          tanggal_lahir
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Mengirimkan email verifikasi setelah registrasi berhasil
+        await sendVerificationEmail(email, password);
+        navigate("/?success=Registrasi berhasil! Email pemberitahuan terkirim.");
+      } else {
+        showError(data.message || "Registrasi gagal.");
+      }
+      
+    } catch (error) {
+      console.error(error);
+      showError("Terjadi kesalahan, coba lagi.");
+    }
+  };
 
-    console.log(form);
-    navigate("/");
+  const sendVerificationEmail = async (email, password) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/send-verification-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal mengirim email verifikasi.");
+      }
+    } catch (error) {
+      console.error("Email verifikasi gagal:", error);
+      showError("Gagal mengirim email verifikasi.");
+    }
   };
 
   const showError = (message) => {
@@ -120,7 +167,7 @@ const Registrasi = () => {
         
         <form>
           <div className="registrasi-form">
-          <div className="form-group">
+            <div className="form-group">
               <label>Nama</label>
               <label className="ini">:</label>
               <input
@@ -176,6 +223,7 @@ const Registrasi = () => {
               <label>Tanggal Lahir</label>
               <label className="ini">:</label>
               <input
+                className={!form.tanggal_lahir ? "empty" : ""}
                 type="date"
                 name="tanggal_lahir"
                 value={form.tanggal_lahir}
@@ -208,21 +256,7 @@ const Registrasi = () => {
                 onChange={handleChange}
               />
             </div>
-            {/* semua input tetap seperti sebelumnya */}
-            {/* Gender */}
-            <div className="form-group">
-              <label>Gender</label>
-              <label className="ini">:</label>
-              <div className="pilihan" style={{ width: "530px" }}>
-                <Select
-                  styles={customSelectStyles}
-                  options={genderOptions}
-                  placeholder="Pilih Gender"
-                  value={form.gender}
-                  onChange={(selected) => setForm({ ...form, gender: selected })}
-                />
-              </div>
-            </div>
+            
             <button className="bawah" type="button" onClick={handleRegistrasi}>Registrasi</button>
           </div>
         </form>

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const PasienSchema = new mongoose.Schema({
     nama: {
@@ -45,4 +45,4 @@ const PasienSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Pasien', PasienSchema);
+export default mongoose.model('Pasien', PasienSchema);

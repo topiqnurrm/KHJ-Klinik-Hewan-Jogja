@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const RetribusiPembayaran = require('../models/retribusi_pembayaran');
-const Kunjungan = require('../models/kunjungan'); // Import model Kunjungan
-const User = require('../models/user'); // Import model User
+import mongoose from 'mongoose';
+import RetribusiPembayaran from '../models/retribusi_pembayaran.js';
+import Kunjungan from '../models/kunjungan.js'; // Import model Kunjungan
+import User from '../models/user.js'; // Import model User
 
 // Ganti ID berikut dengan ID yang valid dari database Anda
 const sampleKunjunganId1 = new mongoose.Types.ObjectId('67f0b9514af6f61ed1ec3f42'); // Ganti dengan ID Kunjungan yang valid
@@ -40,4 +40,4 @@ async function seed() {
   }
 }
 
-module.exports = seed;
+export default seed;

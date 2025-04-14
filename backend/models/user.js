@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 function generateRandomUserId(length = 9) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let id = '';
     for (let i = 0; i < length; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length));
+        id += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return id;
 }  
@@ -17,7 +17,7 @@ const UserSchema = new mongoose.Schema({
         uppercase: true,
         match: /^[A-Z0-9]{9}$/, // Hanya 9 karakter A-Z atau 0-9
         default: function () {
-          return generateRandomUserId(9); // Pastikan fungsi juga buat 9 karakter
+            return generateRandomUserId(9); // Pastikan fungsi juga buat 9 karakter
         }
     },
     email: {
@@ -47,8 +47,9 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
+        minlength: 6,
         maxlength: 100
-    },
+    },    
     aktor: {
         type: String,
         required: true,
@@ -61,7 +62,7 @@ const UserSchema = new mongoose.Schema({
     gambar: {
         type: String,
         required: true,
-        default: 'images/default-image.jpg',
+        default: 'images/default.jpg',
         maxlength: 255
     },
     gender: {
@@ -77,17 +78,18 @@ const UserSchema = new mongoose.Schema({
 
 UserSchema.pre('save', async function (next) {
     if (!this.user_id) {
-      let unique = false;
-      while (!unique) {
-        const candidate = generateRandomUserId();
-        const existing = await mongoose.models.User.findOne({ user_id: candidate });
-        if (!existing) {
-          this.user_id = candidate;
-          unique = true;
+        let unique = false;
+        while (!unique) {
+            const candidate = generateRandomUserId();
+            const existing = await mongoose.models.User.findOne({ user_id: candidate });
+            if (!existing) {
+                this.user_id = candidate;
+                unique = true;
+            }
         }
-      }
     }
     next();
 });
 
-module.exports = mongoose.model('User', UserSchema);
+// Menggunakan export default untuk ES module
+export default mongoose.model('User', UserSchema);

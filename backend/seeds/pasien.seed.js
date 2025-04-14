@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const Pasien = require('../models/pasien');
+import mongoose from 'mongoose';
+import Pasien from '../models/pasien.js';
 
-// Misalnya, kita asumsikan Anda memiliki id_user tertentu (dapat menggunakan ID dari pengguna yang sudah ada)
+// ID User yang valid (pastikan sesuai dengan data di koleksi user)
 const sampleUserId = new mongoose.Types.ObjectId('67f023259a0e77614f51a07a');
 
 const data = [
@@ -13,7 +13,7 @@ const data = [
     jenis_kelamin: 'jantan',
     ras: 'Anggora',
     tanggal: new Date('2018-01-01'),
-    id_user: sampleUserId, // Ganti dengan ID User yang sesuai
+    id_user: sampleUserId,
     umur: 7
   },
   {
@@ -24,7 +24,7 @@ const data = [
     jenis_kelamin: 'betina',
     ras: 'Labrador',
     tanggal: new Date('2020-06-15'),
-    id_user: sampleUserId, // Ganti dengan ID User yang sesuai
+    id_user: sampleUserId,
     umur: 4
   },
   {
@@ -35,21 +35,17 @@ const data = [
     jenis_kelamin: 'jantan',
     ras: 'Kampung',
     tanggal: new Date('2021-03-25'),
-    id_user: sampleUserId, // Ganti dengan ID User yang sesuai
+    id_user: sampleUserId,
     umur: 3
   }
 ];
 
-async function seed() {
+export default async function seed() {
   try {
-    // Menghapus semua data Pasien yang ada di database
     await Pasien.deleteMany();
-    // Menambahkan data pasien yang baru
     await Pasien.insertMany(data);
-    console.log('Seeded: pasien');
+    console.log('✅ Seeded: pasien');
   } catch (err) {
-    console.error('Error seeding pasien:', err);
+    console.error('❌ Error seeding pasien:', err);
   }
 }
-
-module.exports = seed;

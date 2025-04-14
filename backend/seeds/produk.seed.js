@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Produk = require('../models/produk');
+import mongoose from 'mongoose';
+import Produk from '../models/produk.js';
 
 // Data produk yang akan dimasukkan ke dalam koleksi produk
 const data = [
@@ -135,4 +135,4 @@ async function seed() {
   }
 }
 
-module.exports = seed;
+export default seed;

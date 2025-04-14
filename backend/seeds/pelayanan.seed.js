@@ -1,7 +1,6 @@
-const mongoose = require('mongoose');
-const Pelayanan = require('../models/pelayanan');
+import mongoose from "mongoose";
+import Pelayanan from "../models/pelayanan.js"; // pastikan ada ekstensi .js
 
-// Data yang akan dimasukkan ke dalam koleksi pelayanan
 const data = [
   {
     _id: new mongoose.Types.ObjectId('67f026757099fba35c613520'),
@@ -111,18 +110,16 @@ const data = [
   { nama: 'Grooming >15 kg', kategori: 'lain_lain', id_user: new mongoose.Types.ObjectId('67f023259a0e77614f51a077'), harga_ternak: mongoose.Types.Decimal128.fromString('0'), harga_kesayangan_satwaliar: mongoose.Types.Decimal128.fromString('50000'), harga_unggas: mongoose.Types.Decimal128.fromString('0') }
 ];
 
-async function seed() {
+const seed = async () => {
   try {
-    // Menghapus data lama dalam koleksi 'pelayanan'
     await Pelayanan.deleteMany();
-    console.log('Old data deleted');
+    console.log("Old data deleted");
 
-    // Menambahkan data pelayanan baru ke dalam koleksi
     await Pelayanan.insertMany(data);
-    console.log('Seeded: pelayanan');
+    console.log("Seeded: pelayanan");
   } catch (err) {
-    console.error('Error seeding pelayanan:', err);
+    console.error("Error seeding pelayanan:", err);
   }
-}
+};
 
-module.exports = seed;
+export default seed;

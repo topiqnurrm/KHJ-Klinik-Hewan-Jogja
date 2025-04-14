@@ -11,23 +11,55 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = () => {
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const handleLogin = async () => {
     if (!username || !password) {
-      setError("Email dan password harus diisi.");
+      return showError("Email dan password harus diisi.");
+    }
+  
+    if (!validateEmail(username)) {
+      return showError("Format email tidak valid.");
+    }
+  
+    if (password.length < 6) {
+      return showError("Password minimal 6 karakter.");
+    }
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: username, password }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Simpan data user ke localStorage
+        localStorage.setItem("user", JSON.stringify(data.user));
       
-      // Hilangkan error setelah 2 detik
-      setTimeout(() => {
-        setError("");
-      }, 2000);
-
-      return;
+        // Arahkan ke halaman sesuai peran
+        const adminRoles = ['superadmin', 'dokter', 'administrasi', 'pembayaran', 'paramedis'];
+        if (adminRoles.includes(data.user.aktor)) {
+          navigate("/Hireadmin");
+        } else {
+          navigate("/homepage");
+        }
+      } else {
+        showError(data.message);
+      }      
+  
+    } catch (error) {
+      console.error("Login error:", error);
+      showError("Terjadi kesalahan, coba lagi.");
     }
+  };
+  
 
-    if (username === "admin" && password === "admin") {
-      navigate("/hireadmin");
-    } else {
-      navigate("/homepage");
-    }
+  const showError = (message) => {
+    setError(message);
+    setTimeout(() => setError(""), 2000);
   };
 
   const handleGuestLogin = () => {
@@ -44,13 +76,55 @@ const Login = () => {
         handleLogin();
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [username, password]);
 
+
+  const [successMessage, setSuccessMessage] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pesan = params.get('success');
+    if (pesan) {
+      setSuccessMessage(pesan);
+
+      const timer = setTimeout(() => setSuccessMessage(""), 7000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+
   return (
     <div className="login-container">
+      {successMessage && (
+        <div style={{
+          backgroundColor: "#d4edda",
+          color: "#155724",
+          padding: "10px 20px",
+          borderRadius: "8px",
+          marginBottom: "15px",
+          position: "relative",
+          paddingRight: "40px",
+        }}>
+          {successMessage}
+          <button
+            style={{
+              position: "absolute",
+              right: "10px",
+              top: "0px",
+              background: "transparent",
+              border: "none",
+              fontSize: "16px",
+              cursor: "pointer",
+              color: "#155724"
+            }}
+            onClick={() => setSuccessMessage("")}
+          >
+            ✖
+          </button>
+        </div>
+      )}
       <div className="login-card">
         <img src={logoKHJ} alt="Logo KHJ" className="logo" />
         <p>Login Layanan Klinik Hewan <br /> Kota Yogyakarta</p>
@@ -75,7 +149,6 @@ const Login = () => {
           />
         </div>
 
-        {/* Tampilkan error dan auto hilang */}
         {error && (
           <p style={{ color: "red", fontSize: "0.9rem", marginTop: "-5px", transition: "opacity 0.5s ease" }}>
             {error}

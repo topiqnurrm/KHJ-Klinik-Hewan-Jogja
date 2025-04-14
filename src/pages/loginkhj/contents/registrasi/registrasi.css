@@ -28,9 +28,9 @@
 .registrasi-page .registrasi-body {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 20px;
+  /* padding: 120px 20px 20px 20px; */
   overflow-y: auto;
 }
 
@@ -81,7 +81,7 @@
 .registrasi-page .registrasi-form {
   /* flex: 1; */
   overflow-y: auto;
-  padding-top: 200px;
+  padding-top: 20px;
   padding-bottom: 30px;
   padding-left: 20px;
   padding-right: 20px;
@@ -217,4 +217,8 @@
   color: red;
   font-size: 0.9rem;
   white-space: nowrap; /* biar gak patah-patah */
+}
+
+.registrasi-page input[type="date"].empty {
+  color: #aaa;  /* warna mirip placeholder */
 }
