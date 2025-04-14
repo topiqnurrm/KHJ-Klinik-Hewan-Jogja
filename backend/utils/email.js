@@ -19,7 +19,7 @@ const sendVerificationEmail = async (to, password) => {
       <div style="font-family: Arial, sans-serif; color: #4b0082;">
         <p>Halo,</p>
         <p>Terima kasih telah mendaftar di <strong>Klinik Hewan Kota Yogyakarta</strong>.</p>
-        <p>Silakan klik tombol berikut untuk memverifikasi akun Anda:</p>
+        <p>Silakan klik tombol berikut untuk login akun anda:</p>
 
         <p>
           <a href="https://www.google.com" style="

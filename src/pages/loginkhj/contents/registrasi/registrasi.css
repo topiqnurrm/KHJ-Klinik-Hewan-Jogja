@@ -222,3 +222,17 @@
 .registrasi-page input[type="date"].empty {
   color: #aaa;  /* warna mirip placeholder */
 }
+
+
+
+
+
+
+button.bawah[disabled] {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+button.bawah::after {
+  content: attr(data-loading);
+}

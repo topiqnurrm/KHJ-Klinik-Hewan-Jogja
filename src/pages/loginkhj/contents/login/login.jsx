@@ -10,6 +10,7 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // State untuk loading
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -25,6 +26,8 @@ const Login = () => {
     if (password.length < 6) {
       return showError("Password minimal 6 karakter.");
     }
+  
+    setLoading(true); // Set loading ke true saat mulai login
   
     try {
       const response = await fetch("http://localhost:5000/api/users/login", {
@@ -53,9 +56,10 @@ const Login = () => {
     } catch (error) {
       console.error("Login error:", error);
       showError("Terjadi kesalahan, coba lagi.");
+    } finally {
+      setLoading(false); // Set loading ke false setelah login selesai
     }
   };
-  
 
   const showError = (message) => {
     setError(message);
@@ -80,7 +84,6 @@ const Login = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [username, password]);
 
-
   const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
@@ -93,7 +96,6 @@ const Login = () => {
       return () => clearTimeout(timer);
     }
   }, []);
-
 
   return (
     <div className="login-container">
@@ -125,6 +127,7 @@ const Login = () => {
           </button>
         </div>
       )}
+      
       <div className="login-card">
         <img src={logoKHJ} alt="Logo KHJ" className="logo" />
         <p>Login Layanan Klinik Hewan <br /> Kota Yogyakarta</p>
@@ -132,10 +135,11 @@ const Login = () => {
         <div className="input-group">
           <img src={userIcon} alt="User Icon" className="input-icon" />
           <input 
-            type="text" 
+            type="email" 
             placeholder="Email" 
             value={username} 
             onChange={(e) => setUsername(e.target.value)} 
+            autoComplete="email"  // Menambahkan autoComplete untuk autofill
           />
         </div>
 
@@ -155,9 +159,27 @@ const Login = () => {
           </p>
         )}
 
+        {loading && (
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+          </div>
+        )}
+
         <div className="button-group">
-          <button className="register-btn" onClick={handleGoToRegister}>Registrasi</button>
-          <button className="login-btn" onClick={handleLogin}>Login</button>
+          <button 
+            className="register-btn" 
+            onClick={handleGoToRegister} 
+            disabled={loading} // Tombol registrasi dinonaktifkan saat loading
+          >
+            Registrasi
+          </button>
+          <button 
+            className="login-btn" 
+            onClick={handleLogin} 
+            disabled={loading} // Tombol login dinonaktifkan saat loading
+          >
+            Login
+          </button>
         </div>
 
         <p className="guest-text" onClick={handleGuestLogin}>

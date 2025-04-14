@@ -7,14 +7,14 @@ const customSelectStyles = {
   control: (provided, state) => ({
     ...provided,
     backgroundColor: "#F1F1F1",
-    border: "none",              // Hilangkan border
+    border: "none",
     borderRadius: "8px",
     padding: "2px 4px",
     fontSize: "1rem",
     color: "#666",
     width: "530px",
     outline: "none",
-    boxShadow: "none",           // Pastikan tidak ada shadow
+    boxShadow: "none",
     boxSizing: "border-box",
     minHeight: "42px",
   }),
@@ -29,7 +29,6 @@ const customSelectStyles = {
     fontSize: "1rem",
     color: "#555",
   }),
-  
   singleValue: (provided) => ({
     ...provided,
     color: "#3F4254",
@@ -40,14 +39,14 @@ const customSelectStyles = {
   }),
   dropdownIndicator: (provided) => ({
     ...provided,
-    color: "#555",   // warna ikon (seperti di gambar kamu)
+    color: "#555",
     padding: "4px",
     "&:hover": {
-      color: "#555",  // supaya tidak berubah saat hover
+      color: "#555",
     },
     paddingRight: "5px",
-  }),  
-  indicatorSeparator: () => ({ display: 'none' }),
+  }),
+  indicatorSeparator: () => ({ display: "none" }),
 };
 
 const Registrasi = () => {
@@ -63,9 +62,12 @@ const Registrasi = () => {
     aktor: "klien",
   });
 
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Loading state
+
   const genderOptions = [
     { value: "Laki-laki", label: "Laki-laki" },
-    { value: "Perempuan", label: "Perempuan" }
+    { value: "Perempuan", label: "Perempuan" },
   ];
 
   const handleChange = (e) => {
@@ -75,11 +77,9 @@ const Registrasi = () => {
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePhone = (phone) => /^[0-9+]+$/.test(phone);
 
-  const [error, setError] = useState("");
-
   const handleRegistrasi = async () => {
     const { nama, email, telepon, alamat, password, gender, tanggal_lahir } = form;
-  
+
     if (!nama || nama.length > 100) return showError("Nama wajib diisi dan maksimal 100 karakter.");
     if (!email || !validateEmail(email) || email.length > 100) return showError("Email wajib diisi, format harus valid, dan maksimal 100 karakter.");
     if (!password || password.length < 6) return showError("Password wajib diisi dan minimal 6 karakter.");
@@ -88,47 +88,49 @@ const Registrasi = () => {
     if (!alamat) return showError("Alamat wajib diisi.");
     if (!gender || !["Laki-laki", "Perempuan"].includes(gender.value)) return showError("Gender wajib dipilih.");
     if (!tanggal_lahir) return showError("Tanggal lahir wajib diisi.");
-  
+
     const tahun = parseInt(tanggal_lahir.split("-")[0], 10);
     if (tahun < 1900 || tahun > 2099) return showError("Tahun lahir harus antara 1900 dan 2099.");
-  
+
+    setIsLoading(true); // Mulai loading
+
     try {
-      const response = await fetch('http://localhost:5000/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:5000/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nama,
           email,
           password,
           telepon,
           alamat,
-          aktor: 'klien',
+          aktor: "klien",
           gender: gender.value,
-          tanggal_lahir
+          tanggal_lahir,
         }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
-        // Mengirimkan email verifikasi setelah registrasi berhasil
         await sendVerificationEmail(email, password);
         navigate("/?success=Registrasi berhasil! Email pemberitahuan terkirim.");
       } else {
         showError(data.message || "Registrasi gagal.");
       }
-      
     } catch (error) {
       console.error(error);
       showError("Terjadi kesalahan, coba lagi.");
+    } finally {
+      setIsLoading(false); // Selesai loading
     }
   };
 
   const sendVerificationEmail = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:5000/api/send-verification-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:5000/api/send-verification-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
@@ -143,7 +145,7 @@ const Registrasi = () => {
 
   const showError = (message) => {
     setError(message);
-    setTimeout(() => setError(""), 2000);
+    setTimeout(() => setError(""), 3000);
   };
 
   useEffect(() => {
@@ -163,44 +165,26 @@ const Registrasi = () => {
           {error && <div className="error-alert">{error}</div>}
         </div>
       </div>
+
       <div className="registrasi-body">
-        
         <form>
           <div className="registrasi-form">
             <div className="form-group">
               <label>Nama</label>
               <label className="ini">:</label>
-              <input
-                type="text"
-                name="nama"
-                placeholder="Nama"
-                value={form.nama}
-                onChange={handleChange}
-              />
+              <input type="text" name="nama" placeholder="Nama" value={form.nama} onChange={handleChange} />
             </div>
 
             <div className="form-group">
               <label>Email</label>
               <label className="ini">:</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={form.email}
-                onChange={handleChange}
-              />
+              <input type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange} />
             </div>
 
             <div className="form-group">
               <label>Password</label>
               <label className="ini">:</label>
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={form.password}
-                onChange={handleChange}
-              />
+              <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} />
             </div>
 
             <div className="form-group">
@@ -212,9 +196,7 @@ const Registrasi = () => {
                   options={genderOptions}
                   placeholder="Pilih Gender"
                   value={form.gender}
-                  onChange={(selected) =>
-                    setForm({ ...form, gender: selected })
-                  }
+                  onChange={(selected) => setForm({ ...form, gender: selected })}
                 />
               </div>
             </div>
@@ -236,31 +218,20 @@ const Registrasi = () => {
             <div className="form-group">
               <label>Telepon</label>
               <label className="ini">:</label>
-              <input
-                type="text"
-                name="telepon"
-                placeholder="Telepon"
-                value={form.telepon}
-                onChange={handleChange}
-              />
+              <input type="text" name="telepon" placeholder="Telepon" value={form.telepon} onChange={handleChange} />
             </div>
 
             <div className="form-group">
               <label>Alamat</label>
               <label className="ini">:</label>
-              <input
-                type="text"
-                name="alamat"
-                placeholder="Alamat"
-                value={form.alamat}
-                onChange={handleChange}
-              />
+              <input type="text" name="alamat" placeholder="Alamat" value={form.alamat} onChange={handleChange} />
             </div>
-            
-            <button className="bawah" type="button" onClick={handleRegistrasi}>Registrasi</button>
+
+            <button className="bawah" type="button" onClick={handleRegistrasi} disabled={isLoading}>
+              {isLoading ? "Memproses..." : "Registrasi"}
+            </button>
           </div>
         </form>
-        
       </div>
     </div>
   );
