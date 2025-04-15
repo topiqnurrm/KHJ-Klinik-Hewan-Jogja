@@ -38,4 +38,18 @@ router.post('/api/users', async (req, res) => {
     }
 });
 
+// Tambahkan di file yang sama
+router.get('/api/users/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: "User tidak ditemukan" });
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
 module.exports = router;

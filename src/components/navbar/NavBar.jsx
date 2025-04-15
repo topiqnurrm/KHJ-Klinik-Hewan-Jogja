@@ -8,10 +8,9 @@ import userImg from "./image/user.png";
 import "./NavBar.css";
 import ProfilePopup from "../userprofile/userprofile";
 
-const NavBar = () => {
+const NavBar = ({ userId, identity }) => {
     const [hasMessage, setHasMessage] = useState(true); // Status pesan
     const [activeSection, setActiveSection] = useState("hp1"); // Section aktif
-    const userId = "AHDKB3746"; // ID pengguna
 
     // Fungsi scroll ke section
     const scrollToSection = (id) => {
@@ -43,10 +42,10 @@ const NavBar = () => {
     }, []);
 
     const [showProfile, setShowProfile] = useState(false);
-    const profileButtonRef = useRef(null);  // Tambahin ref
+    const profileButtonRef = useRef(null); // Ref ke tombol profil
 
     const handleProfileClick = () => {
-        setShowProfile((prev) => !prev);  // TOGGLE, bukan set true saja
+        setShowProfile((prev) => !prev); // Toggle tampilan profil
     };
 
     return (
@@ -106,26 +105,32 @@ const NavBar = () => {
             </a>
 
             {/* Profil Pengguna */}
-            <a 
-                href="#profil" 
-                className="user-profile" 
+            <a
+                href="#profil"
+                className="user-profile"
                 style={{ textDecoration: "none" }}
                 ref={profileButtonRef}
                 onClick={(e) => {
-                    e.preventDefault(); 
-                    handleProfileClick();  // toggle show/hide
+                    e.preventDefault();
+                    handleProfileClick();
                 }}
             >
-                <span className="user-id">{userId}</span>
+                <span className="user-id">{userId || ""}</span>
                 <img src={userImg} alt="User" className="user-img" />
             </a>
-
-            <ProfilePopup 
-                isVisible={showProfile} 
-                onClose={() => setShowProfile(false)} 
+{/* 
+            <ProfilePopup
+                isVisible={showProfile}
+                onClose={() => setShowProfile(false)}
                 triggerRef={profileButtonRef}
+                userId={identity}
+            /> */}
+            <ProfilePopup
+                isVisible={showProfile}
+                onClose={() => setShowProfile(false)}
+                triggerRef={profileButtonRef}
+                identity={identity}
             />
-
         </nav>
     );
 };

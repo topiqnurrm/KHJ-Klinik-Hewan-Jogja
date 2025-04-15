@@ -1,4 +1,3 @@
-// src/api/user.js
 import axios from 'axios';
 
 export const getKlienUser = async () => {
@@ -7,6 +6,16 @@ export const getKlienUser = async () => {
     return response.data;
   } catch (error) {
     console.error('Gagal fetch data klien:', error);
+    return null;
+  }
+};
+
+export const getUserById = async (_id) => {
+  try {
+    const response = await axios.get(`http://localhost:5000/api/users/${_id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Gagal fetch user by ID:', error);
     return null;
   }
 };

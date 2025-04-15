@@ -1,9 +1,10 @@
-// server.js
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import User from './models/user.js';
 import sendVerificationEmail from './utils/email.js';
 
@@ -12,12 +13,21 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Support untuk path ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Middleware untuk CORS
 app.use(cors({
   origin: 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
+
 app.use(express.json());
+
+// Middleware static file, biar folder images bisa diakses dari URL
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Koneksi ke MongoDB
 mongoose.connect('mongodb://127.0.0.1:27017/klinik_hewan')
@@ -45,16 +55,7 @@ app.get('/api/users/klien', async (req, res) => {
 
 // Route registrasi user
 app.post('/api/users', async (req, res) => {
-  const {
-    nama,
-    email,
-    password,
-    telepon,
-    alamat,
-    aktor,
-    gender,
-    tanggal_lahir
-  } = req.body;
+  const { nama, email, password, telepon, alamat, aktor, gender, tanggal_lahir } = req.body;
 
   try {
     if (!nama || !email || !password || !telepon || !alamat || !gender || !tanggal_lahir) {
@@ -66,12 +67,11 @@ app.post('/api/users', async (req, res) => {
       return res.status(409).json({ message: "Email sudah terdaftar." });
     }
 
-    const plainPassword = password;
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(plainPassword, salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     try {
-      await sendVerificationEmail(email, plainPassword);
+      await sendVerificationEmail(email, password);
     } catch (emailError) {
       return res.status(500).json({ message: "Gagal mengirim email verifikasi." });
     }
@@ -125,6 +125,37 @@ app.post('/api/users/login', async (req, res) => {
     res.status(500).json({ message: "Terjadi kesalahan server.", detail: error });
   }
 });
+
+// Route get user by ID
+app.get('/api/users/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User tidak ditemukan" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error ambil user by ID:', error);
+    res.status(500).json({ message: "Server error", detail: error });
+  }
+});
+
+app.post('/api/send-verification-email', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email dan password wajib diisi." });
+  }
+
+  try {
+    await sendVerificationEmail(email, password);
+    res.status(200).json({ message: "Email verifikasi berhasil dikirim." });
+  } catch (error) {
+    console.error("Gagal mengirim email verifikasi:", error);
+    res.status(500).json({ message: "Gagal mengirim email verifikasi." });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

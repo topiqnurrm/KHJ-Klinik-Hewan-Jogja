@@ -62,7 +62,7 @@ const UserSchema = new mongoose.Schema({
     gambar: {
         type: String,
         required: true,
-        default: 'images/default.jpg',
+        default: 'images/default.png',
         maxlength: 255
     },
     gender: {

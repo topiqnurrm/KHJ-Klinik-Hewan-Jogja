@@ -15,7 +15,7 @@
 }
 
 .profile-popup .profile-card {
-    background: white;
+    background: #e0ffe0;
     /* background-color: rgba(255, 255, 255, 0.5); 
     backdrop-filter: blur(5px); */
     
@@ -107,3 +107,4 @@
     background-color: #a83d3e; /* Merah lebih gelap */
     transition: background-color 0.3s ease;
 }
+

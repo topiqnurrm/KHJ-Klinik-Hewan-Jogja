@@ -113,7 +113,8 @@ const Registrasi = () => {
       const data = await response.json();
 
       if (response.ok) {
-        await sendVerificationEmail(email, password);
+        //penyebab eror
+        // await sendVerificationEmail(email, password);  
         navigate("/?success=Registrasi berhasil! Email pemberitahuan terkirim.");
       } else {
         showError(data.message || "Registrasi gagal.");
@@ -133,15 +134,25 @@ const Registrasi = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = await response.json();
+  
+      const contentType = response.headers.get("content-type");
+  
       if (!response.ok) {
-        throw new Error(data.message || "Gagal mengirim email verifikasi.");
+        if (contentType && contentType.includes("application/json")) {
+          const data = await response.json();
+          throw new Error(data.message || "Gagal mengirim email verifikasi.");
+        } else {
+          const text = await response.text(); // Untuk debug
+          console.error("Unexpected response:", text);
+          throw new Error("Gagal mengirim email verifikasi. Server tidak mengembalikan JSON.");
+        }
       }
+  
     } catch (error) {
       console.error("Email verifikasi gagal:", error);
       showError("Gagal mengirim email verifikasi.");
     }
-  };
+  };  
 
   const showError = (message) => {
     setError(message);

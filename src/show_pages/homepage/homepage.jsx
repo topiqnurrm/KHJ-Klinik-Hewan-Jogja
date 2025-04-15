@@ -8,23 +8,26 @@ import './homepage.css';
 function Userland() {
   const user = JSON.parse(localStorage.getItem("user"));
   const [showGreeting, setShowGreeting] = useState(!!user);
-  const [userId, setUserId] = useState(null);  // 👉 state untuk simpan user ID
+  const [userId, setUserId] = useState(null);      
+  const [userIdentity, setUserIdentity] = useState(null);  // _id dari MongoDB
 
   useEffect(() => {
     if (user) {
-      setUserId(user.user_id);   // simpan ID ke state selama user masih ada
+      setUserId(user.user_id);
+      setUserIdentity(user._id);  // ← GANTI INI
       const timer = setTimeout(() => {
         setShowGreeting(false);
-      }, 7000); // greeting hilang dalam 7 detik
+      }, 7000);
       return () => clearTimeout(timer);
     } else {
-      setUserId(null); // jika user tidak ada (logout), hapus ID
+      setUserId(null);
+      setUserIdentity(null);
     }
   }, [user]);
 
   return (
     <>
-      <NavBar />
+      <NavBar userId={userId} identity={userIdentity} />
       <ChatButton />
 
       {showGreeting && user && (
@@ -32,7 +35,8 @@ function Userland() {
           <div className="a">
             <h2>Selamat datang, {user.nama}!</h2>
             <p>Email kamu: {user.email}</p>
-            <p>ID kamu: {userId}</p>  {/* tampilkan ID kalau perlu */}
+            <p>User ID kamu: {userId}</p>
+            {/* <p>ID biasa kamu: {userIdentity}</p> */}
           </div>
           <div className="b">
             <button className="close-button" onClick={() => setShowGreeting(false)}>✖</button>
