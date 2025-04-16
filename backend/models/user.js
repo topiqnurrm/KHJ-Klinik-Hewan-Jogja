@@ -7,17 +7,16 @@ function generateRandomUserId(length = 9) {
         id += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return id;
-}  
+}
 
 const UserSchema = new mongoose.Schema({
     user_id: {
         type: String,
-        required: false,
         unique: true,
         uppercase: true,
-        match: /^[A-Z0-9]{9}$/, // Hanya 9 karakter A-Z atau 0-9
+        match: /^[A-Z0-9]{9}$/,
         default: function () {
-            return generateRandomUserId(9); // Pastikan fungsi juga buat 9 karakter
+            return generateRandomUserId(9);
         }
     },
     email: {
@@ -25,7 +24,8 @@ const UserSchema = new mongoose.Schema({
         required: true,
         unique: true,
         trim: true,
-        maxlength: 100
+        maxlength: 100,
+        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     },
     nama: {
         type: String,
@@ -49,7 +49,7 @@ const UserSchema = new mongoose.Schema({
         trim: true,
         minlength: 6,
         maxlength: 100
-    },    
+    },
     aktor: {
         type: String,
         required: true,
@@ -70,26 +70,29 @@ const UserSchema = new mongoose.Schema({
         enum: ['Laki-laki', 'Perempuan'],
         required: true
     },
-    tanggal_lahir: { 
-        type: Date, 
-        required: true 
+    tanggal_lahir: {
+        type: Date,
+        required: true
     }
 }, { timestamps: true });
 
 UserSchema.pre('save', async function (next) {
-    if (!this.user_id) {
-        let unique = false;
-        while (!unique) {
-            const candidate = generateRandomUserId();
-            const existing = await mongoose.models.User.findOne({ user_id: candidate });
-            if (!existing) {
-                this.user_id = candidate;
-                unique = true;
+    try {
+        if (!this.user_id) {
+            let unique = false;
+            while (!unique) {
+                const candidate = generateRandomUserId();
+                const existing = await mongoose.models.User.findOne({ user_id: candidate });
+                if (!existing) {
+                    this.user_id = candidate;
+                    unique = true;
+                }
             }
         }
+        next();
+    } catch (err) {
+        next(err);
     }
-    next();
 });
 
-// Menggunakan export default untuk ES module
 export default mongoose.model('User', UserSchema);

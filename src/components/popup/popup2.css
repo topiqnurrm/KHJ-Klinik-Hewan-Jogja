@@ -1,0 +1,148 @@
+@font-face {
+    font-family: "SansSerifBldFLF";
+    src: url("/assets/fonts/SansSerifBldFLF.ttf") format("truetype"),
+         url("/assets/fonts/SansSerifFLF.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  /* Overlay transparan */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5); /* Efek gelap */
+    backdrop-filter: blur(5px); /* Tambahkan efek blur */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Supaya di depan semua elemen */
+}
+
+/* Kotak Popup */
+.popup-content {
+    background: white;
+    /* padding: 5px; */
+    border-radius: 10px;
+    width: 1090px; /* Lebarkan agar muat tabel */
+    height: 500px; /* Batas tinggi agar tidak keluar layar */
+    /* overflow: auto;  */
+    /* box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); */
+    position: relative;
+}
+
+/* Header Popup */
+.popup-content h2 {
+    font-size: 20px;
+    background: #38AB97; /* Warna hijau header */
+    color: white;
+    padding: 10px;
+    text-align: center;
+    border-radius: 10px 10px 0 0;
+    margin: 0;
+}
+
+/* Tombol Close */
+.popup-close {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    position: absolute;
+    top: 6px;
+    right: 15px;
+    color: white; /* Sesuaikan warna agar terlihat */
+}
+
+.popup-image {
+    height: 90%;
+    /* border-radius: 10px; */
+    overflow: auto;
+
+    width: 100%;  /* Gambar akan selalu memenuhi lebar popup */
+    object-fit: contain; /* Memastikan gambar tetap dalam proporsi tanpa dipotong */
+}
+
+
+
+.popup-image img {
+    width: 100%; /* Pastikan gambar selalu penuh kanan kiri */
+    object-fit: contain; /* Pastikan gambar tidak terpotong */
+}
+
+.popup-container {
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 0rem;
+    line-height: 1;
+}
+
+
+
+
+
+
+
+.popup-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.popup-button {
+    padding: 10px 25px;
+    border: 2px solid #555;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s ease;
+}
+
+.popup-button.cancel {
+    border-color: #aa1e2d;
+    color: #aa1e2d;
+    background-color: white;
+}
+
+.popup-button.cancel:hover {
+    background-color: #f8d7da;
+}
+
+.popup-button.confirm {
+    border-color: #1eaa76;
+    color: #1eaa76;
+    background-color: white;
+}
+
+.popup-button.confirm:hover {
+    background-color: #d1f0e5;
+}
+
+
+
+
+
+
+/* === Popup Konfirmasi Biasa === */
+.popup-content.popup-confirm {
+    background: white;
+    border-radius: 10px;
+    width: 400px;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.popup-content.popup-confirm h2 {
+    font-size: 18px;
+    background: #38AB97;
+    color: white;
+    padding: 10px;
+    border-radius: 8px 8px 0 0;
+    text-align: center;
+    margin: -20px -20px 20px -20px;
+}

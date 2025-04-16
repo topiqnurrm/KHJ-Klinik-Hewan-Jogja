@@ -97,6 +97,8 @@
     /* box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); */
     gap: 10px;
     transition: background-color 0.3s ease;
+    width: 114.24px;
+    height: 27px;
 }
 
 /* Efek Hover pada User Profile */
@@ -146,3 +148,54 @@
     border-radius: 5px;
   } */
   
+
+
+
+  .user-img {
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    border: 2px solid #2ecc71; /* Hijau soft */
+}
+
+.login-img {
+    width: 15px;
+    height: 15px;
+    /* border-radius: 50%; */
+    border: none; /* Tidak ada border */
+    
+}
+
+
+
+
+
+/* Container login */
+.login-wrapper {
+    background-color: rgb(58, 153, 137); /* hijau muda */
+    border-radius: 20px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45px;
+
+    width: 124.24px;
+    height: 25px;
+
+    /* width: 114.24px;
+    height: 27px; */
+}
+
+/* Isi login (tulisan + gambar) */
+.login-content {
+    justify-content: center;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    width: 114.24px;
+    height: 27px;
+}
+

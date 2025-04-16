@@ -5,14 +5,33 @@ import ada1 from "./shop/1ada.png";
 import kosong0 from "./shop/0kosong.png";
 import kosong1 from "./shop/1kosong.png";
 import userImg from "./image/user.png";
+import loginImg from "./image/login.png"; // ✅ Tambahkan ini
 import "./NavBar.css";
 import ProfilePopup from "../userprofile/userprofile";
+import { getUserById } from "../../api/user";
 
 const NavBar = ({ userId, identity }) => {
-    const [hasMessage, setHasMessage] = useState(true); // Status pesan
-    const [activeSection, setActiveSection] = useState("hp1"); // Section aktif
+    const [hasMessage, setHasMessage] = useState(true);
+    const [activeSection, setActiveSection] = useState("hp1");
+    const [showProfile, setShowProfile] = useState(false);
+    const profileButtonRef = useRef(null);
+    const [userData, setUserData] = useState(null);
 
-    // Fungsi scroll ke section
+    // ✅ Fetch user data saat komponen mount
+    useEffect(() => {
+        if (identity) {
+            getUserById(identity)
+                .then((res) => {
+                    if (res) {
+                        console.log("User result:", res);
+                        setUserData(res);
+                    } else {
+                        console.warn("User data is null");
+                    }
+                })
+        }
+    }, [identity]);
+
     const scrollToSection = (id) => {
         const section = document.getElementById(id);
         if (section) {
@@ -20,9 +39,8 @@ const NavBar = ({ userId, identity }) => {
         }
     };
 
-    // Gunakan Intersection Observer untuk mendeteksi bagian yang terlihat
     useEffect(() => {
-        const sections = document.querySelectorAll("section"); // Semua section
+        const sections = document.querySelectorAll("section");
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
@@ -31,7 +49,7 @@ const NavBar = ({ userId, identity }) => {
                     }
                 });
             },
-            { threshold: 0.5 } // 50% dari bagian harus terlihat
+            { threshold: 0.5 }
         );
 
         sections.forEach((section) => observer.observe(section));
@@ -41,15 +59,13 @@ const NavBar = ({ userId, identity }) => {
         };
     }, []);
 
-    const [showProfile, setShowProfile] = useState(false);
-    const profileButtonRef = useRef(null); // Ref ke tombol profil
-
     const handleProfileClick = () => {
-        setShowProfile((prev) => !prev); // Toggle tampilan profil
+        setShowProfile((prev) => !prev);
     };
 
     return (
         <nav className="navbar">
+            {/* Logo */}
             <img
                 src={logo}
                 alt="Logo"
@@ -59,36 +75,11 @@ const NavBar = ({ userId, identity }) => {
 
             {/* Menu Navigasi */}
             <ul className="ulknav">
-                <li
-                    onClick={() => scrollToSection("hp1")}
-                    className={`linav ${activeSection === "hp1" ? "active" : ""}`}
-                >
-                    Beranda
-                </li>
-                <li
-                    onClick={() => scrollToSection("hp2")}
-                    className={`linav ${activeSection === "hp2" ? "active" : ""}`}
-                >
-                    Layanan
-                </li>
-                <li
-                    onClick={() => scrollToSection("hp3")}
-                    className={`linav ${activeSection === "hp3" ? "active" : ""}`}
-                >
-                    Panduan
-                </li>
-                <li
-                    onClick={() => scrollToSection("hp4")}
-                    className={`linav ${activeSection === "hp4" ? "active" : ""}`}
-                >
-                    Booking Online
-                </li>
-                <li
-                    onClick={() => scrollToSection("hp5")}
-                    className={`linav ${activeSection === "hp5" ? "active" : ""}`}
-                >
-                    Kontak
-                </li>
+                <li onClick={() => scrollToSection("hp1")} className={`linav ${activeSection === "hp1" ? "active" : ""}`}>Beranda</li>
+                <li onClick={() => scrollToSection("hp2")} className={`linav ${activeSection === "hp2" ? "active" : ""}`}>Layanan</li>
+                <li onClick={() => scrollToSection("hp3")} className={`linav ${activeSection === "hp3" ? "active" : ""}`}>Panduan</li>
+                <li onClick={() => scrollToSection("hp4")} className={`linav ${activeSection === "hp4" ? "active" : ""}`}>Booking Online</li>
+                <li onClick={() => scrollToSection("hp5")} className={`linav ${activeSection === "hp5" ? "active" : ""}`}>Kontak</li>
             </ul>
 
             {/* Ikon Pesan */}
@@ -104,33 +95,58 @@ const NavBar = ({ userId, identity }) => {
                 </div>
             </a>
 
-            {/* Profil Pengguna */}
-            <a
-                href="#profil"
-                className="user-profile"
-                style={{ textDecoration: "none" }}
-                ref={profileButtonRef}
-                onClick={(e) => {
-                    e.preventDefault();
-                    handleProfileClick();
-                }}
-            >
-                <span className="user-id">{userId || ""}</span>
-                <img src={userImg} alt="User" className="user-img" />
-            </a>
-{/* 
-            <ProfilePopup
-                isVisible={showProfile}
-                onClose={() => setShowProfile(false)}
-                triggerRef={profileButtonRef}
-                userId={identity}
-            /> */}
-            <ProfilePopup
-                isVisible={showProfile}
-                onClose={() => setShowProfile(false)}
-                triggerRef={profileButtonRef}
-                identity={identity}
-            />
+            {/* Profil / Login */}
+            {identity ? (
+                <>
+                    <a
+                        href="#profil"
+                        className="user-profile"
+                        style={{ textDecoration: "none" }}
+                        ref={profileButtonRef}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleProfileClick();
+                        }}
+                    >
+                        <span className="user-id">{userId || ""}</span>
+                        <img
+                            src={
+                                userData?.gambar
+                                    ? `http://localhost:5000/${userData.gambar}`
+                                    : userImg
+                            }
+                            alt="User"
+                            className="user-img" // ✅ pakai border untuk user login
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = userImg;
+                            }}
+                        />
+                    </a>
+
+                    <ProfilePopup
+                        isVisible={showProfile}
+                        onClose={() => setShowProfile(false)}
+                        triggerRef={profileButtonRef}
+                        identity={identity}
+                    />
+                </>
+            ) : (
+                <a
+                    href="/"
+                    className="user-profile login-wrapper"
+                    style={{ textDecoration: "none" }}
+                >
+                    <div className="login-content">
+                        <span className="user-id">Login</span>
+                        <img
+                            src={loginImg}
+                            alt="Login"
+                            className="login-img"
+                        />
+                    </div>
+                </a>
+            )}
         </nav>
     );
 };
