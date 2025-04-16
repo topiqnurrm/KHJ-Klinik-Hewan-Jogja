@@ -80,69 +80,29 @@
     line-height: 1;
 }
 
+/* Tabel di dalam popup */
+/* .popup-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+} */
 
+/* .popup-content th,
+.popup-content td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+} */
 
-
-
-
-
-.popup-buttons {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-}
-
-.popup-button {
-    padding: 10px 25px;
-    border: 2px solid #555;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: 0.3s ease;
-}
-
-.popup-button.cancel {
-    border-color: #aa1e2d;
-    color: #aa1e2d;
-    background-color: white;
-}
-
-.popup-button.cancel:hover {
-    background-color: #f8d7da;
-}
-
-.popup-button.confirm {
-    border-color: #1eaa76;
-    color: #1eaa76;
-    background-color: white;
-}
-
-.popup-button.confirm:hover {
-    background-color: #d1f0e5;
-}
-
-
-
-
-
-
-/* === Popup Konfirmasi Biasa === */
-.popup-content.popup-confirm {
-    background: white;
-    border-radius: 10px;
-    width: 400px;
-    padding: 20px;
-    position: relative;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.popup-content.popup-confirm h2 {
-    font-size: 18px;
-    background: #38AB97;
+/* .popup-content th {
+    background-color: #008F7A; 
     color: white;
-    padding: 10px;
-    border-radius: 8px 8px 0 0;
-    text-align: center;
-    margin: -20px -20px 20px -20px;
-}
+} */
+
+/* Responsive */
+/* @media (max-width: 768px) {
+    .popup-content {
+        width: 95vw;
+        max-height: 80vh;
+    }
+} */

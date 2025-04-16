@@ -83,9 +83,14 @@
     height: 23px;
     border-radius: 50%; /* Membuat gambar profil bulat */
     object-fit: cover;
-    position: relative;
-    border: 1.5px solid #ffffff; /* Corner dalam putih */
+    position: right;
+    /* border: 1.5px solid #ffffff;  */
+    border: 2px solid #2ecc71; /* Hijau soft */
     /* box-shadow: inset 0px 0px 10px rgba(255, 255, 255, 0.8);  */
+
+    /* margin-right: 0; */
+    margin-left: auto;
+    /* margin-left: 0px; */
 }
 
 .user-profile {
@@ -95,9 +100,9 @@
     padding: 5px 15px;
     border-radius: 50px; /* Membentuk oval */
     /* box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); */
-    gap: 10px;
+    gap: 5px;
     transition: background-color 0.3s ease;
-    width: 114.24px;
+    width: 94.24px;
     height: 27px;
 }
 
@@ -147,16 +152,7 @@
     background: rgba(8, 167, 139, 0.1); 
     border-radius: 5px;
   } */
-  
 
-
-
-  .user-img {
-    width: 23px;
-    height: 23px;
-    border-radius: 50%;
-    border: 2px solid #2ecc71; /* Hijau soft */
-}
 
 .login-img {
     width: 15px;
@@ -174,7 +170,7 @@
 .login-wrapper {
     background-color: rgb(58, 153, 137); /* hijau muda */
     border-radius: 20px;
-    padding: 6px 10px;
+    padding: 6px 0px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -189,11 +185,12 @@
 
 /* Isi login (tulisan + gambar) */
 .login-content {
-    justify-content: center;
+    justify-content: space-between;
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 15px;
+    padding-right: 0;
+    gap: 0px;
 
     width: 114.24px;
     height: 27px;

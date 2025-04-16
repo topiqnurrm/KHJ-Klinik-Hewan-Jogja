@@ -9,6 +9,7 @@ import loginImg from "./image/login.png"; // ✅ Tambahkan ini
 import "./NavBar.css";
 import ProfilePopup from "../userprofile/userprofile";
 import { getUserById } from "../../api/user";
+import { Link } from "react-router-dom";
 
 const NavBar = ({ userId, identity }) => {
     const [hasMessage, setHasMessage] = useState(true);
@@ -132,20 +133,12 @@ const NavBar = ({ userId, identity }) => {
                     />
                 </>
             ) : (
-                <a
-                    href="/"
-                    className="user-profile login-wrapper"
-                    style={{ textDecoration: "none" }}
-                >
-                    <div className="login-content">
-                        <span className="user-id">Login</span>
-                        <img
-                            src={loginImg}
-                            alt="Login"
-                            className="login-img"
-                        />
-                    </div>
-                </a>
+                <Link to="/" className="user-profile login-wrapper" style={{ textDecoration: "none" }}>
+                <div className="login-content">
+                    <span className="user-id">Login</span>
+                    <img src={loginImg} alt="Login" className="login-img" />
+                </div>
+                </Link>
             )}
         </nav>
     );

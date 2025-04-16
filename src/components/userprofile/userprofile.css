@@ -108,3 +108,12 @@
     transition: background-color 0.3s ease;
 }
 
+
+
+
+.login-content {
+    display: flex;
+    align-items: center; /* untuk vertikal center */
+    justify-content: center; /* kalau mau posisinya di tengah keseluruhan */
+    gap: 10px; /* ubah jarak antar teks dan gambar, misal 6px */
+}

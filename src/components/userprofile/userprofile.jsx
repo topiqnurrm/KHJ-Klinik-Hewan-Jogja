@@ -5,11 +5,12 @@ import Edit from "./gambar/edit.png";
 import Keluar from "./gambar/keluar.png";
 import { getUserById } from "../../api/user";
 import { useNavigate } from "react-router-dom";
+import Popup2 from "../../components/popup/popup2";
 
 function UserProfile({ isVisible, onClose, triggerRef, identity }) {
     const popupRef = useRef(null);
     const [userData, setUserData] = useState(null);
-    const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [showLogoutPopup, setShowLogoutPopup] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -30,54 +31,55 @@ function UserProfile({ isVisible, onClose, triggerRef, identity }) {
                 triggerRef.current &&
                 !triggerRef.current.contains(event.target)
             ) {
-                onClose();
+                onClose(); // hanya tutup UserProfile, bukan popup2
             }
         }
 
-        if (isVisible) {
+        if (isVisible && !showLogoutPopup) {
             document.addEventListener("mousedown", handleClickOutside);
-        } else {
-            document.removeEventListener("mousedown", handleClickOutside);
         }
 
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [isVisible, onClose, triggerRef]);
+    }, [isVisible, onClose, triggerRef, showLogoutPopup]);
 
     const handleLogout = () => {
-        setIsLoggingOut(true);
+        setShowLogoutPopup(true);
+    };
 
+    const handleConfirmLogout = () => {
+        localStorage.removeItem("user");
+        setShowLogoutPopup(false);
+        onClose(); // tutup user profile
+        navigate("/homepage"); // redirect ke halaman login
         setTimeout(() => {
-            localStorage.removeItem("user"); // hapus session
-            setIsLoggingOut(false);
-            onClose(); // tutup popup
-            navigate(0); // refresh halaman agar state di parent ikut update
-        }, 1000); // beri efek loading 1 detik
+            window.location.reload(); // refresh setelah redirect
+        }, 100); // beri sedikit delay agar navigate sempat dijalankan
+    };    
+
+    const handleCancelLogout = () => {
+        setShowLogoutPopup(false); // tutup popup2 aja
     };
 
     if (!isVisible || !userData) return null;
 
     return (
-        <div className="profile-popup" ref={popupRef}>
-            <div className="profile-card">
-                <div className="profile-header">
-                    <img
-                        src={userData.gambar ? `http://localhost:5000/${userData.gambar}` : Default}
-                        alt="User"
-                        className="profile-photo"
-                    />
-                    <div className="profile-text">
-                        <h4>{userData.nama}</h4>
-                        <p>{userData.aktor}</p>
+        <>
+            <div className="profile-popup" ref={popupRef}>
+                <div className="profile-card">
+                    <div className="profile-header">
+                        <img
+                            src={userData.gambar ? `http://localhost:5000/${userData.gambar}` : Default}
+                            alt="User"
+                            className="profile-photo"
+                        />
+                        <div className="profile-text">
+                            <h4>{userData.nama}</h4>
+                            <p>{userData.aktor}</p>
+                        </div>
                     </div>
-                </div>
 
-                {isLoggingOut ? (
-                    <div className="logout-loading">
-                        <p>Sedang keluar...</p>
-                    </div>
-                ) : (
                     <div className="profile-actions">
                         <button className="btn-edit">
                             <img className="icon" src={Edit} alt="Edit Icon" /> Edit
@@ -86,9 +88,19 @@ function UserProfile({ isVisible, onClose, triggerRef, identity }) {
                             <img className="icon" src={Keluar} alt="Logout Icon" /> Keluar
                         </button>
                     </div>
-                )}
+                </div>
             </div>
-        </div>
+
+            {showLogoutPopup && (
+                <Popup2
+                    isOpen={showLogoutPopup}
+                    onClose={handleCancelLogout}
+                    title="Konfirmasi Logout"
+                    description="Apakah Anda yakin ingin logout?"
+                    onConfirm={handleConfirmLogout}
+                />
+            )}
+        </>
     );
 }
 
