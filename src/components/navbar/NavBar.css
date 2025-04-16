@@ -102,9 +102,16 @@
     /* box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); */
     gap: 5px;
     transition: background-color 0.3s ease;
-    width: 94.24px;
+    width: 104.24px;
     height: 27px;
+
+    /* margin-left: 150px; */
 }
+
+.not-logged-in {
+    margin-left: 150px;
+}
+
 
 /* Efek Hover pada User Profile */
 .user-profile:hover {
@@ -176,7 +183,7 @@
     justify-content: center;
     height: 45px;
 
-    width: 124.24px;
+    width: 134.24px;
     height: 25px;
 
     /* width: 114.24px;
@@ -192,7 +199,5 @@
     padding-right: 0;
     gap: 0px;
 
-    width: 114.24px;
-    height: 27px;
 }
 

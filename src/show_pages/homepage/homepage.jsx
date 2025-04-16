@@ -5,6 +5,8 @@ import ChatButton from "../../components/chat/ChatAdmin.jsx";
 
 import './homepage.css';
 
+import Hp4 from "../../pages/homepage/contents/hp4/hp4.jsx"; 
+
 function Userland() {
   const user = JSON.parse(localStorage.getItem("user"));
   const [showGreeting, setShowGreeting] = useState(!!user);
@@ -45,6 +47,10 @@ function Userland() {
       )}
 
       <HomePage />
+
+      {/* ✅ Tambahkan di sini */}
+      {/* <Hp4 identity={identity} /> */}
+      <Hp4 identity={userIdentity} />
     </>
   );
 }

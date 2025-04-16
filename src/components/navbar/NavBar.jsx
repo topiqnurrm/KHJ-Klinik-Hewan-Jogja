@@ -29,7 +29,7 @@ const NavBar = ({ userId, identity }) => {
                     } else {
                         console.warn("User data is null");
                     }
-                })
+                });
         }
     }, [identity]);
 
@@ -83,18 +83,20 @@ const NavBar = ({ userId, identity }) => {
                 <li onClick={() => scrollToSection("hp5")} className={`linav ${activeSection === "hp5" ? "active" : ""}`}>Kontak</li>
             </ul>
 
-            {/* Ikon Pesan */}
-            <a href="#pesanan" style={{ textDecoration: "none" }}>
-                <div className="message-icon">
-                    <img
-                        src={hasMessage ? ada0 : kosong0}
-                        alt="Message Icon"
-                        className="message-img"
-                        onMouseEnter={(e) => (e.target.src = hasMessage ? ada1 : kosong1)}
-                        onMouseLeave={(e) => (e.target.src = hasMessage ? ada0 : kosong0)}
-                    />
-                </div>
-            </a>
+            {/* ✅ Message Icon hanya ditampilkan jika login */}
+            {identity && (
+                <a href="#pesanan" style={{ textDecoration: "none" }}>
+                    <div className="message-icon">
+                        <img
+                            src={hasMessage ? ada0 : kosong0}
+                            alt="Message Icon"
+                            className="message-img"
+                            onMouseEnter={(e) => (e.target.src = hasMessage ? ada1 : kosong1)}
+                            onMouseLeave={(e) => (e.target.src = hasMessage ? ada0 : kosong0)}
+                        />
+                    </div>
+                </a>
+            )}
 
             {/* Profil / Login */}
             {identity ? (
@@ -117,7 +119,7 @@ const NavBar = ({ userId, identity }) => {
                                     : userImg
                             }
                             alt="User"
-                            className="user-img" // ✅ pakai border untuk user login
+                            className="user-img"
                             onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = userImg;
@@ -133,11 +135,16 @@ const NavBar = ({ userId, identity }) => {
                     />
                 </>
             ) : (
-                <Link to="/" className="user-profile login-wrapper" style={{ textDecoration: "none" }}>
-                <div className="login-content">
-                    <span className="user-id">Login</span>
-                    <img src={loginImg} alt="Login" className="login-img" />
-                </div>
+                // <Link to="/" className="user-profile login-wrapper" style={{ textDecoration: "none" }}>
+                <Link
+                    to="/"
+                    className={`user-profile login-wrapper ${!identity ? "not-logged-in" : ""}`}
+                    style={{ textDecoration: "none" }}
+                >
+                    <div className="login-content">
+                        <span className="user-id">Login</span>
+                        <img src={loginImg} alt="Login" className="login-img" />
+                    </div>
                 </Link>
             )}
         </nav>
