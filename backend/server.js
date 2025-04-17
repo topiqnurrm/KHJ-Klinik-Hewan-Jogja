@@ -8,6 +8,9 @@ import { fileURLToPath } from 'url';
 import User from './models/user.js';
 import sendVerificationEmail from './utils/email.js';
 
+import multer from 'multer';
+import fs from 'fs';
+
 dotenv.config();
 
 const app = express();
@@ -16,6 +19,23 @@ const PORT = process.env.PORT || 5000;
 // Support untuk path ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadPath = path.join(__dirname, 'images');
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath);
+    }
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({ storage });
 
 // Middleware untuk CORS
 app.use(cors({
@@ -159,4 +179,55 @@ app.post('/api/send-verification-email', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+// Upload gambar
+app.post('/api/upload-image', upload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'Tidak ada file yang diupload.' });
+    }
+
+    const imageUrl = `http://localhost:${PORT}/images/${req.file.filename}`;
+    res.status(200).json({ message: 'Upload berhasil', imageUrl });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ message: 'Gagal upload gambar', error });
+  }
+});
+
+
+app.put('/api/users/:id', upload.single('gambar'), async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updateData = {
+      nama: req.body.nama,
+      email: req.body.email,
+      telepon: req.body.telepon,
+      alamat: req.body.alamat,
+      gender: req.body.gender,
+      tanggal_lahir: req.body.tanggal_lahir,
+    };
+
+    if (req.body.password) {
+      const salt = await bcrypt.genSalt(10);
+      updateData.password = await bcrypt.hash(req.body.password, salt);
+    }
+
+    if (req.file) {
+      updateData.gambar = `/images/${req.file.filename}`;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User tidak ditemukan' });
+    }
+
+    res.status(200).json({ message: 'User berhasil diperbarui', user: updatedUser });
+  } catch (error) {
+    console.error('Gagal update user:', error);
+    res.status(500).json({ message: 'Gagal update user', error });
+  }
 });

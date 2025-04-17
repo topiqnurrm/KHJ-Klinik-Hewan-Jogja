@@ -6,11 +6,13 @@ import Keluar from "./gambar/keluar.png";
 import { getUserById } from "../../api/user";
 import { useNavigate } from "react-router-dom";
 import Popup2 from "../../components/popup/popup2";
+import Popup3 from "../../components/popup/popup3";
 
 function UserProfile({ isVisible, onClose, triggerRef, identity }) {
     const popupRef = useRef(null);
     const [userData, setUserData] = useState(null);
     const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+    const [showEditPopup, setShowEditPopup] = useState(false); // ⬅️ Pindahkan ke sini
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -25,24 +27,26 @@ function UserProfile({ isVisible, onClose, triggerRef, identity }) {
 
     useEffect(() => {
         function handleClickOutside(event) {
+            if (showEditPopup) return; // ⬅️ Tambahkan ini: jangan tutup saat Edit popup terbuka
+    
             if (
                 popupRef.current &&
                 !popupRef.current.contains(event.target) &&
                 triggerRef.current &&
                 !triggerRef.current.contains(event.target)
             ) {
-                onClose(); // hanya tutup UserProfile, bukan popup2
+                onClose();
             }
         }
-
+    
         if (isVisible && !showLogoutPopup) {
             document.addEventListener("mousedown", handleClickOutside);
         }
-
+    
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [isVisible, onClose, triggerRef, showLogoutPopup]);
+    }, [isVisible, onClose, triggerRef, showLogoutPopup, showEditPopup]); // ⬅️ Tambahkan showEditPopup ke dependency    
 
     const handleLogout = () => {
         setShowLogoutPopup(true);
@@ -51,18 +55,26 @@ function UserProfile({ isVisible, onClose, triggerRef, identity }) {
     const handleConfirmLogout = () => {
         localStorage.removeItem("user");
         setShowLogoutPopup(false);
-        onClose(); // tutup user profile
-        navigate("/homepage"); // redirect ke halaman login
+        onClose();
+        navigate("/homepage");
         setTimeout(() => {
-            window.location.reload(); // refresh setelah redirect
-        }, 100); // beri sedikit delay agar navigate sempat dijalankan
-    };    
-
-    const handleCancelLogout = () => {
-        setShowLogoutPopup(false); // tutup popup2 aja
+            window.location.reload();
+        }, 100);
     };
 
-    if (!isVisible || !userData) return null;
+    const handleCancelLogout = () => {
+        setShowLogoutPopup(false);
+    };
+
+    const handleEdit = () => {
+        setShowEditPopup(true);
+    };
+
+    const handleCloseEdit = () => {
+        setShowEditPopup(false);
+    };
+
+    if (!isVisible || !userData) return null; // ⬅️ Ini aman sekarang
 
     return (
         <>
@@ -81,7 +93,7 @@ function UserProfile({ isVisible, onClose, triggerRef, identity }) {
                     </div>
 
                     <div className="profile-actions">
-                        <button className="btn-edit">
+                        <button className="btn-edit" onClick={handleEdit}>
                             <img className="icon" src={Edit} alt="Edit Icon" /> Edit
                         </button>
                         <button className="btn-logout" onClick={handleLogout}>
@@ -98,6 +110,14 @@ function UserProfile({ isVisible, onClose, triggerRef, identity }) {
                     title="Konfirmasi Logout"
                     description="Apakah Anda yakin ingin logout?"
                     onConfirm={handleConfirmLogout}
+                />
+            )}
+
+            {showEditPopup && (
+                <Popup3
+                    isOpen={showEditPopup}
+                    onClose={handleCloseEdit}
+                    userData={userData}
                 />
             )}
         </>

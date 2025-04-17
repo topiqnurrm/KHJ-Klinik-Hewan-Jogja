@@ -19,3 +19,21 @@ export const getUserById = async (_id) => {
     return null;
   }
 };
+
+
+export const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  try {
+    const res = await axios.post('http://localhost:5000/api/upload-image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data;
+  } catch (err) {
+    console.error('Upload gagal:', err);
+    return null;
+  }
+};
