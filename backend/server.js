@@ -215,8 +215,27 @@ app.put('/api/users/:id', upload.single('gambar'), async (req, res) => {
       updateData.password = await bcrypt.hash(req.body.password, salt);
     }
 
+    // Ganti nama file ke <user_id>.png
     if (req.file) {
-      updateData.gambar = `/images/${req.file.filename}`;
+      const ext = path.extname(req.file.originalname).toLowerCase();
+
+      // Validasi hanya menerima file PNG
+      if (ext !== '.png') {
+        fs.unlinkSync(req.file.path); // Hapus file sementara
+        return res.status(400).json({ message: 'Hanya file PNG yang diperbolehkan.' });
+      }
+
+      const newFileName = `${id}.png`;
+      const newPath = path.join(__dirname, 'images', newFileName);
+
+      // Hapus file lama jika ada
+      if (fs.existsSync(newPath)) {
+        fs.unlinkSync(newPath);
+      }
+
+      fs.renameSync(req.file.path, newPath); // Rename file
+
+      updateData.gambar = `/images/${newFileName}`;
     }
 
     const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true });

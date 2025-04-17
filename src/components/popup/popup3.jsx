@@ -82,22 +82,22 @@ function Popup3({ isOpen, onClose, userData }) {
           console.error("Update error:", error);
           alert("Terjadi kesalahan saat mengirim data.");
         }
-    };
-      
+      };      
       
 
     const handleFileChange = async (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const response = await uploadImage(file);
-        if (response && response.imageUrl) {
-          setFormData((prev) => ({ ...prev, gambar: response.imageUrl }));
+        const file = e.target.files[0];
+        if (file) {
+          if (file.type !== "image/png") {
+            alert("Hanya gambar PNG yang diperbolehkan.");
+            return;
+          }
+      
+          // Langsung simpan file ke state
+          setFormData((prev) => ({ ...prev, gambar: file }));
           setFileName(file.name);
-        } else {
-          alert("Gagal upload gambar.");
         }
-      }
-    };    
+    };      
 
     if (!isOpen || !userData) return null;
 
