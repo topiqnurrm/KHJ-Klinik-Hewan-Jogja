@@ -46,11 +46,11 @@ function Userland() {
         </div>
       )}
 
-      <HomePage />
+      <HomePage identity={userIdentity} />
 
       {/* ✅ Tambahkan di sini */}
-      {/* <Hp4 identity={identity} /> */}
-      <Hp4 identity={userIdentity} />
+      {/* <Hp4 identity={userIdentity} /> */}
+
     </>
   );
 }

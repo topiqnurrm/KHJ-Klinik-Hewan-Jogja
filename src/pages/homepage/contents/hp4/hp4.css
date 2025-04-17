@@ -45,7 +45,7 @@
   display: flex;
   align-items: center;
   /* gap: 10px; */
-  gap: 0px;
+  gap: 30px;
   padding: 10px;
   padding-left: 280px;
   /* background-color: #eafaf1; */
@@ -179,6 +179,9 @@
   text-align: center;
   padding: 2rem;
   font-size: 1.2rem;
+
+  margin-bottom: 158px;
+  padding-top: 130px;
 }
 
 .login-required .login-btn {
@@ -194,5 +197,5 @@
 }
 
 .login-required .login-btn:hover {
-  background-color: #267a73;
+  background-color: #38AB97;
 }

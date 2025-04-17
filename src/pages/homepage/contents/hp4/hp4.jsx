@@ -54,18 +54,18 @@ function Hp4({ identity }) {
   return (
     <section id="hp4" className="hp4">
       <div className="content-wrapper">
-        {/* <div className="header">
-          <h1>Booking Online</h1>
-          
-        </div> */}
         <div className="header">
+          <h1>Booking Online</h1>
+        </div>
+        
+        {/* <div className="header">
           <h1>Booking Online</h1>
           {identity && (
             <p className="identity-status">
               ✅ Login berhasil! ID kamu: <strong>{identity}</strong>
             </p>
           )}
-        </div>
+        </div> */}
 
         <nav className="top-bar">
           <button className={`tab ${activeTab === "data-user" ? "active" : ""}`} onClick={() => setActiveTab("data-user")}>
