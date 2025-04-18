@@ -82,9 +82,13 @@ function UserProfile({ isVisible, onClose, triggerRef, identity }) {
                 <div className="profile-card">
                     <div className="profile-header">
                         <img
-                            src={userData.gambar ? `http://localhost:5000/${userData.gambar}` : Default}
+                            src={userData && userData.gambar ? `http://localhost:5000${userData.gambar}` : userImg}
                             alt="User"
                             className="profile-photo"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = userImg;
+                            }}
                         />
                         <div className="profile-text">
                             <h4>{userData.nama}</h4>
