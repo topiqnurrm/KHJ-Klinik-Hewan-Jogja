@@ -83,7 +83,7 @@ function Hp4({ identity }) {
         </nav>
 
         <div className="bottom-container">
-          <button
+          {/* <button
             className="nav-button_kiri"
             onClick={handleLeftClick}
             disabled={activeTab === "data-user"}
@@ -91,7 +91,7 @@ function Hp4({ identity }) {
             onMouseLeave={() => setLeftHover(false)}
           >
             <img src={leftHover ? kiriHover : kiri} alt="Kiri" />
-          </button>
+          </button> */}
 
           <div className="content-box">
             {activeTab === "data-user" && <Halaman1 />}
@@ -100,7 +100,7 @@ function Hp4({ identity }) {
             {activeTab === "konfirmasi" && <Halaman4 />}
           </div>
 
-          <button
+          {/* <button
             className="nav-button_kanan"
             onClick={handleRightClick}
             disabled={activeTab === "konfirmasi"}
@@ -108,7 +108,7 @@ function Hp4({ identity }) {
             onMouseLeave={() => setRightHover(false)}
           >
             <img src={rightHover ? kananHover : kanan} alt="Kanan" />
-          </button>
+          </button> */}
         </div>
       </div>
     </section>

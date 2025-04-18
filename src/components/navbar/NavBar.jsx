@@ -24,7 +24,7 @@ const NavBar = ({ userId, identity }) => {
             getUserById(identity)
                 .then((res) => {
                     if (res) {
-                        console.log("User result:", res);
+                        console.log("User result:", res); // ✅ Tambahkan log ini
                         setUserData(res);
                     } else {
                         console.warn("User data is null");
@@ -113,11 +113,7 @@ const NavBar = ({ userId, identity }) => {
                     >
                         <span className="user-id">{userId || ""}</span>
                         <img
-                            src={
-                                userData?.gambar
-                                    ? `http://localhost:5000/${userData.gambar}`
-                                    : userImg
-                            }
+                            src={userData && userData.gambar ? `http://localhost:5000${userData.gambar}` : userImg}
                             alt="User"
                             className="user-img"
                             onError={(e) => {
