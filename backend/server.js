@@ -130,6 +130,8 @@ app.post('/api/users', async (req, res) => {
 });
 
 // Route login
+import jwt from 'jsonwebtoken';
+
 app.post('/api/users/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -144,15 +146,27 @@ app.post('/api/users/login', async (req, res) => {
       return res.status(401).json({ message: "Password salah." });
     }
 
+    // Buat token
+    const token = jwt.sign(
+      { id: user._id, email: user.email }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: "1d" }
+    );
+
+    // Hapus password sebelum dikirim ke frontend
     const userData = user.toObject();
     delete userData.password;
 
+    // Kirim token + data user
     res.json({
       message: "Login berhasil.",
       user: userData,
+      // user: updatedUser,
+      token: token
     });
+
   } catch (error) {
-    res.status(500).json({ message: "Terjadi kesalahan server.", detail: error });
+    res.status(500).json({ message: "Terjadi kesalahan server.", detail: error.message });
   }
 });
 

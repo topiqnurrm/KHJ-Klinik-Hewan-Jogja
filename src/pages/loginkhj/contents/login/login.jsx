@@ -40,10 +40,11 @@ const Login = () => {
   
       if (response.ok) {
         // Simpan data user ke localStorage
-        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("user", JSON.stringify({ ...data.user, token: data.token }));
       
         // Arahkan ke halaman sesuai peran
         const adminRoles = ['superadmin', 'dokter', 'administrasi', 'pembayaran', 'paramedis'];
+        console.log("Data user saat login:", data);
         if (adminRoles.includes(data.user.aktor)) {
           navigate("/Hireadmin");
         } else {
