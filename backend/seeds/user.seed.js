@@ -88,6 +88,7 @@ const data = [
     tanggal_lahir: new Date("1995-09-30"),
   },
   {
+    _id: new mongoose.Types.ObjectId("68024ee7d95a7e2fcfadbcd1"),
     email: "klien2@gmail.com",
     nama: "Klien2",
     telepon: "08123456782",

@@ -1,33 +1,60 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./halaman2.css";
-// import { FaEdit, FaTrash } from "react-icons/fa";
 import FaEdit from "./gambar/edit.png";
 import FaTrash from "./gambar/hapus.png";
+import { getPasienByUserId } from "../../../../../../api/api-pasien"; // sesuaikan path
 
 function Halaman2() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-
-  const [hewanList, setHewanList] = useState([
-    { nama: "Wowo", jenis: "Kucing" },
-    { nama: "Bebeng", jenis: "Kucing" },
-  ]);
-
+  const [hewanList, setHewanList] = useState([]);
   const [formData, setFormData] = useState({
     nama: "",
     jenis: "",
     kategori: "",
     gender: "",
     ras: "",
+    umur: ""
   });
 
-  const handleInputChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const userId = storedUser?._id;
+
+    if (userId) {
+      getPasienByUserId(userId).then((data) => {
+        setHewanList(data);
+        if (data.length > 0) {
+          setFormData({
+            nama: data[0].nama || "",
+            jenis: data[0].jenis || "",
+            kategori: data[0].kategori || "",
+            gender: data[0].jenis_kelamin || "",
+            ras: data[0].ras || "",
+            umur: data[0].umur || ""
+          });
+        }
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (hewanList[selectedIndex]) {
+      const selected = hewanList[selectedIndex];
+      setFormData({
+        nama: selected.nama,
+        jenis: selected.jenis,
+        kategori: selected.kategori,
+        gender: selected.jenis_kelamin,
+        ras: selected.ras,
+        umur: selected.umur
+      });
+    }
+  }, [selectedIndex, hewanList]);
 
   const filteredHewanList = hewanList.filter((item) =>
     (item.nama + " " + item.jenis).toLowerCase().includes(searchTerm.toLowerCase())
-  );  
+  );
 
   return (
     <div className="hlmhwn2-judul">
@@ -40,7 +67,7 @@ function Halaman2() {
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setSelectedIndex(0); // reset pilihan saat search
+              setSelectedIndex(0);
             }}
             className="search-input"
           />
@@ -60,13 +87,9 @@ function Halaman2() {
                 onClick={() => setSelectedIndex(index)}
               >
                 <span className="hewan-index-baru">{index + 1}.</span>
-
                 <div className="hewan-konten">
-                  <span className="hewan-nama-baru">
-                    {item.nama}, {item.jenis}
-                  </span>
+                  <span className="hewan-nama-baru">{item.nama}, {item.jenis}</span>
                 </div>
-
                 {index === selectedIndex && (
                   <div className="hewan-aksi-baru">
                     <button className="edit-btn" onClick={() => alert(`Edit ${item.nama}`)}>
@@ -86,53 +109,27 @@ function Halaman2() {
         <div className="form-hewan">
           <div className="form-group">
             <label>Nama Hewan *</label>
-            <input
-              name="nama"
-              value={formData.nama}
-              onChange={handleInputChange}
-              placeholder="Nama Hewan"
-              readOnly
-            />
+            <input name="nama" value={formData.nama} readOnly />
           </div>
           <div className="form-group">
             <label>Jenis Hewan *</label>
-            <input
-              name="jenis"
-              value={formData.jenis}
-              onChange={handleInputChange}
-              placeholder="Jenis Hewan"
-              readOnly
-            />
+            <input name="jenis" value={formData.jenis} readOnly />
           </div>
           <div className="form-group">
             <label>Kategori Hewan *</label>
-            <input
-              name="kategori"
-              value={formData.kategori}
-              onChange={handleInputChange}
-              placeholder="Kategori Hewan"
-              readOnly
-            />
+            <input name="kategori" value={formData.kategori} readOnly />
           </div>
           <div className="form-group">
             <label>Jenis Kelamin Hewan</label>
-            <input
-              name="gender"
-              value={formData.gender}
-              onChange={handleInputChange}
-              placeholder="Jenis Kelamin Hewan"
-              readOnly
-            />
+            <input name="gender" value={formData.gender} readOnly />
           </div>
           <div className="form-group">
             <label>Ras Hewan</label>
-            <input
-              name="ras"
-              value={formData.ras}
-              onChange={handleInputChange}
-              placeholder="Ras Hewan"
-              readOnly
-            />
+            <input name="ras" value={formData.ras} readOnly />
+          </div>
+          <div className="form-group">
+            <label>Umur Hewan (tahun)</label>
+            <input name="umur" value={formData.umur} readOnly />
           </div>
         </div>
       </div>

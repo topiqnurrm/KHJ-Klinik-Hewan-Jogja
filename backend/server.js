@@ -11,6 +11,8 @@ import sendVerificationEmail from './utils/email.js';
 import multer from 'multer';
 import fs from 'fs';
 
+import pasienRouter from './routes/rout-pasien.js';
+
 dotenv.config();
 
 const app = express();
@@ -68,6 +70,12 @@ mongoose.connect('mongodb://127.0.0.1:27017/klinik_hewan')
 app.get('/', (req, res) => {
   res.send('Server is running');
 });
+
+
+
+// app.use('/api/pasien', require('./routes/rout-pasien'));
+app.use('/api/pasien', pasienRouter);
+
 
 // Route ambil data klien
 app.get('/api/users/klien', async (req, res) => {

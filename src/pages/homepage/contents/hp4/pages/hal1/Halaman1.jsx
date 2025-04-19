@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { getKlienUser } from "../../../../../../api/user"; // sesuaikan path
+import { getUserById } from "../../../../../../api/user";
 import "./halaman1.css";
 
 function Halaman1() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    getKlienUser().then(data => {
-      if (data) setUser(data);
-    });
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    
+    if (storedUser && storedUser._id) {
+      getUserById(storedUser._id).then(data => {
+        if (data) setUser(data);
+      });
+    }
   }, []);
 
   return (

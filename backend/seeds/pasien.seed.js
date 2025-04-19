@@ -37,7 +37,17 @@ const data = [
     tanggal: new Date('2021-03-25'),
     id_user: sampleUserId,
     umur: 3
-  }
+  },
+  {
+    nama: 'Kucing Manis klien 2',
+    jenis: 'Kucing Anggora',
+    kategori: 'kesayangan / satwa liar',
+    jenis_kelamin: 'jantan',
+    ras: 'Anggora',
+    tanggal: new Date('2018-01-01'),
+    id_user: "68024ee7d95a7e2fcfadbcd1",
+    umur: 7
+  },
 ];
 
 export default async function seed() {
