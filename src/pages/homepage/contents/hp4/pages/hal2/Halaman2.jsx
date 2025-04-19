@@ -2,20 +2,15 @@ import React, { useEffect, useState } from "react";
 import "./halaman2.css";
 import FaEdit from "./gambar/edit.png";
 import FaTrash from "./gambar/hapus.png";
-import { getPasienByUserId } from "../../../../../../api/api-pasien"; // sesuaikan path
+import { getPasienByUserId } from "../../../../../../api/api-pasien";
+import TambahPasien from "../../../../../../components/popup/tambahpasien"; // Tambahkan ini
 
 function Halaman2() {
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [hewanList, setHewanList] = useState([]);
-  const [formData, setFormData] = useState({
-    nama: "",
-    jenis: "",
-    kategori: "",
-    gender: "",
-    ras: "",
-    umur: ""
-  });
+  const [filteredHewanList, setFilteredHewanList] = useState([]);
+  const [selectedHewan, setSelectedHewan] = useState(null);
+  const [showTambahPopup, setShowTambahPopup] = useState(false); // Tambahkan ini
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -24,37 +19,29 @@ function Halaman2() {
     if (userId) {
       getPasienByUserId(userId).then((data) => {
         setHewanList(data);
+        setFilteredHewanList(data);
         if (data.length > 0) {
-          setFormData({
-            nama: data[0].nama || "",
-            jenis: data[0].jenis || "",
-            kategori: data[0].kategori || "",
-            gender: data[0].jenis_kelamin || "",
-            ras: data[0].ras || "",
-            umur: data[0].umur || ""
-          });
+          setSelectedHewan(data[0]);
         }
       });
     }
   }, []);
 
   useEffect(() => {
-    if (hewanList[selectedIndex]) {
-      const selected = hewanList[selectedIndex];
-      setFormData({
-        nama: selected.nama,
-        jenis: selected.jenis,
-        kategori: selected.kategori,
-        gender: selected.jenis_kelamin,
-        ras: selected.ras,
-        umur: selected.umur
-      });
+    const filtered = hewanList.filter((item) =>
+      (item.nama + " " + item.jenis).toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredHewanList(filtered);
+    if (filtered.length > 0) {
+      setSelectedHewan(filtered[0]);
+    } else {
+      setSelectedHewan(null);
     }
-  }, [selectedIndex, hewanList]);
+  }, [searchTerm, hewanList]);
 
-  const filteredHewanList = hewanList.filter((item) =>
-    (item.nama + " " + item.jenis).toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleItemClick = (item) => {
+    setSelectedHewan(item);
+  };
 
   return (
     <div className="hlmhwn2-judul">
@@ -65,10 +52,7 @@ function Halaman2() {
             type="text"
             placeholder="Cari hewan..."
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setSelectedIndex(0);
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
         </div>
@@ -83,14 +67,18 @@ function Halaman2() {
             {filteredHewanList.map((item, index) => (
               <div
                 key={index}
-                className={`hewan-item-baru ${index === selectedIndex ? "aktif" : ""}`}
-                onClick={() => setSelectedIndex(index)}
+                className={`hewan-item-baru ${
+                  selectedHewan && item._id === selectedHewan._id ? "aktif" : ""
+                }`}
+                onClick={() => handleItemClick(item)}
               >
                 <span className="hewan-index-baru">{index + 1}.</span>
                 <div className="hewan-konten">
-                  <span className="hewan-nama-baru">{item.nama}, {item.jenis}</span>
+                  <span className="hewan-nama-baru">
+                    {item.nama}, {item.jenis}
+                  </span>
                 </div>
-                {index === selectedIndex && (
+                {selectedHewan && item._id === selectedHewan._id && (
                   <div className="hewan-aksi-baru">
                     <button className="edit-btn" onClick={() => alert(`Edit ${item.nama}`)}>
                       <img src={FaEdit} alt="Edit" />
@@ -102,37 +90,44 @@ function Halaman2() {
                 )}
               </div>
             ))}
-            <button className="tambah-btn">Tambah</button>
+
+            {/* Tombol Tambah */}
+            <button className="tambah-btn" onClick={() => setShowTambahPopup(true)}>Tambah</button>
           </div>
         </div>
 
         <div className="form-hewan">
           <div className="form-group">
             <label>Nama Hewan *</label>
-            <input name="nama" value={formData.nama} readOnly />
+            <input name="nama" value={selectedHewan?.nama || ""} readOnly />
           </div>
           <div className="form-group">
             <label>Jenis Hewan *</label>
-            <input name="jenis" value={formData.jenis} readOnly />
+            <input name="jenis" value={selectedHewan?.jenis || ""} readOnly />
           </div>
           <div className="form-group">
             <label>Kategori Hewan *</label>
-            <input name="kategori" value={formData.kategori} readOnly />
+            <input name="kategori" value={selectedHewan?.kategori || ""} readOnly />
           </div>
           <div className="form-group">
             <label>Jenis Kelamin Hewan</label>
-            <input name="gender" value={formData.gender} readOnly />
+            <input name="gender" value={selectedHewan?.jenis_kelamin || ""} readOnly />
           </div>
           <div className="form-group">
             <label>Ras Hewan</label>
-            <input name="ras" value={formData.ras} readOnly />
+            <input name="ras" value={selectedHewan?.ras || ""} readOnly />
           </div>
           <div className="form-group">
             <label>Umur Hewan (tahun)</label>
-            <input name="umur" value={formData.umur} readOnly />
+            <input name="umur" value={selectedHewan?.umur || ""} readOnly />
           </div>
         </div>
       </div>
+
+      {/* TambahPasien Popup */}
+      {showTambahPopup && (
+        <TambahPasien isOpen={showTambahPopup} onClose={() => setShowTambahPopup(false)} />
+      )}
     </div>
   );
 }

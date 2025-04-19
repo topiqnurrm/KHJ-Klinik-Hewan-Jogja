@@ -20,7 +20,7 @@ const PasienSchema = new mongoose.Schema({
     },
     jenis_kelamin: {
         type: String,
-        required: true,
+        required: false,
         enum: ['jantan', 'betina']
     },
     ras: {

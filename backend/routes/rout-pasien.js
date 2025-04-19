@@ -13,6 +13,18 @@ router.get('/user/:userId', async (req, res) => {
     }
   });
   
+
+  router.post('/', async (req, res) => {
+    try {
+      const pasien = new Pasien(req.body);
+      await pasien.save();
+      res.status(201).json(pasien);
+    } catch (err) {
+      console.error("Error saat menambahkan pasien:", err);
+      res.status(400).json({ message: err.message || "Gagal menambahkan pasien" });
+    }
+});
+  
   
 
 export default router;

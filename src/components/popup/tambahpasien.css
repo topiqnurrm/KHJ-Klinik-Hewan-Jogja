@@ -1,0 +1,200 @@
+@font-face {
+    font-family: "SansSerifBldFLF";
+    src: url("/assets/fonts/SansSerifBldFLF.ttf") format("truetype"),
+         url("/assets/fonts/SansSerifFLF.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  .tambahpasien-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  .tambahpasien-content {
+    background: #edf9f8;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    font-family: sans-serif;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+  
+  .tambahpasien-content h2 {
+    font-family: "SansSerifFLF";
+    font-size: 22px;
+    background: #38AB97;
+    color: white;
+    padding: 12px;
+    text-align: center;
+    border-radius: 10px 10px 0 0;
+    margin: 0;
+  }
+  
+  .tambahpasien-form {
+    display: flex;
+    gap: 40px;
+    padding: 20px 50px;
+    font-size: 16px;
+    flex-wrap: wrap;
+    overflow-y: auto;
+    flex: 1;
+  }
+  
+  .form-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 300px;
+  }
+  
+  .tambahpasien-form label {
+    font-family: "SansSerifBldFLF";
+    color: #3F4254;
+  }
+  
+  .tambahpasien-form input,
+  .tambahpasien-form select {
+    font-family: "SansSerifFLF", sans-serif;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 10px;
+    color: #aaa; /* Default: warna abu-abu untuk input kosong */
+  }
+  
+  .tambahpasien-form input.edited,
+  .tambahpasien-form select.edited {
+    color: #3F4254; /* Saat diisi */
+  }
+  
+  .tambahpasien-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px;
+    border-top: 1px solid #ccc;
+  }
+  
+  .btn {
+    width: 120px;
+    padding: 12px 0;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid;
+    transition: 0.3s ease;
+  }
+  
+  .btn.cancel {
+    border-color: #B4374B;
+    color: #B4374B;
+    background: white;
+  }
+  
+  .btn.cancel:hover {
+    background: #B4374B;
+    color: white;
+  }
+  
+  .btn.confirm {
+    border-color: #38AB97;
+    color: #38AB97;
+    background: white;
+  }
+  
+  .btn.confirm:hover {
+    background: #38AB97;
+    color: white;
+  }
+  
+  .tambahpasien-error {
+    color: red;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+  }
+  
+
+
+
+/* Styling react-select agar seragam dengan input */
+.react-select__control {
+    font-family: "SansSerifFLF", sans-serif;
+    padding: 0px 8px;
+    border: 1px solid #333 !important;
+    border-radius: 10px !important;
+    height: 10px !important;
+    width: 430px !important;
+    box-shadow: none !important;
+  }
+  
+  .react-select__placeholder {
+    color: #aaa !important;
+  }
+  
+  .react-select__single-value {
+    color: #3F4254 !important;
+  }
+  
+  .react-select__value-container {
+    padding: 2px 8px !important;
+  }
+  
+  .react-select__control--is-focused {
+    width: 420px !important;
+    border-color: #333 !important;
+    box-shadow: none !important;
+  }
+  
+  /* Pastikan dropdown menu bisa discroll saat banyak item */
+.tambahpasien-form .react-select__menu {
+    max-height: 150px; /* Atur tinggi maksimal */
+    overflow-y: auto;
+    z-index: 10000; /* Pastikan tidak tertutup tombol 'Tambah' dan 'Batal' */
+    position: absolute;
+  }
+  
+  /* Ukuran dan font option */
+.react-select__option {
+    font-size: 14px !important; /* Ukuran font lebih kecil */
+    font-family: "SansSerifFLF", sans-serif; /* Font sesuai input */
+  }
+
+
+
+
+  .tambahpasien-success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border: 1px solid #c3e6cb;
+    text-align: center;
+  }
+  
+  .tambahpasien-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border: 1px solid #f5c6cb;
+    text-align: center;
+  }
+  
