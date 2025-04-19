@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import "./tambahpasien.css";
 import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
 
-const TambahPasien = ({ isOpen, onClose }) => {
+const TambahPasien = ({ isOpen, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     nama: "",
     jenis: "",
@@ -25,7 +26,7 @@ const TambahPasien = ({ isOpen, onClose }) => {
     setTimeout(() => {
       setSuccessMessage("");
       onClose();
-      window.location.reload();
+    //   window.location.reload();
     }, 2000);
   };
 
@@ -64,7 +65,13 @@ const TambahPasien = ({ isOpen, onClose }) => {
       });
   
       if (res.ok) {
+        const dataBaru = await res.json(); // pastikan API return data baru
+        // setSuccessMessage("");
+        onSuccess(dataBaru); // kirim data baru ke Halaman2
         showSuccess("Pasien berhasil ditambahkan!");
+        setTimeout(() => {
+          onClose();
+        }, 2000);
       } else {
         const data = await res.json();
         showError(data.message || "Gagal menambahkan pasien.");
@@ -97,25 +104,25 @@ const TambahPasien = ({ isOpen, onClose }) => {
             />
 
             <label>Jenis Hewan *</label>
-            <Select
-              classNamePrefix="react-select"
-              options={[
-                { value: "anjing", label: "Anjing" },
-                { value: "kucing", label: "Kucing" },
-                { value: "ayam", label: "Ayam" },
-                { value: "kelinci", label: "Kelinci" },
-                { value: "burung", label: "Burung" },
-              ]}
-              isClearable
-              isSearchable
-              placeholder="Jenis Hewan"
-              value={formData.jenis ? { value: formData.jenis, label: formData.jenis } : null}
-              onChange={(selectedOption) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  jenis: selectedOption ? selectedOption.value : "",
-                }))
-              }
+            <CreatableSelect
+                classNamePrefix="react-select"
+                options={[
+                    { value: "anjing", label: "Anjing" },
+                    { value: "kucing", label: "Kucing" },
+                    { value: "ayam", label: "Ayam" },
+                    { value: "kelinci", label: "Kelinci" },
+                    { value: "burung", label: "Burung" },
+                ]}
+                isClearable
+                isSearchable
+                placeholder="Jenis Hewan"
+                value={formData.jenis ? { value: formData.jenis, label: formData.jenis } : null}
+                onChange={(selectedOption) =>
+                    setFormData((prev) => ({
+                    ...prev,
+                    jenis: selectedOption ? selectedOption.value : "",
+                    }))
+                }
             />
 
             <label>Kategori Hewan *</label>

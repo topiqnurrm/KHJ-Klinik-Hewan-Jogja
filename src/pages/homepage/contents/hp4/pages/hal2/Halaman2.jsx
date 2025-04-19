@@ -3,14 +3,14 @@ import "./halaman2.css";
 import FaEdit from "./gambar/edit.png";
 import FaTrash from "./gambar/hapus.png";
 import { getPasienByUserId } from "../../../../../../api/api-pasien";
-import TambahPasien from "../../../../../../components/popup/tambahpasien"; // Tambahkan ini
+import TambahPasien from "../../../../../../components/popup/tambahpasien";
 
 function Halaman2() {
   const [searchTerm, setSearchTerm] = useState("");
   const [hewanList, setHewanList] = useState([]);
   const [filteredHewanList, setFilteredHewanList] = useState([]);
   const [selectedHewan, setSelectedHewan] = useState(null);
-  const [showTambahPopup, setShowTambahPopup] = useState(false); // Tambahkan ini
+  const [showTambahPopup, setShowTambahPopup] = useState(false);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -18,10 +18,14 @@ function Halaman2() {
 
     if (userId) {
       getPasienByUserId(userId).then((data) => {
-        setHewanList(data);
-        setFilteredHewanList(data);
-        if (data.length > 0) {
-          setSelectedHewan(data[0]);
+        // Urutkan dari yang terbaru ke yang lama berdasarkan createdAt
+        const sortedData = [...data].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setHewanList(sortedData);
+        setFilteredHewanList(sortedData);
+        if (sortedData.length > 0) {
+          setSelectedHewan(sortedData[0]);
         }
       });
     }
@@ -43,11 +47,19 @@ function Halaman2() {
     setSelectedHewan(item);
   };
 
+  const handleTambahBerhasil = (dataBaru) => {
+    const updatedList = [dataBaru, ...hewanList];
+    setHewanList(updatedList);
+    setFilteredHewanList(updatedList);
+    setSelectedHewan(dataBaru);
+  };
+
   return (
     <div className="hlmhwn2-judul">
       <div className="judul">
         <div className="judul1">
           <h3>Daftar Hewan Saya :</h3>
+          <div className="search-wrapper">
           <input
             type="text"
             placeholder="Cari hewan..."
@@ -55,6 +67,17 @@ function Halaman2() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
+          {searchTerm && (
+            <button
+              className="clear-search"
+              onClick={() => setSearchTerm("")}
+              aria-label="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
+
         </div>
         <div className="judul2">
           <h3>Data Rinci Hewan Saya :</h3>
@@ -126,7 +149,11 @@ function Halaman2() {
 
       {/* TambahPasien Popup */}
       {showTambahPopup && (
-        <TambahPasien isOpen={showTambahPopup} onClose={() => setShowTambahPopup(false)} />
+        <TambahPasien
+          isOpen={showTambahPopup}
+          onClose={() => setShowTambahPopup(false)}
+          onSuccess={handleTambahBerhasil}
+        />
       )}
     </div>
   );
