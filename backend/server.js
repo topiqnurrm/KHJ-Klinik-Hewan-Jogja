@@ -13,6 +13,10 @@ import fs from 'fs';
 
 import pasienRouter from './routes/rout-pasien.js';
 
+import routePelayanan from './routes/rout-pelayanan.js';
+
+import routeBooking from './routes/rout-booking.js';
+
 dotenv.config();
 
 const app = express();
@@ -76,6 +80,9 @@ app.get('/', (req, res) => {
 // app.use('/api/pasien', require('./routes/rout-pasien'));
 app.use('/api/pasien', pasienRouter);
 
+app.use('/api/pelayanan', routePelayanan); // Menambahkan route pelayanannya
+
+app.use('/api/booking', routeBooking); // Menambahkan route bookingnya
 
 // Route ambil data klien
 app.get('/api/users/klien', async (req, res) => {

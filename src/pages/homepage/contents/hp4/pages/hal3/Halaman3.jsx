@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import "./halaman3.css";
+import { getPasienByUserId } from "../../../../../../api/api-pasien";
+import { fetchLayanan } from "../../../../../../api/api-pelayanan";
 
 const customSelectStyles = {
   control: (provided, state) => ({
@@ -47,35 +49,129 @@ const customSelectStyles = {
   indicatorSeparator: () => ({
     display: 'none',
   }),
+  menuList: (provided) => ({
+    ...provided,
+    maxHeight: "150px",
+    overflowY: "auto",
+  }),
 };
 
 function Halaman3() {
   const [selectedPasien, setSelectedPasien] = useState(null);
+  const [pasienOptions, setPasienOptions] = useState([]);
+  const [layananOptions, setLayananOptions] = useState([]);
   const [selectedLayanan, setSelectedLayanan] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [complaint, setComplaint] = useState("");
+  const [savedData, setSavedData] = useState(null);
 
-  const pasienOptions = [
-    { value: "wowo", label: "Wowo" },
-    { value: "john", label: "John Doe" },
-  ];
+  const [validationMessage, setValidationMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
 
-  const layananOptions = [
-    { value: "pemeriksaan_umum", label: "Pemeriksaan Umum" },
-    { value: "pemeriksaan_umum_a", label: "Pemeriksaan Umum a" },
-    { value: "pemeriksaan_umum_b", label: "Pemeriksaan Umum b" },
-  ];
+  const jenisLayanan = "Onsite (Booking Online)";
+  const lokasiPemeriksaan = "Klinik Hewan A";
+
+  useEffect(() => {
+    const fetchDataPasien = async () => {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      const userId = storedUser?._id;
+
+      if (userId) {
+        try {
+          const pasienData = await getPasienByUserId(userId);
+          const sortedPasienData = pasienData.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+
+          const formattedOptions = sortedPasienData
+            .map((item) => ({
+              value: item._id,
+              label: `${item.nama} (${item.jenis})`,
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label));
+
+          setPasienOptions(formattedOptions);
+        } catch (error) {
+          console.error("Gagal mengambil data pasien:", error);
+        }
+      }
+    };
+
+    const loadLayanan = async () => {
+      const layananData = await fetchLayanan();
+      const sortedLayanan = layananData.sort((a, b) =>
+        a.label.localeCompare(b.label)
+      );
+      setLayananOptions(sortedLayanan);
+      const defaultLayanan = sortedLayanan.find(
+        (layanan) => layanan.label === "Pemeriksaan Umum"
+      );
+      if (defaultLayanan) {
+        setSelectedLayanan(defaultLayanan);
+      }
+    };
+
+    fetchDataPasien();
+    loadLayanan();
+  }, []);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("savedInput");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setSavedData(parsed);
+      setSelectedPasien(parsed.pasien);
+      setSelectedLayanan(parsed.layanan);
+      setSelectedDate(parsed.tanggal);
+      setComplaint(parsed.keluhan);
+    }
+  }, []);
 
   const handleSave = () => {
+    if (!selectedPasien || !selectedLayanan || !selectedDate || !complaint) {
+      setValidationMessage("Harap lengkapi semua kolom terlebih dahulu!");
+      setMessageType("error");
+      setTimeout(() => {
+        setValidationMessage("");
+        setMessageType("");
+      }, 2000);
+      return;
+    }
+  
+    const newData = {
+      pasien: selectedPasien,
+      layanan: selectedLayanan,
+      tanggal: selectedDate,
+      keluhan: complaint,
+      jenisLayanan,
+      lokasi: lokasiPemeriksaan,
+    };
+  
+    // 👉 Bandingkan dengan data yang sudah ada
+    if (JSON.stringify(newData) === JSON.stringify(savedData)) {
+      setValidationMessage("Data masih sama, tidak ada perubahan.");
+      setMessageType("warning");
+      setTimeout(() => {
+        setValidationMessage("");
+        setMessageType("");
+      }, 2000);
+      return;
+    }
+  
+    localStorage.setItem("savedInput", JSON.stringify(newData));
+    setSavedData(newData);
+  
     console.log("=== Data yang Disimpan ===");
-    console.log("Pasien:", selectedPasien);
-    console.log("Layanan:", selectedLayanan);
-    console.log("Tanggal:", selectedDate);
-    console.log("Keluhan:", complaint);
-    console.log("Jenis Layanan: Onsite (Booking Online)");
-    console.log("Lokasi: Klinik Hewan A");
-    alert("Data berhasil disimpan ke console!");
+    console.log(newData);
+  
+    setValidationMessage("Data berhasil disimpan!");
+    setMessageType("success");
+    setTimeout(() => {
+      setValidationMessage("");
+      setMessageType("");
+    }, 2000);
   };
+  
 
   return (
     <div className="hal3">
@@ -85,17 +181,8 @@ function Halaman3() {
           styles={customSelectStyles}
           options={pasienOptions}
           placeholder="Pilih Pasien"
-          onChange={(selectedOption) => setSelectedPasien(selectedOption)}
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Pilih Layanan *</label>
-        <Select
-          styles={customSelectStyles}
-          options={layananOptions}
-          placeholder="Pilih Layanan"
-          onChange={(selectedOption) => setSelectedLayanan(selectedOption)}
+          onChange={(option) => setSelectedPasien(option)}
+          value={selectedPasien}
         />
       </div>
 
@@ -103,7 +190,6 @@ function Halaman3() {
         <label>Pilih Waktu Pemeriksaan *</label>
         <div className="date-input-wrapper">
           <input
-            // className="date-input"
             className={selectedDate === "" ? "empty" : ""}
             type="date"
             value={selectedDate}
@@ -115,8 +201,19 @@ function Halaman3() {
       </div>
 
       <div className="form-group">
+        <label>Pilih Layanan *</label>
+        <Select
+          styles={customSelectStyles}
+          options={layananOptions}
+          placeholder="Pilih Layanan"
+          onChange={(option) => setSelectedLayanan(option)}
+          value={selectedLayanan}
+        />
+      </div>
+
+      <div className="form-group">
         <label className="warna">Pilih Jenis Layanan *</label>
-        <input className="warna" type="text" value="Onsite (Booking Online)" readOnly />
+        <input className="warna" type="text" value={jenisLayanan} readOnly />
       </div>
 
       <div className="form-group">
@@ -132,15 +229,32 @@ function Halaman3() {
 
       <div className="form-group">
         <label className="warna">Pilih Lokasi Pemeriksaan *</label>
-        <input className="warna" type="text" value="Klinik Hewan A" readOnly />
+        <input className="warna" type="text" value={lokasiPemeriksaan} readOnly />
       </div>
 
-      {/* Tombol Simpan */}
       <div className="simpan">
         <button className="btn-simpan" onClick={handleSave}>
           Simpan
         </button>
+
+        {validationMessage && (
+          <div className={`validation-message ${messageType}`}>
+            {validationMessage}
+          </div>
+        )}
       </div>
+
+      {/* {savedData && (
+        <div className="saved-list">
+          <h4>Data yang Disimpan:</h4>
+          <p><strong>Pasien:</strong> {savedData.pasien.label}</p>
+          <p><strong>Layanan:</strong> {savedData.layanan.label}</p>
+          <p><strong>Tanggal:</strong> {savedData.tanggal}</p>
+          <p><strong>Keluhan:</strong> {savedData.keluhan}</p>
+          <p><strong>Jenis:</strong> {savedData.jenisLayanan}</p>
+          <p><strong>Lokasi:</strong> {savedData.lokasi}</p>
+        </div>
+      )} */}
     </div>
   );
 }

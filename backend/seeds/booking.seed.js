@@ -94,6 +94,204 @@ const data = [
       }
     ],
     tanggal_disetujui: new Date('2025-05-18')
+  },
+  {
+    id_pasien: samplePasienId3,
+    status_booking: 'menunggu',
+    pilih_tanggal: new Date('2025-05-07'),
+    keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
+    administrasis1: [
+      {
+        id_user: sampleUserId1,
+        catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
+        status_booking: 'disetujui',
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    pelayanans1: [
+      {
+        id_pelayanan: samplePelayananId1,
+        jumlah: 2,
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    tanggal_disetujui: new Date('2025-05-18')
+  },
+  {
+    id_pasien: samplePasienId3,
+    status_booking: 'menunggu',
+    pilih_tanggal: new Date('2025-05-07'),
+    keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
+    administrasis1: [
+      {
+        id_user: sampleUserId1,
+        catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
+        status_booking: 'disetujui',
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    pelayanans1: [
+      {
+        id_pelayanan: samplePelayananId1,
+        jumlah: 2,
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    tanggal_disetujui: new Date('2025-05-18')
+  },
+  {
+    id_pasien: samplePasienId3,
+    status_booking: 'menunggu',
+    pilih_tanggal: new Date('2025-05-07'),
+    keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
+    administrasis1: [
+      {
+        id_user: sampleUserId1,
+        catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
+        status_booking: 'disetujui',
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    pelayanans1: [
+      {
+        id_pelayanan: samplePelayananId1,
+        jumlah: 2,
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    tanggal_disetujui: new Date('2025-05-18')
+  },
+  {
+    id_pasien: samplePasienId3,
+    status_booking: 'menunggu',
+    pilih_tanggal: new Date('2025-05-07'),
+    keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
+    administrasis1: [
+      {
+        id_user: sampleUserId1,
+        catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
+        status_booking: 'disetujui',
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    pelayanans1: [
+      {
+        id_pelayanan: samplePelayananId1,
+        jumlah: 2,
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    tanggal_disetujui: new Date('2025-05-18')
+  },
+  {
+    id_pasien: samplePasienId3,
+    status_booking: 'menunggu',
+    pilih_tanggal: new Date('2025-05-08'),
+    keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
+    administrasis1: [
+      {
+        id_user: sampleUserId1,
+        catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
+        status_booking: 'disetujui',
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    pelayanans1: [
+      {
+        id_pelayanan: samplePelayananId1,
+        jumlah: 2,
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    tanggal_disetujui: new Date('2025-05-18')
+  },
+  {
+    id_pasien: samplePasienId3,
+    status_booking: 'menunggu',
+    pilih_tanggal: new Date('2025-05-08'),
+    keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
+    administrasis1: [
+      {
+        id_user: sampleUserId1,
+        catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
+        status_booking: 'disetujui',
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    pelayanans1: [
+      {
+        id_pelayanan: samplePelayananId1,
+        jumlah: 2,
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    tanggal_disetujui: new Date('2025-05-18')
+  },
+  {
+    id_pasien: samplePasienId3,
+    status_booking: 'menunggu',
+    pilih_tanggal: new Date('2025-05-08'),
+    keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
+    administrasis1: [
+      {
+        id_user: sampleUserId1,
+        catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
+        status_booking: 'disetujui',
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    pelayanans1: [
+      {
+        id_pelayanan: samplePelayananId1,
+        jumlah: 2,
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    tanggal_disetujui: new Date('2025-05-18')
+  },
+  {
+    id_pasien: samplePasienId3,
+    status_booking: 'menunggu',
+    pilih_tanggal: new Date('2025-05-08'),
+    keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
+    administrasis1: [
+      {
+        id_user: sampleUserId1,
+        catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
+        status_booking: 'disetujui',
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    pelayanans1: [
+      {
+        id_pelayanan: samplePelayananId1,
+        jumlah: 2,
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    tanggal_disetujui: new Date('2025-05-18')
+  },
+  {
+    id_pasien: samplePasienId3,
+    status_booking: 'menunggu',
+    pilih_tanggal: new Date('2025-05-08'),
+    keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
+    administrasis1: [
+      {
+        id_user: sampleUserId1,
+        catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
+        status_booking: 'disetujui',
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    pelayanans1: [
+      {
+        id_pelayanan: samplePelayananId1,
+        jumlah: 2,
+        tanggal: new Date('2025-05-16')
+      }
+    ],
+    tanggal_disetujui: new Date('2025-05-18')
   }
 ];
 

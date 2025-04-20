@@ -26,6 +26,15 @@ const BookingSchema = new mongoose.Schema({
                 type: Date,
                 default: Date.now
             },
+            status_user: {
+                type: String,
+                enum: ['menunggu', 'disetujui', 'ditolak', 
+                    'diproses', 'inap', 'dibatalkan', 
+                    'pembayaran', 'ambil_obat', 'selesai'],
+                default: 'menunggu',
+                required: false
+            },
+
         }
     ],
     pilih_tanggal: {

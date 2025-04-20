@@ -8,7 +8,7 @@ import { getPasienByUserId, deletePasienById } from "../../../../../../api/api-p
 
 import Popup from "../../../../../../components/popup/popup2"; 
 
-import EditHewan from "../../../../../../components/popup/EditHewan";
+import EditHewan from "../../../../../../components/popup/edithewan";
 
 function Halaman2() {
   const [searchTerm, setSearchTerm] = useState("");

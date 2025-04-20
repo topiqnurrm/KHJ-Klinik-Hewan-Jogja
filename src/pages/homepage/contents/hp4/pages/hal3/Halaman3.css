@@ -141,3 +141,28 @@
     color: #aaa;  /* warna mirip placeholder */
   }
   
+
+
+
+
+
+  .validation-message {
+    /* margin-top: 10px; */
+    /* font-size: 0.95rem; */
+    /* padding: 8px 12px; */
+    /* border-radius: 6px; */
+    /* width: fit-content; */
+  }
+  
+  .validation-message.error {
+    /* background-color: #ffe0e0; */
+    color: #c00;
+    /* border: 1px solid #c00; */
+  }
+  
+  .validation-message.success {
+    /* background-color: #e0ffe5; */
+    color: #007e33;
+    /* border: 1px solid #007e33; */
+  }
+  

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import CreatableSelect from "react-select/creatable";
-import "./tambahpasien.css"; // Reuse styling dari TambahPasien
+import "./tambahpasien.css";
 
 const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
   const [formData, setFormData] = useState({});
   const [originalData, setOriginalData] = useState({});
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Status untuk memantau proses pengiriman
 
   useEffect(() => {
     const sanitizedData = {
@@ -31,8 +31,8 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
   const showSuccess = (msg) => {
     setSuccessMessage(msg);
     setTimeout(() => {
-      setSuccessMessage("");
-      onClose();
+      setSuccessMessage(""); // Hapus pesan sukses setelah beberapa detik
+      onClose(); // Tutup modal setelah beberapa detik
     }, 2000);
   };
 
@@ -41,33 +41,40 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSelectChange = (name, selectedOption) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: selectedOption ? selectedOption.value : "",
+    }));
+  };
+
   const hasChanges = () => {
-    return Object.keys(originalData).some((key) => {
-      const original = originalData[key] ?? "";
-      const current = formData[key] ?? "";
-      return String(original) !== String(current);
+    return Object.keys(formData).some((key) => {
+      return originalData[key] !== formData[key];
     });
   };
 
   const handleSubmit = async () => {
-    const allFields = ["nama", "jenis", "kategori", "kelamin", "ras", "umur"];
-    const kosong = allFields.filter(
-      (key) =>
-        formData[key] === "" ||
-        formData[key] === null ||
-        formData[key] === undefined
+    const requiredFields = ["nama", "jenis", "kategori"];
+    const changedFields = Object.keys(formData).filter(
+      (key) => originalData[key] !== formData[key]
     );
 
-    if (kosong.length > 0) {
-      return showError("Harap lengkapi semua data terlebih dahulu.");
+    // Cek apakah field wajib sudah terisi setelah perubahan
+    const missingRequiredFields = requiredFields.filter(
+      (field) => !formData[field]
+    );
+
+    if (missingRequiredFields.length > 0) {
+      return showError("Field wajib harus diisi: " + missingRequiredFields.join(", "));
     }
 
-    if (!hasChanges()) {
+    if (changedFields.length === 0) {
       return showError("Tidak ada perubahan data.");
     }
 
     try {
-      setIsSubmitting(true);
+      setIsSubmitting(true); // Set status pengiriman jadi true (tombol dinonaktifkan)
 
       const payload = {
         ...formData,
@@ -97,29 +104,24 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
     } catch (err) {
       showError("Terjadi kesalahan saat memperbarui data.");
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false); // Setelah backend selesai, aktifkan tombol lagi
     }
   };
 
   if (!isOpen) return null;
 
+  // Menonaktifkan tombol Batal dan Simpan jika ada pesan sukses atau sedang mengirim data
+  const isButtonDisabled = isSubmitting || successMessage;
+
   return ReactDOM.createPortal(
     <div className="tambahpasien-overlay">
-      <div
-        className="tambahpasien-content"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="tambahpasien-content" onClick={(e) => e.stopPropagation()}>
         <h2>Edit Data Hewan</h2>
 
         {error && <div className="tambahpasien-error">{error}</div>}
-        {successMessage && (
-          <div className="tambahpasien-success">{successMessage}</div>
-        )}
+        {successMessage && <div className="tambahpasien-success">{successMessage}</div>}
 
-        <form
-          className="tambahpasien-form"
-          onSubmit={(e) => e.preventDefault()}
-        >
+        <form className="tambahpasien-form" onSubmit={(e) => e.preventDefault()}>
           <div className="form-column">
             <label>Nama Hewan *</label>
             <input
@@ -148,12 +150,7 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
                   ? { value: formData.jenis, label: formData.jenis }
                   : null
               }
-              onChange={(selectedOption) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  jenis: selectedOption ? selectedOption.value : "",
-                }))
-              }
+              onChange={(selectedOption) => handleSelectChange("jenis", selectedOption)}
             />
 
             <label>Kategori Hewan *</label>
@@ -165,9 +162,7 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
             >
               <option value="">Pilih Kategori Hewan</option>
               <option value="ternak">Ternak</option>
-              <option value="kesayangan / satwa liar">
-                Kesayangan / Satwa Liar
-              </option>
+              <option value="kesayangan / satwa liar">Kesayangan / Satwa Liar</option>
               <option value="unggas">Unggas</option>
             </select>
           </div>
@@ -211,14 +206,14 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
           <button
             className="btn cancel"
             onClick={onClose}
-            disabled={isSubmitting}
+            disabled={isButtonDisabled} // Tombol Batal dinonaktifkan jika sedang mengirim atau pesan sukses muncul
           >
             Batal
           </button>
           <button
             className="btn confirm"
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isButtonDisabled} // Tombol Simpan dinonaktifkan jika sedang mengirim atau pesan sukses muncul
           >
             {isSubmitting ? "Menyimpan..." : "Simpan"}
           </button>
