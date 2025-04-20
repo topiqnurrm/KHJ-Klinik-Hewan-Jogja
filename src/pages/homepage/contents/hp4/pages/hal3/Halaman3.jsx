@@ -3,6 +3,7 @@ import Select from "react-select";
 import "./halaman3.css";
 import { getPasienByUserId } from "../../../../../../api/api-pasien";
 import { fetchLayanan } from "../../../../../../api/api-pelayanan";
+import { checkBookingAvailability } from "../../../../../../api/api-booking";
 
 const customSelectStyles = {
   control: (provided, state) => ({
@@ -64,6 +65,7 @@ function Halaman3() {
   const [selectedDate, setSelectedDate] = useState("");
   const [complaint, setComplaint] = useState("");
   const [savedData, setSavedData] = useState(null);
+  const [kuotaBooking, setKuotaBooking] = useState(null);
 
   const [validationMessage, setValidationMessage] = useState("");
   const [messageType, setMessageType] = useState("");
@@ -127,6 +129,22 @@ function Halaman3() {
     }
   }, []);
 
+  useEffect(() => {
+    const fetchKuota = async () => {
+      if (selectedDate) {
+        try {
+          const result = await checkBookingAvailability(selectedDate);
+          console.log(result); // Debug untuk melihat respons API
+          setKuotaBooking(result.tersedia);  // Pastikan result.tersedia yang digunakan
+        } catch (error) {
+          setKuotaBooking(null);
+        }
+      }
+    };
+    fetchKuota();
+  }, [selectedDate]);
+  
+
   const handleSave = () => {
     if (!selectedPasien || !selectedLayanan || !selectedDate || !complaint) {
       setValidationMessage("Harap lengkapi semua kolom terlebih dahulu!");
@@ -137,7 +155,17 @@ function Halaman3() {
       }, 2000);
       return;
     }
-  
+
+    if (kuotaBooking === 0) {
+      setValidationMessage("Kuota penuh pada tanggal tersebut. Pilih tanggal lain.");
+      setMessageType("error");
+      setTimeout(() => {
+        setValidationMessage("");
+        setMessageType("");
+      }, 2000);
+      return;
+    }
+
     const newData = {
       pasien: selectedPasien,
       layanan: selectedLayanan,
@@ -146,8 +174,7 @@ function Halaman3() {
       jenisLayanan,
       lokasi: lokasiPemeriksaan,
     };
-  
-    // 👉 Bandingkan dengan data yang sudah ada
+
     if (JSON.stringify(newData) === JSON.stringify(savedData)) {
       setValidationMessage("Data masih sama, tidak ada perubahan.");
       setMessageType("warning");
@@ -157,13 +184,13 @@ function Halaman3() {
       }, 2000);
       return;
     }
-  
+
     localStorage.setItem("savedInput", JSON.stringify(newData));
     setSavedData(newData);
-  
+
     console.log("=== Data yang Disimpan ===");
     console.log(newData);
-  
+
     setValidationMessage("Data berhasil disimpan!");
     setMessageType("success");
     setTimeout(() => {
@@ -171,11 +198,10 @@ function Halaman3() {
       setMessageType("");
     }, 2000);
   };
-  
 
   return (
     <div className="hal3">
-      <div className="form-group">
+      <div className="form-group-1">
         <label>Pilih Pasien *</label>
         <Select
           styles={customSelectStyles}
@@ -198,6 +224,14 @@ function Halaman3() {
             max="2099-12-31"
           />
         </div>
+        {selectedDate && kuotaBooking !== null && (
+          <div className={`kuota-info ${kuotaBooking === 0 ? "full" : "available"}`}>
+            {kuotaBooking === 0
+              ? "Kuota penuh pada tanggal ini. Silakan pilih tanggal lain."
+              : `Tersisa ${kuotaBooking} slot booking tersedia.`}
+          </div>
+        )}
+
       </div>
 
       <div className="form-group">
@@ -243,18 +277,6 @@ function Halaman3() {
           </div>
         )}
       </div>
-
-      {/* {savedData && (
-        <div className="saved-list">
-          <h4>Data yang Disimpan:</h4>
-          <p><strong>Pasien:</strong> {savedData.pasien.label}</p>
-          <p><strong>Layanan:</strong> {savedData.layanan.label}</p>
-          <p><strong>Tanggal:</strong> {savedData.tanggal}</p>
-          <p><strong>Keluhan:</strong> {savedData.keluhan}</p>
-          <p><strong>Jenis:</strong> {savedData.jenisLayanan}</p>
-          <p><strong>Lokasi:</strong> {savedData.lokasi}</p>
-        </div>
-      )} */}
     </div>
   );
 }

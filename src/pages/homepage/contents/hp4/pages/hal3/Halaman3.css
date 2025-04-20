@@ -36,7 +36,7 @@
   .hal3 .keluhan {
     width: 349px !important;
     resize: none;
-    /* height: 50px; */
+    height: 35px;
   }
   
   .hal3 label {
@@ -166,3 +166,29 @@
     /* border: 1px solid #007e33; */
   }
   
+
+
+
+
+  .kuota-info {
+    font-size: 1rem;
+    /* font-weight: bold; */
+  }
+  
+  .kuota-info.available {
+    color: green; /* Hijau untuk slot tersedia */
+  }
+  
+  .kuota-info.full {
+    color: red; /* Merah untuk kuota penuh */
+  }
+  
+
+
+
+  .hal3 .form-group-1 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 15px;
+  }
