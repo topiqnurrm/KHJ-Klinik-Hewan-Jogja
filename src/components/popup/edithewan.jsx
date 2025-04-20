@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "./tambahpasien.css";
-import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 
-const TambahPasien = ({ isOpen, onClose, onSuccess }) => {
+const EditHewan = ({ isOpen, onClose, onSuccess, pasienData }) => {
   const [formData, setFormData] = useState({
     nama: "",
     jenis: "",
@@ -13,8 +12,31 @@ const TambahPasien = ({ isOpen, onClose, onSuccess }) => {
     kelamin: "",
     umur: "",
   });
+  const [initialData, setInitialData] = useState(null);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (pasienData) {
+      setFormData({
+        nama: pasienData.nama || "",
+        jenis: pasienData.jenis || "",
+        kategori: pasienData.kategori || "",
+        ras: pasienData.ras || "",
+        kelamin: pasienData.jenis_kelamin || "",
+        umur: pasienData.umur || "",
+      });
+      setInitialData({
+        nama: pasienData.nama || "",
+        jenis: pasienData.jenis || "",
+        kategori: pasienData.kategori || "",
+        ras: pasienData.ras || "",
+        kelamin: pasienData.jenis_kelamin || "",
+        umur: pasienData.umur || "",
+      });
+    }
+  }, [pasienData]);
 
   const showError = (msg) => {
     setError(msg);
@@ -26,7 +48,6 @@ const TambahPasien = ({ isOpen, onClose, onSuccess }) => {
     setTimeout(() => {
       setSuccessMessage("");
       onClose();
-    //   window.location.reload();
     }, 2000);
   };
 
@@ -35,54 +56,49 @@ const TambahPasien = ({ isOpen, onClose, onSuccess }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const hasChanges = () => {
+    return JSON.stringify(formData) !== JSON.stringify(initialData);
+  };
 
   const handleSubmit = async () => {
-    const { nama, jenis, kategori, kelamin, ras, umur } = formData;
-  
-    if (!nama || !jenis || !kategori) {
+    if (!formData.nama || !formData.jenis || !formData.kategori) {
       return showError("Harap lengkapi semua data wajib (dengan tanda *).");
     }
-  
+
+    if (!hasChanges()) {
+      return showError("Tidak ada perubahan data.");
+    }
+
     try {
-      setIsSubmitting(true); // Mulai proses
-  
-      const storedUser = JSON.parse(localStorage.getItem("user"));
-      const id_user = storedUser?._id;
-  
-      const dataToSend = { nama, jenis, kategori, id_user };
-      if (kelamin) dataToSend.jenis_kelamin = kelamin;
-      if (ras) dataToSend.ras = ras;
-      if (umur) dataToSend.umur = umur;
-  
-      const res = await fetch("http://localhost:5000/api/pasien", {
-        method: "POST",
+      setIsSubmitting(true);
+
+      const res = await fetch(`http://localhost:5000/api/pasien/${pasienData._id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify(formData),
       });
-  
+
       if (res.ok) {
-        const dataBaru = await res.json();
-        onSuccess(dataBaru);
-        showSuccess("Pasien berhasil ditambahkan!");
+        const updatedData = await res.json();
+        onSuccess(updatedData);
+        showSuccess("Data pasien berhasil diperbarui!");
       } else {
         const data = await res.json();
-        showError(data.message || "Gagal menambahkan pasien.");
-        setIsSubmitting(false); // Reset jika gagal
+        showError(data.message || "Gagal memperbarui data.");
+        setIsSubmitting(false);
       }
     } catch (err) {
-      showError("Terjadi kesalahan saat mengirim data.");
-      setIsSubmitting(false); // Reset jika error
+      showError("Terjadi kesalahan saat memperbarui data.");
+      setIsSubmitting(false);
     }
-  };  
-  
+  };
 
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
     <div className="tambahpasien-overlay">
       <div className="tambahpasien-content" onClick={(e) => e.stopPropagation()}>
-        <h2>Tambah Pasien Baru</h2>
+        <h2>Edit Data Hewan</h2>
 
         {error && <div className="tambahpasien-error">{error}</div>}
         {successMessage && <div className="tambahpasien-success">{successMessage}</div>}
@@ -100,24 +116,24 @@ const TambahPasien = ({ isOpen, onClose, onSuccess }) => {
 
             <label>Jenis Hewan *</label>
             <CreatableSelect
-                classNamePrefix="react-select"
-                options={[
-                    { value: "anjing", label: "Anjing" },
-                    { value: "kucing", label: "Kucing" },
-                    { value: "ayam", label: "Ayam" },
-                    { value: "kelinci", label: "Kelinci" },
-                    { value: "burung", label: "Burung" },
-                ]}
-                isClearable
-                isSearchable
-                placeholder="Jenis Hewan"
-                value={formData.jenis ? { value: formData.jenis, label: formData.jenis } : null}
-                onChange={(selectedOption) =>
-                    setFormData((prev) => ({
-                    ...prev,
-                    jenis: selectedOption ? selectedOption.value : "",
-                    }))
-                }
+              classNamePrefix="react-select"
+              options={[
+                { value: "anjing", label: "Anjing" },
+                { value: "kucing", label: "Kucing" },
+                { value: "ayam", label: "Ayam" },
+                { value: "kelinci", label: "Kelinci" },
+                { value: "burung", label: "Burung" },
+              ]}
+              isClearable
+              isSearchable
+              placeholder="Jenis Hewan"
+              value={formData.jenis ? { value: formData.jenis, label: formData.jenis } : null}
+              onChange={(selectedOption) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  jenis: selectedOption ? selectedOption.value : "",
+                }))
+              }
             />
 
             <label>Kategori Hewan *</label>
@@ -169,11 +185,7 @@ const TambahPasien = ({ isOpen, onClose, onSuccess }) => {
         </form>
 
         <div className="tambahpasien-buttons">
-          <button
-            className="btn cancel"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
+          <button className="btn cancel" onClick={onClose} disabled={isSubmitting}>
             Batal
           </button>
           <button
@@ -181,14 +193,13 @@ const TambahPasien = ({ isOpen, onClose, onSuccess }) => {
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Menyimpan..." : "Tambah"}
+            {isSubmitting ? "Menyimpan..." : "Simpan"}
           </button>
         </div>
-
       </div>
     </div>,
     document.body
   );
 };
 
-export default TambahPasien;
+export default EditHewan;

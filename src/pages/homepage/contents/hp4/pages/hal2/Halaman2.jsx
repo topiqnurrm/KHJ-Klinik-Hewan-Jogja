@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import "./halaman2.css";
 import FaEdit from "./gambar/edit.png";
 import FaTrash from "./gambar/hapus.png";
-import { getPasienByUserId } from "../../../../../../api/api-pasien";
 import TambahPasien from "../../../../../../components/popup/tambahpasien";
+
+import { getPasienByUserId, deletePasienById } from "../../../../../../api/api-pasien";
+
+import Popup from "../../../../../../components/popup/popup2"; 
 
 function Halaman2() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -11,6 +14,9 @@ function Halaman2() {
   const [filteredHewanList, setFilteredHewanList] = useState([]);
   const [selectedHewan, setSelectedHewan] = useState(null);
   const [showTambahPopup, setShowTambahPopup] = useState(false);
+
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [hewanToDelete, setHewanToDelete] = useState(null);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -106,9 +112,50 @@ function Halaman2() {
                     <button className="edit-btn" onClick={() => alert(`Edit ${item.nama}`)}>
                       <img src={FaEdit} alt="Edit" />
                     </button>
-                    <button className="hapus-btn" onClick={() => alert(`Hapus ${item.nama}`)}>
+
+                    <button
+                      className="hapus-btn"
+                      onClick={() => {
+                        setHewanToDelete(item);
+                        setShowDeletePopup(true);
+                      }}
+                    >
                       <img src={FaTrash} alt="Hapus" />
                     </button>
+
+                    {showDeletePopup && (
+                      <Popup
+                        isOpen={showDeletePopup}
+                        onClose={() => {
+                          setShowDeletePopup(false);
+                          setHewanToDelete(null);
+                        }}
+                        title="Konfirmasi Penghapusan"
+                        // description={`Yakin ingin menghapus data hewan saya ?"${hewanToDelete?.nama}"?`}
+                        description={
+                          <>
+                            nama : "{hewanToDelete?.nama}"
+                            <br />
+                            Yakin ingin menghapus data hewan anda ?
+                          </>
+                        }                        
+                        onConfirm={async () => {
+                          try {
+                            await deletePasienById(hewanToDelete._id);
+                            const updatedList = hewanList.filter((h) => h._id !== hewanToDelete._id);
+                            setHewanList(updatedList);
+                            setFilteredHewanList(updatedList);
+                            setSelectedHewan(updatedList[0] || null);
+                            // alert("Data berhasil dihapus.");
+                          } catch (error) {
+                            alert("Terjadi kesalahan saat menghapus data.");
+                          } finally {
+                            setShowDeletePopup(false);
+                            setHewanToDelete(null);
+                          }
+                        }}
+                      />
+                    )}
                   </div>
                 )}
               </div>

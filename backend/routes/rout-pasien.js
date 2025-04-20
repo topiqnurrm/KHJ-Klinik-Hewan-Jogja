@@ -26,5 +26,16 @@ router.get('/user/:userId', async (req, res) => {
 });
   
   
+// Hapus data pasien berdasarkan ID
+router.delete('/:id', async (req, res) => {
+  try {
+    await Pasien.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: 'Pasien berhasil dihapus' });
+  } catch (error) {
+    console.error("Gagal menghapus pasien:", error);
+    res.status(500).json({ message: 'Gagal menghapus pasien' });
+  }
+});
+
 
 export default router;

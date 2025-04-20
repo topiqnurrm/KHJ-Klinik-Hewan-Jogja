@@ -59,7 +59,7 @@
 }
 
 .popup-overlay2 .popup-description::after {
-    content: "Untuk melakukan layanan booking online anda harus login kembali";
+    /* content: "Untuk melakukan layanan booking online anda harus login kembali"; */
     display: block;
     font-weight: normal;
     font-size: 17px;

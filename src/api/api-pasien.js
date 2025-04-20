@@ -19,3 +19,14 @@ export const getPasienByUserId = async (userId) => {
     throw error;
   }
 };
+
+
+export const deletePasienById = async (id) => {
+  try {
+    const response = await axios.delete(`http://localhost:5000/api/pasien/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal menghapus pasien:", error);
+    throw error;
+  }
+};
