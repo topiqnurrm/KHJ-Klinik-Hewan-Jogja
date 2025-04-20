@@ -8,6 +8,8 @@ import { getPasienByUserId, deletePasienById } from "../../../../../../api/api-p
 
 import Popup from "../../../../../../components/popup/popup2"; 
 
+import EditHewan from "../../../../../../components/popup/EditHewan";
+
 function Halaman2() {
   const [searchTerm, setSearchTerm] = useState("");
   const [hewanList, setHewanList] = useState([]);
@@ -17,6 +19,9 @@ function Halaman2() {
 
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [hewanToDelete, setHewanToDelete] = useState(null);
+
+  const [showEditPopup, setShowEditPopup] = useState(false);
+  const [hewanToEdit, setHewanToEdit] = useState(null);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -59,6 +64,15 @@ function Halaman2() {
     setFilteredHewanList(updatedList);
     setSelectedHewan(dataBaru);
   };
+
+  const handleEditBerhasil = (updatedData) => {
+    const updatedList = hewanList.map((item) =>
+      item._id === updatedData._id ? updatedData : item
+    );
+    setHewanList(updatedList);
+    setFilteredHewanList(updatedList);
+    setSelectedHewan(updatedData);
+  };  
 
   return (
     <div className="hlmhwn2-judul">
@@ -109,8 +123,26 @@ function Halaman2() {
                 </div>
                 {selectedHewan && item._id === selectedHewan._id && (
                   <div className="hewan-aksi-baru">
-                    <button className="edit-btn" onClick={() => alert(`Edit ${item.nama}`)}>
+                    <button
+                      className="edit-btn"
+                      onClick={() => {
+                        setHewanToEdit(item);
+                        setShowEditPopup(true);
+                      }}
+                    >
                       <img src={FaEdit} alt="Edit" />
+                      
+                      {showEditPopup && (
+                        <EditHewan
+                          isOpen={showEditPopup}
+                          onClose={() => {
+                            setShowEditPopup(false);
+                            setHewanToEdit(null);
+                          }}
+                          initialData={hewanToEdit}
+                          onSuccess={handleEditBerhasil}
+                        />
+                      )}
                     </button>
 
                     <button

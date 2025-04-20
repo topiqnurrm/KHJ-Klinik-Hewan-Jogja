@@ -37,5 +37,19 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Update data pasien berdasarkan ID
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedPasien = await Pasien.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updatedPasien) {
+      return res.status(404).json({ message: 'Pasien tidak ditemukan' });
+    }
+    res.json(updatedPasien);
+  } catch (error) {
+    console.error("Gagal memperbarui pasien:", error);
+    res.status(500).json({ message: 'Gagal memperbarui data pasien' });
+  }
+});
+
 
 export default router;

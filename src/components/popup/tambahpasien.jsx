@@ -160,6 +160,7 @@ const TambahPasien = ({ isOpen, onClose, onSuccess }) => {
             <input
               name="umur"
               type="number"
+              step="0.1" // ← ini kuncinya
               value={formData.umur}
               onChange={handleChange}
               placeholder="Umur Hewan (tahun)"
