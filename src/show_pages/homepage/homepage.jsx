@@ -14,9 +14,13 @@ function Userland() {
   const [userIdentity, setUserIdentity] = useState(null);  // _id dari MongoDB
 
   useEffect(() => {
+    // Hapus data yang tersisa dari sesi sebelumnya
+    localStorage.removeItem("savedInput");
+    localStorage.removeItem("selectedPasienData");
+
     if (user) {
       setUserId(user.user_id);
-      setUserIdentity(user._id);  // ← GANTI INI
+      setUserIdentity(user._id);
       const timer = setTimeout(() => {
         setShowGreeting(false);
       }, 7000);
@@ -48,9 +52,8 @@ function Userland() {
 
       <HomePage identity={userIdentity} />
 
-      {/* ✅ Tambahkan di sini */}
+      {/* ✅ Tambahkan di sini jika ingin tampilkan Hp4 */}
       {/* <Hp4 identity={userIdentity} /> */}
-
     </>
   );
 }

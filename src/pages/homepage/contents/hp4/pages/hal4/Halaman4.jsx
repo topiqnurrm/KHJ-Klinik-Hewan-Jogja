@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
-import "./halaman4.css"; // pastikan kamu punya file CSS sesuai styling
+import "./halaman4.css";
+import { createBooking } from "../../../../../../api/api-booking";
+import Popup from "../../../../../../components/popup/popup2"; // sesuaikan path-nya
 
 function Halaman4() {
   const [user, setUser] = useState(null);
   const [savedInput, setSavedInput] = useState(null);
   const [pasien, setPasien] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // ✅ Popup state
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user"));
@@ -27,12 +31,71 @@ function Halaman4() {
     return `${hari}, ${tanggalFormat}`;
   };
 
-  if (!user || !savedInput || !pasien) return <div>Memuat data...</div>;
+  const handleKonfirmasi = async () => {
+    if (!savedInput || !pasien) return;
+
+    const bookingData = {
+      id_pasien: pasien._id,
+      pilih_tanggal: savedInput.tanggal,
+      keluhan: savedInput.keluhan,
+      pelayanans1: [
+        {
+          id_pelayanan: savedInput.layanan.value,
+          jumlah: 1,
+        },
+      ],
+      administrasis1: [],
+    };
+
+    try {
+      setLoading(true);
+      const response = await createBooking(bookingData);
+      // alert("✅ Booking berhasil!\n" + response.message);
+
+      // Hapus data dari localStorage
+      localStorage.removeItem("savedInput");
+      localStorage.removeItem("selectedPasienData");
+
+      // Reset state
+      setSavedInput(null);
+      setPasien(null);
+
+      // Redirect kalau mau
+      // window.location.href = "/riwayat";
+    } catch (error) {
+      alert("❌ Gagal booking: " + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openPopup = () => {
+    setIsPopupOpen(true);
+  };
+
+  const closePopup = () => {
+    setIsPopupOpen(false);
+  };
+
+  const confirmPopup = () => {
+    closePopup();
+    handleKonfirmasi();
+  };
+
+  if (!savedInput || !pasien) {
+    return (
+      <div className="hal4" style={{ textAlign: "center", padding: "2rem", fontSize: "1.2rem" }}>
+        <p className="belumisi" style={{ marginTop: '5rem' }}>
+          ⚠️ Silahkan isi dan simpan <strong>'3. Pelayanan'</strong> terlebih dahulu.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="hal4">
-      <p><strong>Nama Klien :</strong> {user.nama}</p>
-      <p><strong>Telepon Pengguna :</strong> {user.telepon}</p>
+      <p><strong>Nama Klien :</strong> {user?.nama}</p>
+      <p><strong>Telepon Pengguna :</strong> {user?.telepon}</p>
       <p><strong>Nama Hewan :</strong> {pasien.nama}</p>
       <p><strong>Jenis Hewan :</strong> {pasien.jenis}</p>
       <p><strong>Kategori Hewan :</strong> {pasien.kategori}</p>
@@ -47,7 +110,22 @@ function Halaman4() {
         * Jangan lupa untuk datang sesuai hari booking anda
       </p>
 
-      <button className="btn-konfirmasi">Konfirmasi</button>
+      <button
+        className="btn-konfirmasi"
+        onClick={openPopup}
+        disabled={loading}
+      >
+        {loading ? "Memproses..." : "Konfirmasi"}
+      </button>
+
+      {/* ✅ Popup Konfirmasi */}
+      <Popup
+        isOpen={isPopupOpen}
+        onClose={closePopup}
+        title="Konfirmasi Booking"
+        description="Apakah Anda yakin ingin melakukan booking online ini?"
+        onConfirm={confirmPopup}
+      />
     </div>
   );
 }
