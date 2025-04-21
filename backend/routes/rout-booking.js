@@ -90,7 +90,7 @@ router.get('/cek-ketersediaan', async (req, res) => {
       const bookings = await Booking.find()
         .populate({
           path: 'id_pasien',
-          select: 'nama_hewan id_user' // penting: supaya bisa akses id_user dari pasien
+          select: 'nama id_user' // penting: supaya bisa akses id_user dari pasien
         })
         .sort({ createdAt: -1 });
   

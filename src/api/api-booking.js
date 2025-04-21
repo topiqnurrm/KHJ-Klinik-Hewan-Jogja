@@ -1,10 +1,13 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/booking';
+// API URL masing-masing endpoint
+const BOOKING_API_URL = 'http://localhost:5000/api/booking';
+const BOOKING_RETRIBUSI_API_URL = 'http://localhost:5000/api/bookings-retribusi';
 
+// === Booking API ===
 export const checkBookingAvailability = async (tanggal) => {
   try {
-    const response = await axios.get(`${API_URL}/cek-ketersediaan`, {
+    const response = await axios.get(`${BOOKING_API_URL}/cek-ketersediaan`, {
       params: { tanggal }
     });
     return response.data;
@@ -16,7 +19,7 @@ export const checkBookingAvailability = async (tanggal) => {
 
 export const createBooking = async (bookingData) => {
   try {
-    const response = await axios.post(`${API_URL}/booking`, bookingData);
+    const response = await axios.post(`${BOOKING_API_URL}/booking`, bookingData);
     return response.data;
   } catch (error) {
     console.error('Gagal membuat booking:', error.response?.data || error.message);
@@ -24,13 +27,23 @@ export const createBooking = async (bookingData) => {
   }
 };
 
-
 export const getAllBooking = async () => {
   try {
-    const response = await axios.get(`${API_URL}/all`);
+    const response = await axios.get(`${BOOKING_API_URL}/all`);
     return response.data;
   } catch (error) {
     console.error('Gagal mengambil semua booking:', error);
+    throw error;
+  }
+};
+
+// === Booking + Retribusi API ===
+export const getBookingWithRetribusi = async () => {
+  try {
+    const response = await axios.get(`${BOOKING_RETRIBUSI_API_URL}/with-retribusi`);
+    return response.data;
+  } catch (error) {
+    console.error('Gagal ambil booking + retribusi:', error);
     throw error;
   }
 };

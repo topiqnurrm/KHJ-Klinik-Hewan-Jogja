@@ -17,6 +17,12 @@ import routePelayanan from './routes/rout-pelayanan.js';
 
 import routeBooking from './routes/rout-booking.js';
 
+import routeRetribusi from './routes/rout-retribusi-pembayaran.js';
+
+import routeKunjungan from './routes/rout-kunjungan.js';
+
+import bookingWithRetribusi from './routes/bookingWithRetribusi.js';
+
 dotenv.config();
 
 const app = express();
@@ -83,6 +89,12 @@ app.use('/api/pasien', pasienRouter);
 app.use('/api/pelayanan', routePelayanan); // Menambahkan route pelayanannya
 
 app.use('/api/booking', routeBooking); // Menambahkan route bookingnya
+
+app.use('/api/retribusi', routeRetribusi); 
+
+app.use('/api/kunjungan', routeKunjungan); 
+
+app.use('/api/bookings-retribusi', bookingWithRetribusi);
 
 // Route ambil data klien
 app.get('/api/users/klien', async (req, res) => {

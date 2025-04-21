@@ -60,14 +60,13 @@ const customSelectStyles = {
 function Halaman3() {
   const [selectedPasien, setSelectedPasien] = useState(null);
   const [pasienOptions, setPasienOptions] = useState([]);
-  const [rawPasienData, setRawPasienData] = useState([]); // untuk menyimpan data lengkap
+  const [rawPasienData, setRawPasienData] = useState([]);
   const [layananOptions, setLayananOptions] = useState([]);
   const [selectedLayanan, setSelectedLayanan] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [complaint, setComplaint] = useState("");
   const [savedData, setSavedData] = useState(null);
   const [kuotaBooking, setKuotaBooking] = useState(null);
-
   const [validationMessage, setValidationMessage] = useState("");
   const [messageType, setMessageType] = useState("");
 
@@ -108,9 +107,9 @@ function Halaman3() {
         a.label.localeCompare(b.label)
       );
       setLayananOptions(sortedLayanan);
-      const defaultLayanan = sortedLayanan.find(
-        (layanan) => layanan.label === "Pemeriksaan Umum"
-      );
+
+      // Cari layanan "Pemeriksaan Umum" dan set sebagai nilai default
+      const defaultLayanan = sortedLayanan.find((layanan) => layanan.label === "Pemeriksaan Umum");
       if (defaultLayanan) {
         setSelectedLayanan(defaultLayanan);
       }
@@ -122,15 +121,22 @@ function Halaman3() {
 
   useEffect(() => {
     const saved = localStorage.getItem("savedInput");
-    if (saved) {
+    if (saved && layananOptions.length > 0) {
       const parsed = JSON.parse(saved);
       setSavedData(parsed);
       setSelectedPasien(parsed.pasien);
-      setSelectedLayanan(parsed.layanan);
       setSelectedDate(parsed.tanggal);
       setComplaint(parsed.keluhan);
+
+      // Mencari layanan yang disimpan dan cocokkan dengan layananOptions
+      const matchedLayanan = layananOptions.find(
+        (option) => option.value === parsed.layanan?.value
+      );
+      if (matchedLayanan) {
+        setSelectedLayanan(matchedLayanan);
+      }
     }
-  }, []);
+  }, [layananOptions]);
 
   useEffect(() => {
     const fetchKuota = async () => {
@@ -191,11 +197,6 @@ function Halaman3() {
     localStorage.setItem("savedInput", JSON.stringify(newData));
     localStorage.setItem("selectedPasienData", JSON.stringify(fullPasienData)); // ✅ Simpan data pasien
     setSavedData(newData);
-
-    // console.log("=== Data Booking Disimpan ===");
-    // console.log(newData);
-    // console.log("=== Data Pasien Disimpan ===");
-    // console.log(fullPasienData);
 
     setValidationMessage("Data berhasil disimpan!");
     setMessageType("success");

@@ -1,23 +1,38 @@
 import React, { useEffect, useState } from "react";
 import Popup from "../popup/popupriwayat";
-import { getAllBooking } from "../../api/api-booking";
+import { getBookingWithRetribusi } from "../../api/api-booking";
 import "./riwayatklien.css";
+
+const formatRupiah = (value) => {
+    if (!value) return "Rp0";
+    const amount = typeof value === "object" && value.$numberDecimal
+        ? parseFloat(value.$numberDecimal)
+        : typeof value === "string"
+        ? parseFloat(value)
+        : value;
+    return amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
+};
 
 const RiwayatPopup = ({ isOpen, onClose }) => {
     const [riwayat, setRiwayat] = useState([]);
     const [filtered, setFiltered] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [sortBy, setSortBy] = useState(""); // state untuk memilih kategori sortir
-    const [sortOrder, setSortOrder] = useState("asc"); // urutan sortir: "asc" atau "desc"
+    const [sortBy, setSortBy] = useState("");
+    const [sortOrder, setSortOrder] = useState("asc");
 
     useEffect(() => {
         if (isOpen) {
+            // Reset filter states
+            setSearchTerm("");  // Reset search term
+            setSortBy("");      // Reset sort by
+            setSortOrder("asc"); // Reset sort order to default (ascending)
+    
             const storedUser = JSON.parse(localStorage.getItem("user"));
             const userId = storedUser?._id;
-
+    
             if (!userId) return;
-
-            getAllBooking()
+    
+            getBookingWithRetribusi()
                 .then((data) => {
                     const filteredByUser = data.filter(
                         (item) => item.id_pasien?.id_user === userId
@@ -27,25 +42,27 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                 })
                 .catch((err) => console.error(err));
         }
-    }, [isOpen]);
+    }, [isOpen]); // Depend on isOpen to trigger the effect when the popup opens
+    
 
     useEffect(() => {
         const lower = searchTerm.toLowerCase();
         let result = riwayat.filter((r) => {
+            const grandTotalStr = formatRupiah(r.grand_total);
             const allFields = `
-                ${r.id_pasien?.nama_hewan || ""}
+                ${r.id_pasien?.nama || ""}
                 ${r.keluhan || ""}
                 ${r.status_booking || ""}
                 ${r.administrasis1?.[0]?.catatan || ""}
                 ${new Date(r.createdAt).toLocaleString()}
                 ${new Date(r.updatedAt).toLocaleString()}
-                ${r.pelayanans1?.reduce((total, p) => total + (p.jumlah || 0), 0)}
+                ${grandTotalStr}
             `.toLowerCase();
 
             return allFields.includes(lower);
         });
 
-        // Sort berdasarkan pilihan
+        // Sorting
         if (sortBy) {
             result = result.sort((a, b) => {
                 let valueA, valueB;
@@ -53,11 +70,13 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                     valueA = new Date(a[sortBy]).getTime();
                     valueB = new Date(b[sortBy]).getTime();
                 } else if (sortBy === "nama_hewan") {
-                    valueA = a.id_pasien?.nama_hewan.toLowerCase();
-                    valueB = b.id_pasien?.nama_hewan.toLowerCase();
+                    valueA = a.id_pasien?.nama?.toLowerCase() || "";
+                    valueB = b.id_pasien?.nama?.toLowerCase() || "";
                 } else if (sortBy === "biaya") {
-                    valueA = a.pelayanans1?.reduce((total, p) => total + (p.jumlah || 0), 0) || 0;
-                    valueB = b.pelayanans1?.reduce((total, p) => total + (p.jumlah || 0), 0) || 0;
+                    const aVal = a.grand_total?.$numberDecimal ?? a.grand_total ?? 0;
+                    const bVal = b.grand_total?.$numberDecimal ?? b.grand_total ?? 0;
+                    valueA = parseFloat(aVal);
+                    valueB = parseFloat(bVal);
                 }
 
                 if (sortOrder === "asc") return valueA > valueB ? 1 : -1;
@@ -71,7 +90,6 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
     return (
         <Popup isOpen={isOpen} onClose={onClose} title="Riwayat Pemeriksaan">
             <div className="riwayat-filter-container">
-                {/* Filter Pencarian */}
                 <div className="riwayat-search-wrapper">
                     <label className="riwayat-search-label">Filter Pencarian</label>
                     <input
@@ -88,7 +106,6 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                     )}
                 </div>
 
-                {/* Sortir */}
                 <div className="riwayat-sort-wrapper">
                     <select
                         className="riwayat-sort-select"
@@ -113,7 +130,6 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                 </div>
             </div>
 
-            {/* Tabel Riwayat */}
             <div className="riwayat-popup-content">
                 <table className="riwayat-table">
                     <thead>
@@ -135,13 +151,9 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                                 <td>{index + 1}</td>
                                 <td>{new Date(r.createdAt).toLocaleString()}</td>
                                 <td>{new Date(r.updatedAt).toLocaleString()}</td>
-                                <td>{r.id_pasien?.nama_hewan || "Tidak diketahui"}</td>
+                                <td>{r.id_pasien?.nama || "Tidak diketahui"}</td>
                                 <td>{r.keluhan}</td>
-                                <td>
-                                    {r.pelayanans1?.length > 0
-                                        ? r.pelayanans1.reduce((total, p) => total + (p.jumlah || 0), 0)
-                                        : 0}
-                                </td>
+                                <td>{formatRupiah(r.grand_total)}</td>
                                 <td>{r.administrasis1?.[0]?.catatan || "-"}</td>
                                 <td>{r.status_booking}</td>
                                 <td>
