@@ -1,0 +1,118 @@
+@font-face {
+    font-family: "SansSerifFLF";
+    src: url("/assets/fonts/SansSerifFLF.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: "SansSerifFLF-Bold";
+    src: url("/assets/fonts/SansSerifBldFLF.ttf") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+  }
+  
+  /* Overlay transparan */
+.popupriwayat {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5); /* Efek gelap */
+    backdrop-filter: blur(5px); /* Tambahkan efek blur */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Supaya di depan semua elemen */
+}
+
+/* Kotak Popup */
+.popupriwayat .popup-content {
+    background: white;
+    /* padding: 5px; */
+    border-radius: 10px;
+    width: 1090px; /* Lebarkan agar muat tabel */
+    height: 500px; /* Batas tinggi agar tidak keluar layar */
+    /* overflow: auto;  */
+    /* box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); */
+    position: relative;
+}
+
+/* Header Popup */
+.popupriwayat .popup-content h2 {
+    font-size: 20px;
+    background: #38AB97; /* Warna hijau header */
+    color: white;
+    padding: 10px;
+    text-align: center;
+    border-radius: 10px 10px 0 0;
+    margin: 0;
+
+    font-family: "SansSerifFLF"; /* Ini yang regular */
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Tombol Close */
+.popupriwayat .popup-close {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    position: absolute;
+    top: 6px;
+    right: 15px;
+    color: white; /* Sesuaikan warna agar terlihat */
+}
+
+.popupriwayat .popup-image {
+    height: 90%;
+    /* border-radius: 10px; */
+    overflow: auto;
+
+    width: 100%;  /* Gambar akan selalu memenuhi lebar popup */
+    object-fit: contain; /* Memastikan gambar tetap dalam proporsi tanpa dipotong */
+}
+
+
+
+.popupriwayat .popup-image img {
+    width: 100%; /* Pastikan gambar selalu penuh kanan kiri */
+    object-fit: contain; /* Pastikan gambar tidak terpotong */
+}
+
+.popupriwayat .popup-container {
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 0rem;
+    line-height: 1;
+}
+
+/* Tabel di dalam popup */
+/* .popup-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+} */
+
+/* .popup-content th,
+.popup-content td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+} */
+
+/* .popup-content th {
+    background-color: #008F7A; 
+    color: white;
+} */
+
+/* Responsive */
+/* @media (max-width: 768px) {
+    .popup-content {
+        width: 95vw;
+        max-height: 80vh;
+    }
+} */

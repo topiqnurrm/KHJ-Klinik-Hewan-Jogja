@@ -1,0 +1,68 @@
+@font-face {
+    font-family: "SansSerifFLF";
+    src: url("/assets/fonts/SansSerifFLF.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: "SansSerifFLF-Bold";
+    src: url("/assets/fonts/SansSerifBldFLF.ttf") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+  }
+  
+  
+  
+  .riwayat-popup-content {
+    width: 100%;
+    overflow-x: auto;
+  }
+  
+  .riwayat-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "SansSerifFLF", sans-serif;
+  }
+  
+  .riwayat-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 12px;
+    color: #3F4254;
+  }
+  
+  .riwayat-table th {
+    background-color: #b0fff2;
+    border: 1px solid #ddd;
+    padding: 10px;
+    color: #3F4254;
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 12px;
+  }
+  
+  .riwayat-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .riwayat-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Responsive untuk tabel */
+  @media (max-width: 600px) {
+    .riwayat-table th,
+    .riwayat-table td {
+        font-family: "SansSerifFLF", sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        font-size: 14px;
+        padding: 8px;
+    }
+  }
+  

@@ -192,10 +192,10 @@ function Halaman3() {
     localStorage.setItem("selectedPasienData", JSON.stringify(fullPasienData)); // ✅ Simpan data pasien
     setSavedData(newData);
 
-    console.log("=== Data Booking Disimpan ===");
-    console.log(newData);
-    console.log("=== Data Pasien Disimpan ===");
-    console.log(fullPasienData);
+    // console.log("=== Data Booking Disimpan ===");
+    // console.log(newData);
+    // console.log("=== Data Pasien Disimpan ===");
+    // console.log(fullPasienData);
 
     setValidationMessage("Data berhasil disimpan!");
     setMessageType("success");

@@ -11,12 +11,16 @@ import ProfilePopup from "../userprofile/userprofile";
 import { getUserById } from "../../api/user";
 import { Link } from "react-router-dom";
 
+import RiwayatPopup from "../riwayat/riwayatklien"; 
+
 const NavBar = ({ userId, identity }) => {
     const [hasMessage, setHasMessage] = useState(true);
     const [activeSection, setActiveSection] = useState("hp1");
     const [showProfile, setShowProfile] = useState(false);
     const profileButtonRef = useRef(null);
     const [userData, setUserData] = useState(null);
+
+    const [showRiwayat, setShowRiwayat] = useState(false); // ⬅️ Tambahkan ini
 
     // ✅ Fetch user data saat komponen mount
     useEffect(() => {
@@ -85,7 +89,7 @@ const NavBar = ({ userId, identity }) => {
 
             {/* ✅ Message Icon hanya ditampilkan jika login */}
             {identity && (
-                <a href="#pesanan" style={{ textDecoration: "none" }}>
+                <a  style={{ textDecoration: "none" }}>
                     <div className="message-icon">
                         <img
                             src={hasMessage ? ada0 : kosong0}
@@ -93,8 +97,11 @@ const NavBar = ({ userId, identity }) => {
                             className="message-img"
                             onMouseEnter={(e) => (e.target.src = hasMessage ? ada1 : kosong1)}
                             onMouseLeave={(e) => (e.target.src = hasMessage ? ada0 : kosong0)}
+
+                            onClick={() => setShowRiwayat(true)} // ⬅️ Tambahkan aksi klik
                         />
                     </div>
+                    <RiwayatPopup isOpen={showRiwayat} onClose={() => setShowRiwayat(false)} />
                 </a>
             )}
 
