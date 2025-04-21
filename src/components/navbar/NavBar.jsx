@@ -28,7 +28,7 @@ const NavBar = ({ userId, identity }) => {
             getUserById(identity)
                 .then((res) => {
                     if (res) {
-                        console.log("User result:", res); // ✅ Tambahkan log ini
+                        // console.log("User result:", res); // ✅ Tambahkan log ini
                         setUserData(res);
                     } else {
                         console.warn("User data is null");

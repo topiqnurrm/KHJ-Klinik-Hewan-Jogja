@@ -84,4 +84,23 @@ router.get('/cek-ketersediaan', async (req, res) => {
   });
   
 
+  // 🔍 Ambil semua booking
+  router.get('/all', async (req, res) => {
+    try {
+      const bookings = await Booking.find()
+        .populate({
+          path: 'id_pasien',
+          select: 'nama_hewan id_user' // penting: supaya bisa akses id_user dari pasien
+        })
+        .sort({ createdAt: -1 });
+  
+      res.json(bookings);
+    } catch (error) {
+      console.error('Gagal mengambil booking:', error);
+      res.status(500).json({ message: 'Gagal mengambil data booking' });
+    }
+  });
+  
+
+
 export default router;

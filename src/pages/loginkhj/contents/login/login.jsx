@@ -44,7 +44,7 @@ const Login = () => {
       
         // Arahkan ke halaman sesuai peran
         const adminRoles = ['superadmin', 'dokter', 'administrasi', 'pembayaran', 'paramedis'];
-        console.log("Data user saat login:", data);
+        // console.log("Data user saat login:", data);
         if (adminRoles.includes(data.user.aktor)) {
           navigate("/Hireadmin");
         } else {

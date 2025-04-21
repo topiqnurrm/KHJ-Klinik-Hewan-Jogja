@@ -16,12 +16,16 @@
   
   .riwayat-popup-content {
     width: 100%;
-    overflow-x: auto;
+    /* overflow-x: auto; */
+    max-height: 390px; 
+    overflow-y: auto;
+    /* padding: 1rem; */
   }
   
   .riwayat-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     font-family: "SansSerifFLF", sans-serif;
   }
   
@@ -33,11 +37,15 @@
     font-style: normal;
     font-size: 12px;
     color: #3F4254;
+    z-index: 1;
   }
   
   .riwayat-table th {
-    background-color: #b0fff2;
     border: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    background-color: #b0fff2;
+    z-index: 2;
     padding: 10px;
     color: #3F4254;
     font-family: "SansSerifFLF", sans-serif;
@@ -66,3 +74,122 @@
     }
   }
   
+
+
+  
+
+  .riwayat-filter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.riwayat-search-wrapper {
+    margin-left: 20px;
+    padding: 10px 0;
+    /* display: flex; */
+    align-items: center;
+    justify-content: flex-start; 
+    gap: 80px;
+    flex-wrap: wrap;
+    width: 550px;
+}
+
+.riwayat-search-label {
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 14px;
+    color: #3F4254;
+}
+
+.riwayat-search-input {
+    padding: 8px 12px;
+    margin-left: 20px;
+    font-size: 14px;
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    border: 1px solid #ccc;
+    color: #3F4254;
+    border-radius: 6px;
+    width: 100%;
+    max-width: 300px;
+    outline: none;
+    transition: border 0.3s ease;
+}
+
+.riwayat-search-input:focus {
+    border-color: #00c4aa;
+}
+
+.riwayat-clear-button {
+  margin-left: 10px;
+    background: none;
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: "SansSerifFLF", sans-serif;
+    color: #555;
+}
+
+.riwayat-clear-button:hover {
+    background-color: #eee;
+    color: #000;
+}
+
+.riwayat-sort-wrapper {
+    padding: 10px 0;
+    margin-right: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.riwayat-sort-label {
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 14px;
+    color: #3F4254;
+}
+
+.riwayat-sort-select,
+.riwayat-sort-order {
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: white;
+    cursor: pointer;
+    color: #3F4254;
+}
+
+.riwayat-sort-select {
+    max-width: 150px;
+}
+
+.riwayat-sort-order {
+    max-width: 120px;
+}
+
+@media (max-width: 600px) {
+    .riwayat-filter-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .riwayat-sort-select,
+    .riwayat-sort-order {
+        max-width: 100%;
+    }
+}
