@@ -60,6 +60,7 @@ const customSelectStyles = {
 function Halaman3() {
   const [selectedPasien, setSelectedPasien] = useState(null);
   const [pasienOptions, setPasienOptions] = useState([]);
+  const [rawPasienData, setRawPasienData] = useState([]); // untuk menyimpan data lengkap
   const [layananOptions, setLayananOptions] = useState([]);
   const [selectedLayanan, setSelectedLayanan] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
@@ -81,6 +82,8 @@ function Halaman3() {
       if (userId) {
         try {
           const pasienData = await getPasienByUserId(userId);
+          setRawPasienData(pasienData); // Simpan data lengkap
+
           const sortedPasienData = pasienData.sort(
             (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
           );
@@ -134,8 +137,7 @@ function Halaman3() {
       if (selectedDate) {
         try {
           const result = await checkBookingAvailability(selectedDate);
-          console.log(result); // Debug untuk melihat respons API
-          setKuotaBooking(result.tersedia);  // Pastikan result.tersedia yang digunakan
+          setKuotaBooking(result.tersedia);
         } catch (error) {
           setKuotaBooking(null);
         }
@@ -143,7 +145,6 @@ function Halaman3() {
     };
     fetchKuota();
   }, [selectedDate]);
-  
 
   const handleSave = () => {
     if (!selectedPasien || !selectedLayanan || !selectedDate || !complaint) {
@@ -166,6 +167,8 @@ function Halaman3() {
       return;
     }
 
+    const fullPasienData = rawPasienData.find(p => p._id === selectedPasien?.value);
+
     const newData = {
       pasien: selectedPasien,
       layanan: selectedLayanan,
@@ -186,10 +189,13 @@ function Halaman3() {
     }
 
     localStorage.setItem("savedInput", JSON.stringify(newData));
+    localStorage.setItem("selectedPasienData", JSON.stringify(fullPasienData)); // ✅ Simpan data pasien
     setSavedData(newData);
 
-    console.log("=== Data yang Disimpan ===");
+    console.log("=== Data Booking Disimpan ===");
     console.log(newData);
+    console.log("=== Data Pasien Disimpan ===");
+    console.log(fullPasienData);
 
     setValidationMessage("Data berhasil disimpan!");
     setMessageType("success");
@@ -231,7 +237,6 @@ function Halaman3() {
               : `Tersisa ${kuotaBooking} slot booking tersedia.`}
           </div>
         )}
-
       </div>
 
       <div className="form-group">
