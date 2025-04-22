@@ -5,6 +5,10 @@ import { getPasienByUserId } from "../../../../../../api/api-pasien";
 import { fetchLayanan } from "../../../../../../api/api-pelayanan";
 import { checkBookingAvailability } from "../../../../../../api/api-booking";
 
+import { useNavigate } from 'react-router-dom';
+
+import Halaman4 from '../hal4/Halaman4';
+
 const customSelectStyles = {
   control: (provided, state) => ({
     ...provided,
@@ -57,7 +61,7 @@ const customSelectStyles = {
   }),
 };
 
-function Halaman3() {
+function Halaman3({ onNext }) {
   const [selectedPasien, setSelectedPasien] = useState(null);
   const [pasienOptions, setPasienOptions] = useState([]);
   const [rawPasienData, setRawPasienData] = useState([]);
@@ -72,6 +76,8 @@ function Halaman3() {
 
   const jenisLayanan = "Onsite (Booking Online)";
   const lokasiPemeriksaan = "Klinik Hewan A";
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDataPasien = async () => {
@@ -200,6 +206,11 @@ function Halaman3() {
 
     setValidationMessage("Data berhasil disimpan!");
     setMessageType("success");
+
+    if (onNext) {
+      onNext(); // 👈 Pindah ke tab Halaman4
+    }
+    
     setTimeout(() => {
       setValidationMessage("");
       setMessageType("");

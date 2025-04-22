@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 
 function Hp4({ identity }) {
   const tabs = ["data-user", "data-pasien", "pelayanan", "konfirmasi"];
-  const [activeTab, setActiveTab] = useState("data-user");
+  const [activeTab, setActiveTab] = useState("pelayanan");
   const [leftHover, setLeftHover] = useState(false);
   const [rightHover, setRightHover] = useState(false);
 
@@ -96,7 +96,8 @@ function Hp4({ identity }) {
           <div className="content-box">
             {activeTab === "data-user" && <Halaman1 />}
             {activeTab === "data-pasien" && <Halaman2 />}
-            {activeTab === "pelayanan" && <Halaman3 />}
+            {/* {activeTab === "pelayanan" && <Halaman3 />} */}
+            {activeTab === "pelayanan" && <Halaman3 onNext={() => setActiveTab("konfirmasi")} />}
             {activeTab === "konfirmasi" && <Halaman4 />}
           </div>
 

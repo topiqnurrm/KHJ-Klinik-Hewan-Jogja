@@ -20,7 +20,7 @@ const BookingSchema = new mongoose.Schema({
             },
             status_administrasi: {
               type: String,
-              enum: ['menunggu', 'disetujui', 'ditolak'],
+              enum: ['menunggu respon administrasi', 'disetujui administrasi', 'ditolak administrasi'],
               required: false
             },
             tanggal: {
@@ -66,10 +66,13 @@ const BookingSchema = new mongoose.Schema({
     },
     status_booking: {
         type: String,
-        enum: ['menunggu', 'disetujui', 'ditolak', 
-               'diproses', 'inap', 'dibatalkan', 
-               'pembayaran', 'ambil_obat', 'selesai'],
-        default: 'menunggu',
+        enum: ['menunggu respon administrasi', 'disetujui administrasi', 'ditolak administrasi', 
+               'sedang diperiksa', 'dirawat inap', 'dibatalkan administrasi', 
+               'menunggu pembayaran', 'mengambil obat', 'selesai'],
+              //  enum: ['menunggu', 'disetujui', 'ditolak', 
+              //   'diproses', 'inap', 'dibatalkan', 
+              //   'pembayaran', 'ambil_obat', 'selesai'],
+        default: 'menunggu respon administrasi',
         required: true
     }
 }, { timestamps: true });

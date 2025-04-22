@@ -10,7 +10,7 @@ router.post('/booking', async (req, res) => {
       id_pasien,
       pilih_tanggal,
       keluhan,
-      status_booking = 'menunggu',
+      status_booking = 'menunggu respon administrasi',
       pelayanans1 = [],
       administrasis1 = []
     } = req.body;

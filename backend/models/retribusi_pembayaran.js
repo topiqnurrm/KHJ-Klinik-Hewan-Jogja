@@ -72,7 +72,7 @@ const RetribusiPembayaranSchema = new mongoose.Schema({
     },
     status_retribusi: {
         type: String,
-        enum: ['pembayaran', 'ambil_obat', 'selesai'],
+        enum: ['menunggu pembayaran', 'mengambil obat', 'selesai'],
         required: true
     },
     id_kunjungan: {

@@ -14,7 +14,7 @@ const KunjunganSchema = new mongoose.Schema({
             },
             status_kunjungan: {
                 type: String,
-                enum: ['diproses', 'inap', 'dibatalkan'],
+                enum: ['sedang diperiksa', 'dirawat inap', 'dibatalkan administrasi'],
                 required: true
             },
             tanggal: {
@@ -31,11 +31,6 @@ const KunjunganSchema = new mongoose.Schema({
     tanggal: {
         type: Date,
         default: Date.now
-    },
-    status_kunjungan: {
-        type: String,
-        enum: ['diproses', 'inap', 'dibatalkan'],
-        required: true
     },
     no_antri: {
         type: String,

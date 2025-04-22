@@ -18,20 +18,20 @@ const data = [
   {
     _id: new mongoose.Types.ObjectId('67f0aca488fa9662fb8c2158'),
     id_pasien: samplePasienId1,
-    status_booking: 'menunggu',
+    status_booking: 'menunggu respon administrasi',
     pilih_tanggal: new Date('2025-05-15'),
     keluhan: 'Hewan sering muntah-muntah',
     administrasis1: [
       {
         id_user: sampleUserId1,
         catatan: 'tidak ada pelayanan untuk hewan gajah',
-        status_booking: 'ditolak',
+        status_booking: 'ditolak administrasi',
         tanggal: new Date('2025-05-15')
       },
       {
         id_user: sampleUserId2,
         catatan: 'Pemeriksaan kedua untuk muntah',
-        status_booking: 'disetujui',
+        status_booking: 'disetujui administrasi',
         tanggal: new Date('2025-05-16')
       }
     ],
@@ -42,19 +42,18 @@ const data = [
         tanggal: new Date('2025-05-15')
       }
     ],
-    tanggal_disetujui: new Date('2025-05-16')
   },
   {
     _id: new mongoose.Types.ObjectId('67f0aca488fa9662fb8c215c'),
     id_pasien: samplePasienId2,
-    status_booking: 'disetujui',
+    status_booking: 'disetujui administrasi',
     pilih_tanggal: new Date('2025-05-16'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
-        status_booking: 'disetujui',
+        status_booking: 'disetujui administrasi',
         tanggal: new Date('2025-05-16')
       }
     ],
@@ -70,19 +69,18 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
-    tanggal_disetujui: new Date('2025-05-17')
   },
   {
     _id: new mongoose.Types.ObjectId('67f0aca488fa9662fb8c2160'),
     id_pasien: samplePasienId3,
-    status_booking: 'disetujui',
+    status_booking: 'disetujui administrasi',
     pilih_tanggal: new Date('2025-05-16'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
-        status_booking: 'disetujui',
+        status_booking: 'disetujui administrasi',
         tanggal: new Date('2025-05-16')
       }
     ],
@@ -93,18 +91,17 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
-    tanggal_disetujui: new Date('2025-05-18')
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu',
+    status_booking: 'menunggu pembayaran',
     pilih_tanggal: new Date('2025-05-07'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
-        status_booking: 'disetujui',
+        status_booking: 'menunggu pembayaran',
         tanggal: new Date('2025-05-16')
       }
     ],
@@ -115,18 +112,17 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
-    tanggal_disetujui: new Date('2025-05-18')
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu',
+    status_booking: 'disetujui administrasi',
     pilih_tanggal: new Date('2025-05-07'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
-        status_booking: 'disetujui',
+        status_booking: 'disetujui administrasi',
         tanggal: new Date('2025-05-16')
       }
     ],
@@ -137,18 +133,17 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
-    tanggal_disetujui: new Date('2025-05-18')
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu',
+    status_booking: 'disetujui administrasi',
     pilih_tanggal: new Date('2025-05-07'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
-        status_booking: 'disetujui',
+        status_booking: 'disetujui administrasi',
         tanggal: new Date('2025-05-16')
       }
     ],
@@ -159,18 +154,17 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
-    tanggal_disetujui: new Date('2025-05-18')
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu',
+    status_booking: 'disetujui administrasi',
     pilih_tanggal: new Date('2025-05-07'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
-        status_booking: 'disetujui',
+        status_booking: 'disetujui administrasi',
         tanggal: new Date('2025-05-16')
       }
     ],
@@ -181,18 +175,17 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
-    tanggal_disetujui: new Date('2025-05-18')
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu',
+    status_booking: 'menunggu respon administrasi',
     pilih_tanggal: new Date('2025-05-08'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
-        status_booking: 'disetujui',
+        status_booking: 'menunggu respon administrasi',
         tanggal: new Date('2025-05-16')
       }
     ],
@@ -203,18 +196,17 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
-    tanggal_disetujui: new Date('2025-05-18')
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu',
+    status_booking: 'menunggu respon administrasi',
     pilih_tanggal: new Date('2025-05-08'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
-        status_booking: 'disetujui',
+        status_booking: 'menunggu respon administrasi',
         tanggal: new Date('2025-05-16')
       }
     ],
@@ -225,18 +217,17 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
-    tanggal_disetujui: new Date('2025-05-18')
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu',
+    status_booking: 'menunggu respon administrasi',
     pilih_tanggal: new Date('2025-05-08'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
-        status_booking: 'disetujui',
+        status_booking: 'menunggu respon administrasi',
         tanggal: new Date('2025-05-16')
       }
     ],
@@ -247,18 +238,17 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
-    tanggal_disetujui: new Date('2025-05-18')
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu',
+    status_booking: 'menunggu respon administrasi',
     pilih_tanggal: new Date('2025-05-08'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
-        status_booking: 'disetujui',
+        status_booking: 'menunggu respon administrasi',
         tanggal: new Date('2025-05-16')
       }
     ],
@@ -269,18 +259,17 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
-    tanggal_disetujui: new Date('2025-05-18')
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu',
+    status_booking: 'menunggu respon administrasi',
     pilih_tanggal: new Date('2025-05-08'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
-        status_booking: 'disetujui',
+        status_booking: 'menunggu respon administrasi',
         tanggal: new Date('2025-05-16')
       }
     ],
@@ -291,7 +280,6 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
-    tanggal_disetujui: new Date('2025-05-18')
   }
 ];
 

@@ -20,7 +20,7 @@ const data = [
     metode_bayar: 'cash',
     kembali: 0,
     // tanggal: new Date(),
-    status_retribusi: 'pembayaran',
+    status_retribusi: 'menunggu pembayaran',
     id_kunjungan: sampleKunjunganId1, // ID Kunjungan yang valid
     id_user: sampleUserId, // ID User yang valid
     tanggal_bayar: new Date('2025-05-01T10:00:00'), // Tanggal bayar yang ditentukan

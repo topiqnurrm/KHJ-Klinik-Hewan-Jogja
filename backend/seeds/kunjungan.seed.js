@@ -18,17 +18,16 @@ const data = [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan pertama dilakukan untuk muntah',
-        status_kunjungan: 'dibatalkan',
+        status_kunjungan: 'dibatalkan administrasi',
         tanggal: new Date('2025-05-15')
       },
       {
         id_user: sampleUserId2,
         catatan: 'Pemeriksaan lanjutan untuk muntah',
-        status_kunjungan: 'diproses',
+        status_kunjungan: 'sedang diperiksa',
         tanggal: new Date('2025-05-15')
       }
     ],
-    status_kunjungan: 'diproses',
     no_antri: 'A201'
   },
   {
@@ -38,11 +37,10 @@ const data = [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan untuk keluhan lesu',
-        status_kunjungan: 'inap',
+        status_kunjungan: 'dirawat inap',
         tanggal: new Date('2025-05-16')
       }
     ],
-    status_kunjungan: 'inap',
     no_antri: 'G102'
   },
   {
@@ -52,11 +50,10 @@ const data = [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan untuk keluhan lesu',
-        status_kunjungan: 'dibatalkan',
+        status_kunjungan: 'dibatalkan administrasi',
         tanggal: new Date('2025-05-16')
       }
     ],
-    status_kunjungan: 'dibatalkan',
     no_antri: 'E202'
   }
 ];
