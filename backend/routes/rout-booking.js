@@ -15,6 +15,15 @@ router.post('/booking', async (req, res) => {
       administrasis1 = []
     } = req.body;
 
+    // Validasi agar tanggal booking tidak lebih kecil dari hari ini
+    const tanggalBooking = new Date(pilih_tanggal);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of the day
+
+    if (tanggalBooking < today) {
+      return res.status(400).json({ message: 'Tanggal booking tidak boleh lebih kecil dari hari ini.' });
+    }
+
     const tanggalMulai = new Date(pilih_tanggal);
     tanggalMulai.setHours(0, 0, 0, 0);
     const tanggalAkhir = new Date(tanggalMulai);
@@ -82,10 +91,9 @@ router.get('/cek-ketersediaan', async (req, res) => {
       res.status(500).json({ message: 'Terjadi kesalahan saat cek ketersediaan booking' });
     }
   });
-  
 
-  // 🔍 Ambil semua booking
-  router.get('/all', async (req, res) => {
+// 🔍 Ambil semua booking
+router.get('/all', async (req, res) => {
     try {
       const bookings = await Booking.find()
         .populate({
@@ -100,7 +108,5 @@ router.get('/cek-ketersediaan', async (req, res) => {
       res.status(500).json({ message: 'Gagal mengambil data booking' });
     }
   });
-  
-
 
 export default router;

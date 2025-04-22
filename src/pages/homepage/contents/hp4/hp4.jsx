@@ -57,15 +57,6 @@ function Hp4({ identity }) {
         <div className="header">
           <h1>Booking Online</h1>
         </div>
-        
-        {/* <div className="header">
-          <h1>Booking Online</h1>
-          {identity && (
-            <p className="identity-status">
-              ✅ Login berhasil! ID kamu: <strong>{identity}</strong>
-            </p>
-          )}
-        </div> */}
 
         <nav className="top-bar">
           <button className={`tab ${activeTab === "data-user" ? "active" : ""}`} onClick={() => setActiveTab("data-user")}>
@@ -83,33 +74,12 @@ function Hp4({ identity }) {
         </nav>
 
         <div className="bottom-container">
-          {/* <button
-            className="nav-button_kiri"
-            onClick={handleLeftClick}
-            disabled={activeTab === "data-user"}
-            onMouseEnter={() => setLeftHover(true)}
-            onMouseLeave={() => setLeftHover(false)}
-          >
-            <img src={leftHover ? kiriHover : kiri} alt="Kiri" />
-          </button> */}
-
           <div className="content-box">
             {activeTab === "data-user" && <Halaman1 />}
             {activeTab === "data-pasien" && <Halaman2 />}
-            {/* {activeTab === "pelayanan" && <Halaman3 />} */}
             {activeTab === "pelayanan" && <Halaman3 onNext={() => setActiveTab("konfirmasi")} />}
-            {activeTab === "konfirmasi" && <Halaman4 />}
+            {activeTab === "konfirmasi" && <Halaman4 onPre={() => setActiveTab("pelayanan")} />}
           </div>
-
-          {/* <button
-            className="nav-button_kanan"
-            onClick={handleRightClick}
-            disabled={activeTab === "konfirmasi"}
-            onMouseEnter={() => setRightHover(true)}
-            onMouseLeave={() => setRightHover(false)}
-          >
-            <img src={rightHover ? kananHover : kanan} alt="Kanan" />
-          </button> */}
         </div>
       </div>
     </section>

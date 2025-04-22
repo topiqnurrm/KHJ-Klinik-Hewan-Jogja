@@ -3,7 +3,7 @@ import "./halaman4.css";
 import { createBooking } from "../../../../../../api/api-booking";
 import Popup from "../../../../../../components/popup/popup2"; // sesuaikan path-nya
 
-function Halaman4() {
+function Halaman4({ onPre }) {
   const [user, setUser] = useState(null);
   const [savedInput, setSavedInput] = useState(null);
   const [pasien, setPasien] = useState(null);
@@ -60,8 +60,8 @@ function Halaman4() {
       setSavedInput(null);
       setPasien(null);
 
-      // Redirect kalau mau
-      // window.location.href = "/riwayat";
+      // Panggil onPre untuk kembali ke Halaman3 setelah booking berhasil
+      onPre();
     } catch (error) {
       alert("❌ Gagal booking: " + (error.response?.data?.message || error.message));
     } finally {

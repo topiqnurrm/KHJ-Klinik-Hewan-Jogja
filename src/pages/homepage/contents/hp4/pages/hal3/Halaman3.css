@@ -147,13 +147,13 @@
 
 
 
-  .validation-message {
-    /* margin-top: 10px; */
-    /* font-size: 0.95rem; */
-    /* padding: 8px 12px; */
-    /* border-radius: 6px; */
-    /* width: fit-content; */
-  }
+  /* .validation-message {
+    margin-top: 10px;
+    font-size: 0.95rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    width: fit-content;
+  } */
   
   .validation-message.error {
     /* background-color: #ffe0e0; */
@@ -193,3 +193,46 @@
     align-items: flex-start;
     margin-bottom: 15px;
   }
+
+
+
+
+
+  .red-day {
+    background-color: #f8d7da; 
+    color: #721c24;
+  }
+  .green-day {
+    background-color: #d4edda; 
+    color: #155724;
+  }
+  
+  
+
+
+  .react-datepicker__header {
+    background-color: #e6f8f0;
+  }
+  
+  .react-datepicker__current-month,
+  .react-datepicker-time__header,
+  .react-datepicker-year-header {
+    color: #333;
+  }
+  
+
+  .react-datepicker__header select{
+    background-color: #e6f8f0;
+    width: 100px;
+  }
+  
+
+
+
+
+  .highlighted-day {
+    background-color: #ffeb3b; /* Warna kuning terang untuk tanggal yang dipilih */
+    color: #fff; /* Warna teks putih */
+    border-radius: 50%;
+  }
+  

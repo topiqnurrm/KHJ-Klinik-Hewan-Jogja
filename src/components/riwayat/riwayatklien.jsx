@@ -44,11 +44,14 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
         }
     }, [isOpen]); // Depend on isOpen to trigger the effect when the popup opens
     
-
     useEffect(() => {
         const lower = searchTerm.toLowerCase();
         let result = riwayat.filter((r) => {
             const grandTotalStr = formatRupiah(r.grand_total);
+            const layananStr = (r.pelayanans1 || [])
+                .map((p) => p.id_pelayanan?.nama)
+                .filter(Boolean)
+                .join(", ");
             const allFields = `
                 ${r.id_pasien?.nama || ""}
                 ${r.keluhan || ""}
@@ -57,6 +60,8 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                 ${new Date(r.createdAt).toLocaleString()}
                 ${new Date(r.updatedAt).toLocaleString()}
                 ${grandTotalStr}
+                ${layananStr}
+                ${new Date(r.pilih_tanggal).toLocaleDateString("id-ID")}
             `.toLowerCase();
 
             return allFields.includes(lower);
@@ -66,7 +71,7 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
         if (sortBy) {
             result = result.sort((a, b) => {
                 let valueA, valueB;
-                if (sortBy === "createdAt" || sortBy === "updatedAt") {
+                if (sortBy === "createdAt" || sortBy === "updatedAt" || sortBy === "pilih_tanggal") {
                     valueA = new Date(a[sortBy]).getTime();
                     valueB = new Date(b[sortBy]).getTime();
                 } else if (sortBy === "nama_hewan") {
@@ -115,6 +120,7 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                         <option value="">Urutkan...</option>
                         <option value="createdAt">Tanggal Awal</option>
                         <option value="updatedAt">Terakhir Diedit</option>
+                        <option value="pilih_tanggal">Tanggal Booking</option>
                         <option value="nama_hewan">Nama Hewan</option>
                         <option value="biaya">Biaya</option>
                     </select>
@@ -135,13 +141,15 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Tanggal Awal</th>
-                            <th>Terakhir Diedit</th>
+                            <th>Tgl Buat</th>
+                            <th>Tgl Booking</th>
                             <th>Nama Hewan</th>
                             <th>Keluhan</th>
                             <th>Biaya</th>
                             <th>Catatan</th>
+                            <th>Layanan</th>
                             <th>Status</th>
+                            <th>Tgl Update</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -150,12 +158,19 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                             <tr key={r._id}>
                                 <td>{index + 1}</td>
                                 <td>{new Date(r.createdAt).toLocaleString()}</td>
-                                <td>{new Date(r.updatedAt).toLocaleString()}</td>
+                                <td>{new Date(r.pilih_tanggal).toLocaleDateString("id-ID")}</td>
                                 <td>{r.id_pasien?.nama || "Tidak diketahui"}</td>
                                 <td>{r.keluhan}</td>
                                 <td>{formatRupiah(r.grand_total)}</td>
                                 <td>{r.administrasis1?.[0]?.catatan || "-"}</td>
+                                <td>
+                                    {(r.pelayanans1 || [])
+                                        .map((p) => p.id_pelayanan?.nama)
+                                        .filter(Boolean)
+                                        .join(", ") || "-"}
+                                </td>
                                 <td>{r.status_booking}</td>
+                                <td>{new Date(r.updatedAt).toLocaleString()}</td>
                                 <td>
                                     <button onClick={() => alert(`Lihat detail ${r._id}`)}>🔍</button>
                                 </td>

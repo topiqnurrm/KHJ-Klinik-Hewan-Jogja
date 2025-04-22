@@ -10,10 +10,16 @@ router.get('/with-retribusi', async (req, res) => {
   try {
     const bookings = await Booking.find()
       .populate('id_pasien', 'nama nama_hewan id_user')
-      .populate('pelayanans1') // jika masih ingin info layanan
+      .populate({
+        path: 'pelayanans1',
+        populate: {
+          path: 'id_pelayanan',
+          model: 'Pelayanan'
+        }
+      })
       .populate('administrasis1')
       .sort({ createdAt: -1 });
-
+  
     const bookingsWithGrandTotal = await Promise.all(
       bookings.map(async (booking) => {
         // cari kunjungan berdasarkan id_booking
