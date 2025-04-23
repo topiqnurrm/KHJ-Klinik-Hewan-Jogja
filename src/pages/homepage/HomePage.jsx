@@ -6,13 +6,13 @@ import Hp4 from "./contents/hp4/hp4";
 import Hp5 from "./contents/hp5/hp5";
 import "./HomePage.css";
 
-function HomePage({ identity }) {
+function HomePage({ identity, onBookingSaved }) {
   return (
     <div className="homeprime">
       <Hp1 />
       <Hp2 />
       <Hp3 />
-      <Hp4 identity={identity} />  {/* Di sini letaknya setelah panduan */}
+      <Hp4 identity={identity} onBookingSaved={onBookingSaved} />
       <Hp5 />
     </div>
   );

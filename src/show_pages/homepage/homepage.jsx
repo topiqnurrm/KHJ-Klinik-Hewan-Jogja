@@ -13,6 +13,12 @@ function Userland() {
   const [userId, setUserId] = useState(null);      
   const [userIdentity, setUserIdentity] = useState(null);  // _id dari MongoDB
 
+  const [refetchToggle, setRefetchToggle] = useState(false);
+
+  const handleRefetchBooking = () => {
+    setRefetchToggle(prev => !prev); // toggle untuk memicu useEffect di NavBar
+  };
+
   useEffect(() => {
     // Hapus data yang tersisa dari sesi sebelumnya
     localStorage.removeItem("savedInput");
@@ -33,7 +39,12 @@ function Userland() {
 
   return (
     <>
-      <NavBar userId={userId} identity={userIdentity} />
+      <NavBar
+        userId={userId}
+        identity={userIdentity}
+        refetchBooking={refetchToggle}  // Change to refetchBooking
+      />
+
       <ChatButton />
 
       {showGreeting && user && (
@@ -50,7 +61,10 @@ function Userland() {
         </div>
       )}
 
-      <HomePage identity={userIdentity} />
+      <HomePage 
+        identity={userIdentity} 
+        onBookingSaved={handleRefetchBooking}
+      />
 
       {/* ✅ Tambahkan di sini jika ingin tampilkan Hp4 */}
       {/* <Hp4 identity={userIdentity} /> */}

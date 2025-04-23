@@ -3,7 +3,7 @@ import "./halaman4.css";
 import { createBooking } from "../../../../../../api/api-booking";
 import Popup from "../../../../../../components/popup/popup2"; // sesuaikan path-nya
 
-function Halaman4({ onPre }) {
+function Halaman4({ onPre, onBookingSaved }) {
   const [user, setUser] = useState(null);
   const [savedInput, setSavedInput] = useState(null);
   const [pasien, setPasien] = useState(null);
@@ -50,8 +50,7 @@ function Halaman4({ onPre }) {
     try {
       setLoading(true);
       const response = await createBooking(bookingData);
-      // alert("✅ Booking berhasil!\n" + response.message);
-
+      
       // Hapus data dari localStorage
       localStorage.removeItem("savedInput");
       localStorage.removeItem("selectedPasienData");
@@ -59,6 +58,9 @@ function Halaman4({ onPre }) {
       // Reset state
       setSavedInput(null);
       setPasien(null);
+
+      // Trigger the onBookingSaved callback to refresh NavBar notifications
+      if (onBookingSaved) onBookingSaved();
 
       // Panggil onPre untuk kembali ke Halaman3 setelah booking berhasil
       onPre();
@@ -106,7 +108,7 @@ function Halaman4({ onPre }) {
       <p><strong>Layanan :</strong> {savedInput.layanan.label}</p>
 
       <p className="iniw" style={{ marginTop: "1rem" }}>
-        * Setelah pilih konfirmasi, silakan cek <strong>“Riwayat Pemeriksaan Hewan Saya”</strong><br />
+        * Setelah pilih konfirmasi, silakan cek <span>"Riwayat Pemeriksaan Hewan Saya"</span> (sebelah kiri profile)<br />
         * Jangan lupa untuk datang sesuai hari booking anda
       </p>
 

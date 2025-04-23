@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Popup from "../popup/popupriwayat";
-import { getBookingWithRetribusi } from "../../api/api-booking";
+import ConfirmPopup from "../popup/popup2"; // Import your ConfirmPopup component
+import { getBookingWithRetribusi, deleteBooking } from "../../api/api-booking";
 import "./riwayatklien.css";
 
 // Import ikon tombol
@@ -25,27 +26,42 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [sortBy, setSortBy] = useState("");
     const [sortOrder, setSortOrder] = useState("asc");
+    const [isLoading, setIsLoading] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(null);
+    const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+    const [bookingToDelete, setBookingToDelete] = useState(null);
+
+    const fetchRiwayat = () => {
+        setIsLoading(true);
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const userId = storedUser?._id;
+
+        if (!userId) {
+            setIsLoading(false);
+            return;
+        }
+
+        getBookingWithRetribusi()
+            .then((data) => {
+                const filteredByUser = data.filter(
+                    (item) => item.id_pasien?.id_user === userId
+                );
+                setRiwayat(filteredByUser);
+                setFiltered(filteredByUser);
+                setIsLoading(false);
+            })
+            .catch((err) => {
+                console.error(err);
+                setIsLoading(false);
+            });
+    };
 
     useEffect(() => {
         if (isOpen) {
             setSearchTerm("");
             setSortBy("");
             setSortOrder("asc");
-
-            const storedUser = JSON.parse(localStorage.getItem("user"));
-            const userId = storedUser?._id;
-
-            if (!userId) return;
-
-            getBookingWithRetribusi()
-                .then((data) => {
-                    const filteredByUser = data.filter(
-                        (item) => item.id_pasien?.id_user === userId
-                    );
-                    setRiwayat(filteredByUser);
-                    setFiltered(filteredByUser);
-                })
-                .catch((err) => console.error(err));
+            fetchRiwayat();
         }
     }, [isOpen]);
 
@@ -96,126 +112,211 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
         setFiltered(result);
     }, [searchTerm, riwayat, sortBy, sortOrder]);
 
+    // Handle delete booking
+    const handleDelete = (booking) => {
+        setBookingToDelete(booking);
+        setShowConfirmPopup(true);
+    };
+
+    const confirmDeleteBooking = () => {
+        if (!bookingToDelete) return;
+        
+        setIsLoading(true);
+        setShowConfirmPopup(false);
+        
+        deleteBooking(bookingToDelete._id)
+            .then(() => {
+                // Update the state by removing the deleted booking
+                const updatedRiwayat = riwayat.filter(r => r._id !== bookingToDelete._id);
+                setRiwayat(updatedRiwayat);
+                setFiltered(updatedRiwayat);
+                setBookingToDelete(null);
+                setIsLoading(false);
+                // alert("Booking berhasil dihapus!");
+            })
+            .catch((error) => {
+                console.error("Gagal menghapus booking:", error);
+                alert("Gagal menghapus booking: " + (error.response?.data?.message || error.message));
+                setIsLoading(false);
+                setBookingToDelete(null);
+            });
+    };
+
+    const cancelDelete = () => {
+        setShowConfirmPopup(false);
+        setBookingToDelete(null);
+    };
+
+    // Fungsi untuk menentukan apakah tombol retribusi bisa diakses
+    const canAccessRetribusi = (status) => {
+        return ["mengambil obat", "selesai"].includes(status);
+    };
+
+    // Fungsi untuk menentukan apakah tombol rekam medis bisa diakses
+    const canAccessRekamMedis = (status) => {
+        return ["dirawat inap", "menunggu pembayaran", "mengambil obat", "selesai"].includes(status);
+    };
+
     return (
-        <Popup isOpen={isOpen} onClose={onClose} title="Riwayat Pemeriksaan">
-            <div className="riwayat-filter-container">
-                <div className="riwayat-search-wrapper">
-                    <label className="riwayat-search-label">Filter Pencarian</label>
-                    <input
-                        type="text"
-                        className="riwayat-search-input"
-                        placeholder="Cari data..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    {searchTerm && (
-                        <button className="riwayat-clear-button" onClick={() => setSearchTerm("")}>
-                            X
-                        </button>
+        <>
+            <Popup isOpen={isOpen} onClose={onClose} title="Riwayat Pemeriksaan">
+                <div className="riwayat-filter-container">
+                    <div className="riwayat-search-wrapper">
+                        <label className="riwayat-search-label">Filter Pencarian</label>
+                        <input
+                            type="text"
+                            className="riwayat-search-input"
+                            placeholder="Cari data..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        {searchTerm && (
+                            <button className="riwayat-clear-button" onClick={() => setSearchTerm("")}>
+                                X
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="riwayat-sort-wrapper">
+                        <select
+                            className="riwayat-sort-select"
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                        >
+                            <option value="">Urutkan...</option>
+                            <option value="createdAt">Tanggal Awal</option>
+                            <option value="updatedAt">Terakhir Diedit</option>
+                            <option value="pilih_tanggal">Tanggal Booking</option>
+                            <option value="nama_hewan">Nama Hewan</option>
+                            <option value="biaya">Biaya</option>
+                        </select>
+
+                        <select
+                            className="riwayat-sort-order"
+                            value={sortOrder}
+                            onChange={(e) => setSortOrder(e.target.value)}
+                        >
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="riwayat-popup-content">
+                    {isLoading ? (
+                        <div className="loading-indicator">Memuat data...</div>
+                    ) : (
+                        <table className="riwayat-table">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Tgl Buat</th>
+                                    <th>Tgl Booking</th>
+                                    <th>Nama Hewan</th>
+                                    <th>Keluhan</th>
+                                    <th>Biaya</th>
+                                    <th>Catatan</th>
+                                    <th>Layanan</th>
+                                    <th>Status</th>
+                                    <th>Tgl Update</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filtered.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="11" className="no-data">Tidak ada data booking</td>
+                                    </tr>
+                                ) : (
+                                    filtered.map((r, index) => (
+                                        <tr key={r._id}>
+                                            <td>{index + 1}</td>
+                                            <td>{new Date(r.createdAt).toLocaleString()}</td>
+                                            <td>{new Date(r.pilih_tanggal).toLocaleDateString("id-ID")}</td>
+                                            <td>{r.id_pasien?.nama || "Tidak diketahui"}</td>
+                                            <td>{r.keluhan}</td>
+                                            <td>{formatRupiah(r.grand_total)}</td>
+                                            <td>{r.administrasis1?.[0]?.catatan || "-"}</td>
+                                            <td>
+                                                {(r.pelayanans1 || [])
+                                                    .map((p) => p.id_pelayanan?.nama)
+                                                    .filter(Boolean)
+                                                    .join(", ") || "-"}
+                                            </td>
+                                            <td>{r.status_booking}</td>
+                                            <td>{new Date(r.updatedAt).toLocaleString()}</td>
+                                            <td className="riwayat-actions">
+                                                {[
+                                                    "sedang diperiksa",
+                                                    "dirawat inap",
+                                                    "menunggu pembayaran",
+                                                    "mengambil obat",
+                                                    "selesai",
+                                                ].includes(r.status_booking) && (
+                                                    <>
+                                                    <button 
+                                                        className={`btn-blue ${canAccessRetribusi(r.status_booking) ? '' : 'disabled'}`} 
+                                                        title="Lihat Retribusi" 
+                                                        onClick={() => canAccessRetribusi(r.status_booking) && alert(`Lihat retribusi ${r._id}`)}
+                                                        disabled={!canAccessRetribusi(r.status_booking)}
+                                                    >
+                                                        <img src={retribusiIcon} alt="retribusi" />
+                                                    </button>
+                                                    <button 
+                                                        className={`btn-blue ${canAccessRekamMedis(r.status_booking) ? '' : 'disabled'}`} 
+                                                        title="Rekam Medis" 
+                                                        onClick={() => canAccessRekamMedis(r.status_booking) && alert(`Lihat rekam medis ${r._id}`)}
+                                                        disabled={!canAccessRekamMedis(r.status_booking)}
+                                                    >
+                                                        <img src={rekamIcon} alt="rekam" />
+                                                    </button>
+                                                    </>
+                                                )}
+
+                                                {[
+                                                    "menunggu respon administrasi",
+                                                    "disetujui administrasi",
+                                                    "ditolak administrasi",
+                                                    "dibatalkan administrasi",
+                                                ].includes(r.status_booking) && (
+                                                    <>
+                                                    <button className="btn-green" title="Edit" onClick={() => alert(`Edit booking ${r._id}`)}>
+                                                        <img src={editIcon} alt="edit" />
+                                                    </button>
+                                                    <button 
+                                                        className="btn-red" 
+                                                        title="Hapus" 
+                                                        onClick={() => handleDelete(r)}
+                                                        disabled={isLoading}
+                                                    >
+                                                        <img src={hapusIcon} alt="hapus" />
+                                                    </button>
+                                                    </>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
                     )}
                 </div>
+            </Popup>
 
-                <div className="riwayat-sort-wrapper">
-                    <select
-                        className="riwayat-sort-select"
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                    >
-                        <option value="">Urutkan...</option>
-                        <option value="createdAt">Tanggal Awal</option>
-                        <option value="updatedAt">Terakhir Diedit</option>
-                        <option value="pilih_tanggal">Tanggal Booking</option>
-                        <option value="nama_hewan">Nama Hewan</option>
-                        <option value="biaya">Biaya</option>
-                    </select>
-
-                    <select
-                        className="riwayat-sort-order"
-                        value={sortOrder}
-                        onChange={(e) => setSortOrder(e.target.value)}
-                    >
-                        <option value="asc">Ascending</option>
-                        <option value="desc">Descending</option>
-                    </select>
-                </div>
-            </div>
-
-            <div className="riwayat-popup-content">
-                <table className="riwayat-table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Tgl Buat</th>
-                            <th>Tgl Booking</th>
-                            <th>Nama Hewan</th>
-                            <th>Keluhan</th>
-                            <th>Biaya</th>
-                            <th>Catatan</th>
-                            <th>Layanan</th>
-                            <th>Status</th>
-                            <th>Tgl Update</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filtered.map((r, index) => (
-                            <tr key={r._id}>
-                                <td>{index + 1}</td>
-                                <td>{new Date(r.createdAt).toLocaleString()}</td>
-                                <td>{new Date(r.pilih_tanggal).toLocaleDateString("id-ID")}</td>
-                                <td>{r.id_pasien?.nama || "Tidak diketahui"}</td>
-                                <td>{r.keluhan}</td>
-                                <td>{formatRupiah(r.grand_total)}</td>
-                                <td>{r.administrasis1?.[0]?.catatan || "-"}</td>
-                                <td>
-                                    {(r.pelayanans1 || [])
-                                        .map((p) => p.id_pelayanan?.nama)
-                                        .filter(Boolean)
-                                        .join(", ") || "-"}
-                                </td>
-                                <td>{r.status_booking}</td>
-                                <td>{new Date(r.updatedAt).toLocaleString()}</td>
-                                <td className="riwayat-actions">
-                                    {[
-                                        "sedang diperiksa",
-                                        "dirawat inap",
-                                        "menunggu pembayaran",
-                                        "mengambil obat",
-                                        "selesai",
-                                    ].includes(r.status_booking) && (
-                                        <>
-                                        <button className="btn-blue" title="Lihat Retribusi" onClick={() => alert(`Lihat retribusi ${r._id}`)}>
-                                            <img src={retribusiIcon} alt="retribusi" />
-                                        </button>
-                                        <button className="btn-blue" title="Rekam Medis" onClick={() => alert(`Lihat rekam medis ${r._id}`)}>
-                                            <img src={rekamIcon} alt="rekam" />
-                                        </button>
-                                        </>
-                                    )}
-
-                                    {[
-                                        "menunggu respon administrasi",
-                                        "disetujui administrasi",
-                                        "ditolak administrasi",
-                                        "dibatalkan administrasi",
-                                    ].includes(r.status_booking) && (
-                                        <>
-                                        <button className="btn-green" title="Edit" onClick={() => alert(`Edit booking ${r._id}`)}>
-                                            <img src={editIcon} alt="edit" />
-                                        </button>
-                                        <button className="btn-red" title="Hapus" onClick={() => alert(`Hapus booking ${r._id}`)}>
-                                            <img src={hapusIcon} alt="hapus" />
-                                        </button>
-                                        </>
-                                    )}
-                                </td>
-
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </Popup>
+            {/* Use your ConfirmPopup for delete confirmation */}
+            <ConfirmPopup
+                isOpen={showConfirmPopup}
+                onClose={cancelDelete}
+                title="Konfirmasi Hapus"
+                description={
+                    <p>
+                        Apakah Anda yakin ingin menghapus booking untuk <strong>{bookingToDelete?.id_pasien?.nama || 'hewan ini'},</strong> 
+                        <br />pada booking tanggal <strong>{bookingToDelete ? new Date(bookingToDelete.pilih_tanggal).toLocaleDateString("id-ID") : ''}</strong>?
+                    </p>
+                }
+                onConfirm={confirmDeleteBooking}
+            />
+        </>
     );
 };
 

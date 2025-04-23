@@ -189,3 +189,38 @@ router.get('/cek-booking-user/:id_user', async (req, res) => {
     res.status(500).json({ message: 'Terjadi kesalahan saat cek booking user' });
   }
 });
+
+
+
+// 🗑️ Delete booking by ID
+router.delete('/delete/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const booking = await Booking.findById(id);
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking tidak ditemukan' });
+    }
+    
+    // Optional: Check if the user has permission to delete this booking
+    // For example, only allow deletion if status is in certain states
+    const allowedStatuses = [
+      'menunggu respon administrasi',
+      'disetujui administrasi',
+      'ditolak administrasi',
+      'dibatalkan administrasi'
+    ];
+    
+    if (!allowedStatuses.includes(booking.status_booking)) {
+      return res.status(403).json({ 
+        message: 'Booking tidak dapat dihapus karena status sudah berubah' 
+      });
+    }
+    
+    await Booking.findByIdAndDelete(id);
+    res.json({ message: 'Booking berhasil dihapus' });
+  } catch (error) {
+    console.error('Gagal menghapus booking:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan saat menghapus booking' });
+  }
+});

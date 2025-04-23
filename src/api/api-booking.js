@@ -82,3 +82,14 @@ export const checkUnfinishedBookingByUserId = async (id_user) => {
     return false;
   }
 };
+
+
+export const deleteBooking = async (bookingId) => {
+  try {
+    const response = await axios.delete(`${BOOKING_API_URL}/delete/${bookingId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Gagal menghapus booking:', error.response?.data || error.message);
+    throw error;
+  }
+};

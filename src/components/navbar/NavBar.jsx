@@ -16,7 +16,7 @@ import RiwayatPopup from "../riwayat/riwayatklien";
 import { checkUnfinishedBooking } from "../../api/api-booking";
 import { checkUnfinishedBookingByUserId } from "../../api/api-booking";
 
-const NavBar = ({ userId, identity }) => {
+const NavBar = ({ userId, identity, refetchBooking }) => {
     const [hasUnfinishedBooking, setHasUnfinishedBooking] = useState(false);
     const [activeSection, setActiveSection] = useState("hp1");
     const [showProfile, setShowProfile] = useState(false);
@@ -35,21 +35,21 @@ const NavBar = ({ userId, identity }) => {
         }
     }, [identity]);
 
-    // Cek booking: apakah ada dan belum selesai
+    // refresh notif otomatis
     useEffect(() => {
         const cekUnfinishedBooking = async () => {
-            if (identity) {
-                try {
-                    const adaBookingBelumSelesai = await checkUnfinishedBookingByUserId(identity);
-                    setHasUnfinishedBooking(adaBookingBelumSelesai);
-                } catch (err) {
-                    console.error("Gagal cek unfinished booking:", err);
-                    setHasUnfinishedBooking(false);
-                }
+          if (identity) {
+            try {
+              const adaBookingBelumSelesai = await checkUnfinishedBookingByUserId(identity);
+              setHasUnfinishedBooking(adaBookingBelumSelesai);
+            } catch (err) {
+              console.error("Gagal cek unfinished booking:", err);
+              setHasUnfinishedBooking(false);
             }
+          }
         };
         cekUnfinishedBooking();
-    }, [identity]);
+    }, [identity, refetchBooking]);
     
 
     // Scroll & highlight section

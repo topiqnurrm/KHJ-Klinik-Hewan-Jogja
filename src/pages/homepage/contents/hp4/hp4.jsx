@@ -13,7 +13,7 @@ import kananHover from "./gambar/kanan_hover.png";
 
 import { Link } from "react-router-dom";
 
-function Hp4({ identity }) {
+function Hp4({ identity, onBookingSaved }) {
   const tabs = ["data-user", "data-pasien", "pelayanan", "konfirmasi"];
   const [activeTab, setActiveTab] = useState("pelayanan");
   const [leftHover, setLeftHover] = useState(false);
@@ -31,6 +31,12 @@ function Hp4({ identity }) {
     if (currentIndex < tabs.length - 1) {
       setActiveTab(tabs[currentIndex + 1]);
     }
+  };
+
+  const [refetchToggle, setRefetchToggle] = useState(false);
+
+  const handleRefetchBooking = () => {
+    setRefetchToggle(prev => !prev); // toggle untuk memicu useEffect di NavBar
   };
 
   // 🔒 Jika belum login, tampilkan hanya pesan login
@@ -77,8 +83,18 @@ function Hp4({ identity }) {
           <div className="content-box">
             {activeTab === "data-user" && <Halaman1 />}
             {activeTab === "data-pasien" && <Halaman2 />}
-            {activeTab === "pelayanan" && <Halaman3 onNext={() => setActiveTab("konfirmasi")} />}
-            {activeTab === "konfirmasi" && <Halaman4 onPre={() => setActiveTab("pelayanan")} />}
+            {activeTab === "pelayanan" && (
+              <Halaman3
+                onNext={() => setActiveTab("konfirmasi")}
+                onBookingSaved={onBookingSaved}
+              />
+            )}
+            {activeTab === "konfirmasi" && (
+              <Halaman4 
+                onPre={() => setActiveTab("pelayanan")} 
+                onBookingSaved={onBookingSaved} 
+              />
+            )}
           </div>
         </div>
       </div>

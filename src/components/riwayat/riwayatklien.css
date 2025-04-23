@@ -243,3 +243,14 @@
 .btn-red {
   background-color: #ef4444; /* Tailwind 'red-500' */
 }
+
+
+
+
+/* Styling untuk tombol yang dinonaktifkan */
+.btn-blue.disabled,
+.btn-green.disabled,
+.btn-red.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
