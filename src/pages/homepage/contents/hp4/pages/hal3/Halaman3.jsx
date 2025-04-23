@@ -216,6 +216,16 @@ function Halaman3({ onNext }) {
       }, 2000);
       return;
     }
+    if (complaint.length > 250) {
+      setValidationMessage("Keluhan maksimal 250 karakter.");
+      setMessageType("error");
+      setTimeout(() => {
+        setValidationMessage("");
+        setMessageType("");
+      }, 2000);
+      return;
+    }
+    
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -360,9 +370,17 @@ function Halaman3({ onNext }) {
           className="keluhan"
           rows={3}
           value={complaint}
-          onChange={(e) => setComplaint(e.target.value)}
-          placeholder="Masukkan keluhan..."
+          onChange={(e) => {
+            if (e.target.value.length <= 250) {
+              setComplaint(e.target.value);
+            }
+          }}
+          placeholder="Masukkan keluhan (maks. 250 karakter)"
         />
+        <div style={{ textAlign: "right", fontSize: "0.85rem", color: complaint.length > 240 ? "#c00" : "#666" }}>
+          {complaint.length}/250
+        </div>
+
       </div>
 
       <div className="form-group">

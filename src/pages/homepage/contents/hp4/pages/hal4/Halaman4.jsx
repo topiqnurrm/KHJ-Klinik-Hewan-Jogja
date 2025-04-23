@@ -105,7 +105,7 @@ function Halaman4({ onPre }) {
       <p><strong>Keluhan :</strong> {savedInput.keluhan}</p>
       <p><strong>Layanan :</strong> {savedInput.layanan.label}</p>
 
-      <p style={{ marginTop: "1rem" }}>
+      <p className="iniw" style={{ marginTop: "1rem" }}>
         * Setelah pilih konfirmasi, silakan cek <strong>“Riwayat Pemeriksaan Hewan Saya”</strong><br />
         * Jangan lupa untuk datang sesuai hari booking anda
       </p>

@@ -41,8 +41,15 @@ const BookingSchema = new mongoose.Schema({
         default: Date.now
     },
     keluhan: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
+      validate: {
+          validator: function(value) {
+              const wordCount = value.split(' ').length;
+              return wordCount <= 250;  // Validasi agar keluhan tidak lebih dari 250 kata
+          },
+          message: 'Keluhan tidak boleh lebih dari 250 kata'
+      }
     },
     pelayanans1: {
         type: [

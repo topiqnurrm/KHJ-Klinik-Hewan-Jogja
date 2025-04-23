@@ -33,3 +33,25 @@
     color: white;
   }
   
+
+
+
+  .iniw {
+    font-family: "SansSerifBldFLF";
+    font-weight: normal;
+    font-style: normal;
+    /* background-color: #c8fbeb; */
+    /* border-left: 5px solid #2fb087;
+    border-right: 5px solid #2fb087; */
+    padding: 12px 16px;
+    /* margin: 10px 100px; */
+    font-size: 14px;
+    /* width: 500px; */
+    justify-content: center;
+    align-items: center;
+    /* border-radius: 8px; */
+    color: #333;
+    /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); */
+    line-height: 1.5;
+  }
+  

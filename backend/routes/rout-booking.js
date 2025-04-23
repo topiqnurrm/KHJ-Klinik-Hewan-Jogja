@@ -1,5 +1,7 @@
 import express from 'express';
 import Booking from '../models/booking.js';
+import Hewan from '../models/pasien.js'; 
+
 
 const router = express.Router();
 
@@ -22,6 +24,12 @@ router.post('/booking', async (req, res) => {
 
     if (tanggalBooking < today) {
       return res.status(400).json({ message: 'Tanggal booking tidak boleh lebih kecil dari hari ini.' });
+    }
+
+    // Validasi keluhan agar tidak lebih dari 250 kata
+    const wordCount = keluhan.split(' ').length;
+    if (wordCount > 250) {
+      return res.status(400).json({ message: 'Keluhan tidak boleh lebih dari 250 kata.' });
     }
 
     const tanggalMulai = new Date(pilih_tanggal);
@@ -109,4 +117,75 @@ router.get('/all', async (req, res) => {
     }
   });
 
+
+
+  // 🔔 Endpoint untuk cek apakah ada booking belum selesai
+  import mongoose from 'mongoose';
+
+  router.get('/ada-booking-belum-selesai/:id_pasien', async (req, res) => {
+    try {
+      const { id_pasien } = req.params;
+  
+      // Ubah string jadi ObjectId
+      const idPasienObj = new mongoose.Types.ObjectId(id_pasien);
+  
+      const count = await Booking.countDocuments({
+        id_pasien: idPasienObj,
+        status_booking: { $ne: "selesai" }
+      });
+  
+      console.log("ID pasien:", id_pasien);
+      console.log("Jumlah booking belum selesai:", count);
+  
+      res.json({ ada: count > 0 });
+    } catch (error) {
+      console.error('Gagal cek booking belum selesai:', error);
+      res.status(500).json({ message: 'Terjadi kesalahan saat cek status booking' });
+    }
+  });  
+
+
+// 🔍 Ambil semua booking berdasarkan ID pasien
+router.get('/by-user/:id_pasien', async (req, res) => {
+  try {
+    const { id_pasien } = req.params;
+    const bookings = await Booking.find({ id_pasien }).sort({ createdAt: -1 });
+    res.json(bookings);
+  } catch (error) {
+    console.error('Gagal mengambil booking user:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan saat mengambil data booking user' });
+  }
+});
+
+
 export default router;
+
+
+
+// 🔍 Cek apakah user punya booking belum selesai
+router.get('/cek-booking-user/:id_user', async (req, res) => {
+  try {
+    const { id_user } = req.params;
+
+    // Ambil semua hewan milik user
+    const hewans = await Hewan.find({ id_user });
+
+    if (hewans.length === 0) {
+      return res.json({ ada: false }); // Tidak punya hewan = tidak ada booking
+    }
+
+    // Ambil semua ID hewan
+    const idHewanArray = hewans.map(h => h._id);
+
+    // Cek apakah ada booking dengan status bukan "selesai"
+    const unfinishedBooking = await Booking.exists({
+      id_pasien: { $in: idHewanArray },
+      status_booking: { $ne: "selesai" }
+    });
+
+    res.json({ ada: !!unfinishedBooking });
+  } catch (error) {
+    console.error("Gagal cek booking user:", error);
+    res.status(500).json({ message: 'Terjadi kesalahan saat cek booking user' });
+  }
+});

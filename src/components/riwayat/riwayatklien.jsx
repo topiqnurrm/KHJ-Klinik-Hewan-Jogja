@@ -3,6 +3,12 @@ import Popup from "../popup/popupriwayat";
 import { getBookingWithRetribusi } from "../../api/api-booking";
 import "./riwayatklien.css";
 
+// Import ikon tombol
+import retribusiIcon from "./gambar/retribusi.png";
+import rekamIcon from "./gambar/rekam.png";
+import editIcon from "./gambar/edit.png";
+import hapusIcon from "./gambar/hapus.png";
+
 const formatRupiah = (value) => {
     if (!value) return "Rp0";
     const amount = typeof value === "object" && value.$numberDecimal
@@ -22,16 +28,15 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
 
     useEffect(() => {
         if (isOpen) {
-            // Reset filter states
-            setSearchTerm("");  // Reset search term
-            setSortBy("");      // Reset sort by
-            setSortOrder("asc"); // Reset sort order to default (ascending)
-    
+            setSearchTerm("");
+            setSortBy("");
+            setSortOrder("asc");
+
             const storedUser = JSON.parse(localStorage.getItem("user"));
             const userId = storedUser?._id;
-    
+
             if (!userId) return;
-    
+
             getBookingWithRetribusi()
                 .then((data) => {
                     const filteredByUser = data.filter(
@@ -42,8 +47,8 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                 })
                 .catch((err) => console.error(err));
         }
-    }, [isOpen]); // Depend on isOpen to trigger the effect when the popup opens
-    
+    }, [isOpen]);
+
     useEffect(() => {
         const lower = searchTerm.toLowerCase();
         let result = riwayat.filter((r) => {
@@ -67,7 +72,6 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
             return allFields.includes(lower);
         });
 
-        // Sorting
         if (sortBy) {
             result = result.sort((a, b) => {
                 let valueA, valueB;
@@ -171,9 +175,41 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                                 </td>
                                 <td>{r.status_booking}</td>
                                 <td>{new Date(r.updatedAt).toLocaleString()}</td>
-                                <td>
-                                    <button onClick={() => alert(`Lihat detail ${r._id}`)}>🔍</button>
+                                <td className="riwayat-actions">
+                                    {[
+                                        "sedang diperiksa",
+                                        "dirawat inap",
+                                        "menunggu pembayaran",
+                                        "mengambil obat",
+                                        "selesai",
+                                    ].includes(r.status_booking) && (
+                                        <>
+                                        <button className="btn-blue" title="Lihat Retribusi" onClick={() => alert(`Lihat retribusi ${r._id}`)}>
+                                            <img src={retribusiIcon} alt="retribusi" />
+                                        </button>
+                                        <button className="btn-blue" title="Rekam Medis" onClick={() => alert(`Lihat rekam medis ${r._id}`)}>
+                                            <img src={rekamIcon} alt="rekam" />
+                                        </button>
+                                        </>
+                                    )}
+
+                                    {[
+                                        "menunggu respon administrasi",
+                                        "disetujui administrasi",
+                                        "ditolak administrasi",
+                                        "dibatalkan administrasi",
+                                    ].includes(r.status_booking) && (
+                                        <>
+                                        <button className="btn-green" title="Edit" onClick={() => alert(`Edit booking ${r._id}`)}>
+                                            <img src={editIcon} alt="edit" />
+                                        </button>
+                                        <button className="btn-red" title="Hapus" onClick={() => alert(`Hapus booking ${r._id}`)}>
+                                            <img src={hapusIcon} alt="hapus" />
+                                        </button>
+                                        </>
+                                    )}
                                 </td>
+
                             </tr>
                         ))}
                     </tbody>

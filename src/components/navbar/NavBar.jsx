@@ -5,38 +5,54 @@ import ada1 from "./shop/1ada.png";
 import kosong0 from "./shop/0kosong.png";
 import kosong1 from "./shop/1kosong.png";
 import userImg from "./image/user.png";
-import loginImg from "./image/login.png"; // ✅ Tambahkan ini
+import loginImg from "./image/login.png";
 import "./NavBar.css";
 import ProfilePopup from "../userprofile/userprofile";
 import { getUserById } from "../../api/user";
+import { getAllBookingByUserId } from "../../api/api-booking"; // pastikan ini adalah fungsi untuk ambil semua booking user
 import { Link } from "react-router-dom";
+import RiwayatPopup from "../riwayat/riwayatklien";
 
-import RiwayatPopup from "../riwayat/riwayatklien"; 
+import { checkUnfinishedBooking } from "../../api/api-booking";
+import { checkUnfinishedBookingByUserId } from "../../api/api-booking";
 
 const NavBar = ({ userId, identity }) => {
-    const [hasMessage, setHasMessage] = useState(true);
+    const [hasUnfinishedBooking, setHasUnfinishedBooking] = useState(false);
     const [activeSection, setActiveSection] = useState("hp1");
     const [showProfile, setShowProfile] = useState(false);
     const profileButtonRef = useRef(null);
     const [userData, setUserData] = useState(null);
+    const [showRiwayat, setShowRiwayat] = useState(false);
 
-    const [showRiwayat, setShowRiwayat] = useState(false); // ⬅️ Tambahkan ini
-
-    // ✅ Fetch user data saat komponen mount
+    // Ambil data user
     useEffect(() => {
         if (identity) {
             getUserById(identity)
                 .then((res) => {
-                    if (res) {
-                        // console.log("User result:", res); // ✅ Tambahkan log ini
-                        setUserData(res);
-                    } else {
-                        console.warn("User data is null");
-                    }
+                    if (res) setUserData(res);
+                    else console.warn("User data is null");
                 });
         }
     }, [identity]);
 
+    // Cek booking: apakah ada dan belum selesai
+    useEffect(() => {
+        const cekUnfinishedBooking = async () => {
+            if (identity) {
+                try {
+                    const adaBookingBelumSelesai = await checkUnfinishedBookingByUserId(identity);
+                    setHasUnfinishedBooking(adaBookingBelumSelesai);
+                } catch (err) {
+                    console.error("Gagal cek unfinished booking:", err);
+                    setHasUnfinishedBooking(false);
+                }
+            }
+        };
+        cekUnfinishedBooking();
+    }, [identity]);
+    
+
+    // Scroll & highlight section
     const scrollToSection = (id) => {
         const section = document.getElementById(id);
         if (section) {
@@ -58,10 +74,7 @@ const NavBar = ({ userId, identity }) => {
         );
 
         sections.forEach((section) => observer.observe(section));
-
-        return () => {
-            sections.forEach((section) => observer.unobserve(section));
-        };
+        return () => sections.forEach((section) => observer.unobserve(section));
     }, []);
 
     const handleProfileClick = () => {
@@ -87,25 +100,25 @@ const NavBar = ({ userId, identity }) => {
                 <li onClick={() => scrollToSection("hp5")} className={`linav ${activeSection === "hp5" ? "active" : ""}`}>Kontak</li>
             </ul>
 
-            {/* ✅ Message Icon hanya ditampilkan jika login */}
+            {/* Ikon Notifikasi */}
             {identity && (
-                <a  style={{ textDecoration: "none" }}>
+                <>
                     <div className="message-icon">
                         <img
-                            src={hasMessage ? ada0 : kosong0}
+                            src={hasUnfinishedBooking ? ada0 : kosong0}
                             alt="Message Icon"
                             className="message-img"
-                            onMouseEnter={(e) => (e.target.src = hasMessage ? ada1 : kosong1)}
-                            onMouseLeave={(e) => (e.target.src = hasMessage ? ada0 : kosong0)}
-
-                            onClick={() => setShowRiwayat(true)} // ⬅️ Tambahkan aksi klik
+                            onMouseEnter={(e) => (e.target.src = hasUnfinishedBooking ? ada1 : kosong1)}
+                            onMouseLeave={(e) => (e.target.src = hasUnfinishedBooking ? ada0 : kosong0)}
+                            onClick={() => setShowRiwayat(true)}
                         />
                     </div>
                     <RiwayatPopup isOpen={showRiwayat} onClose={() => setShowRiwayat(false)} />
-                </a>
+                </>
             )}
 
-            {/* Profil / Login */}
+
+            {/* Profil atau Login */}
             {identity ? (
                 <>
                     <a
@@ -138,7 +151,6 @@ const NavBar = ({ userId, identity }) => {
                     />
                 </>
             ) : (
-                // <Link to="/" className="user-profile login-wrapper" style={{ textDecoration: "none" }}>
                 <Link
                     to="/"
                     className={`user-profile login-wrapper ${!identity ? "not-logged-in" : ""}`}

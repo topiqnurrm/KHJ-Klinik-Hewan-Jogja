@@ -47,3 +47,38 @@ export const getBookingWithRetribusi = async () => {
     throw error;
   }
 };
+
+export const checkUnfinishedBooking = async (id_pasien) => {
+  try {
+    const response = await axios.get(`http://localhost:5000/api/booking/ada-booking-belum-selesai/${id_pasien}`);
+    console.log("Cek unfinished booking response:", response.data); // Debug
+    return response.data.ada;
+  } catch (error) {
+    console.error("Gagal cek booking belum selesai:", error);
+    return false;
+  }
+};
+
+
+
+export const getAllBookingByUserId = async (id_pasien) => {
+  try {
+    const response = await axios.get(`${BOOKING_API_URL}/by-user/${id_pasien}`);
+    return response.data;
+  } catch (error) {
+    console.error('Gagal mengambil booking user:', error);
+    throw error;
+  }
+};
+
+
+
+export const checkUnfinishedBookingByUserId = async (id_user) => {
+  try {
+    const response = await axios.get(`http://localhost:5000/api/booking/cek-booking-user/${id_user}`);
+    return response.data.ada;
+  } catch (error) {
+    console.error("Gagal cek booking user:", error);
+    return false;
+  }
+};
