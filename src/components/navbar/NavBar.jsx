@@ -9,20 +9,21 @@ import loginImg from "./image/login.png";
 import "./NavBar.css";
 import ProfilePopup from "../userprofile/userprofile";
 import { getUserById } from "../../api/user";
-import { getAllBookingByUserId } from "../../api/api-booking"; // pastikan ini adalah fungsi untuk ambil semua booking user
 import { Link } from "react-router-dom";
 import RiwayatPopup from "../riwayat/riwayatklien";
 
-import { checkUnfinishedBooking } from "../../api/api-booking";
 import { checkUnfinishedBookingByUserId } from "../../api/api-booking";
 
-const NavBar = ({ userId, identity, refetchBooking }) => {
+const NavBar = ({ userId, identity, refetchBooking, refreshTrigger }) => {
     const [hasUnfinishedBooking, setHasUnfinishedBooking] = useState(false);
     const [activeSection, setActiveSection] = useState("hp1");
     const [showProfile, setShowProfile] = useState(false);
     const profileButtonRef = useRef(null);
     const [userData, setUserData] = useState(null);
     const [showRiwayat, setShowRiwayat] = useState(false);
+    
+    // Add a local state to track refetch triggers
+    const [refetchTrigger, setRefetchTrigger] = useState(false);
 
     // Ambil data user
     useEffect(() => {
@@ -36,21 +37,32 @@ const NavBar = ({ userId, identity, refetchBooking }) => {
     }, [identity]);
 
     // refresh notif otomatis
+    // NavBar.jsx
     useEffect(() => {
         const cekUnfinishedBooking = async () => {
-          if (identity) {
+        if (identity) {
             try {
-              const adaBookingBelumSelesai = await checkUnfinishedBookingByUserId(identity);
-              setHasUnfinishedBooking(adaBookingBelumSelesai);
+            const adaBookingBelumSelesai = await checkUnfinishedBookingByUserId(identity);
+            setHasUnfinishedBooking(adaBookingBelumSelesai);
             } catch (err) {
-              console.error("Gagal cek unfinished booking:", err);
-              setHasUnfinishedBooking(false);
+            console.error("Gagal cek unfinished booking:", err);
+            setHasUnfinishedBooking(false);
             }
-          }
+        }
         };
         cekUnfinishedBooking();
-    }, [identity, refetchBooking]);
+    }, [identity, refetchTrigger, refreshTrigger]); // Add refreshTrigger from props here
     
+    // Function to handle refresh from child component
+    const handleBookingDeleted = () => {
+        // Toggle local state
+        setRefetchTrigger(prev => !prev);
+        
+        // Call parent's refetchBooking function if it exists
+        if (typeof refetchBooking === 'function') {
+            refetchBooking();
+        }
+    };
 
     // Scroll & highlight section
     const scrollToSection = (id) => {
@@ -113,10 +125,13 @@ const NavBar = ({ userId, identity, refetchBooking }) => {
                             onClick={() => setShowRiwayat(true)}
                         />
                     </div>
-                    <RiwayatPopup isOpen={showRiwayat} onClose={() => setShowRiwayat(false)} />
+                    <RiwayatPopup 
+                        isOpen={showRiwayat} 
+                        onClose={() => setShowRiwayat(false)} 
+                        onBookingDeleted={handleBookingDeleted}
+                    />
                 </>
             )}
-
 
             {/* Profil atau Login */}
             {identity ? (

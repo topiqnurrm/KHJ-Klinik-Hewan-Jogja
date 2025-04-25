@@ -23,6 +23,8 @@ function Halaman2() {
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [hewanToEdit, setHewanToEdit] = useState(null);
 
+  const [errorMessage, setErrorMessage] = useState("");
+
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const userId = storedUser?._id;
@@ -106,6 +108,11 @@ function Halaman2() {
 
       <div className="hlmhwn2">
         <div className="daftar-hewan">
+          {errorMessage && (
+            <div className="error-message">
+              {errorMessage}
+            </div>
+          )}
           <div className="daftar-kartu">
             {filteredHewanList.map((item, index) => (
               <div
@@ -178,14 +185,14 @@ function Halaman2() {
                             setHewanList(updatedList);
                             setFilteredHewanList(updatedList);
                             setSelectedHewan(updatedList[0] || null);
-                            // alert("Data berhasil dihapus.");
                           } catch (error) {
-                            alert("Terjadi kesalahan saat menghapus data.");
+                            setErrorMessage("Data hewan ini telah Anda daftarkan di booking dan belum menyelesaikannya.");
+                            setTimeout(() => setErrorMessage(""), 2000);
                           } finally {
                             setShowDeletePopup(false);
                             setHewanToDelete(null);
                           }
-                        }}
+                        }}                        
                       />
                     )}
                   </div>
@@ -196,6 +203,13 @@ function Halaman2() {
             {/* Tombol Tambah */}
             <button className="tambah-btn" onClick={() => setShowTambahPopup(true)}>Tambah</button>
           </div>
+{/* 
+          {errorMessage && (
+            <div className="error-message">
+              {errorMessage}
+            </div>
+          )} */}
+
         </div>
 
         <div className="form-hewan">

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Popup from "../popup/popupriwayat";
-import ConfirmPopup from "../popup/popup2"; // Import your ConfirmPopup component
-import PopupEditBooking from "../popup/popupeditbooking"; // Import the PopupEditBooking component
+import ConfirmPopup from "../popup/popup2"; 
+import PopupEditBooking from "../popup/popupeditbooking";
 import { getBookingWithRetribusi, deleteBooking } from "../../api/api-booking";
 import "./riwayatklien.css";
 
@@ -21,7 +21,7 @@ const formatRupiah = (value) => {
     return amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
 };
 
-const RiwayatPopup = ({ isOpen, onClose }) => {
+const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
     const [riwayat, setRiwayat] = useState([]);
     const [filtered, setFiltered] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -135,6 +135,11 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
         setBookingToEdit(null);
         // Refresh the booking list after edit
         fetchRiwayat();
+        
+        // Notify parent about the change
+        if (typeof onBookingDeleted === 'function') {
+            onBookingDeleted();
+        }
     };
 
     const confirmDeleteBooking = () => {
@@ -151,6 +156,11 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                 setFiltered(updatedRiwayat);
                 setBookingToDelete(null);
                 setIsLoading(false);
+                
+                // Call the callback to notify parent components
+                if (typeof onBookingDeleted === 'function') {
+                    onBookingDeleted();
+                }
                 // alert("Booking berhasil dihapus!");
             })
             .catch((error) => {
@@ -175,6 +185,26 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
     const canAccessRekamMedis = (status) => {
         return ["dirawat inap", "menunggu pembayaran", "mengambil obat", "selesai"].includes(status);
     };
+
+    const getStatusClass = (status) => {
+        switch (status) {
+            case "menunggu respon administrasi":
+            case "sedang diperiksa":
+            case "dirawat inap":
+            case "menunggu pembayaran":
+            case "mengambil obat":
+                return "status-kuning";
+            case "disetujui administrasi":
+                return "status-hijau";
+            case "ditolak administrasi":
+            case "dibatalkan administrasi":
+                return "status-merah";
+            case "selesai":
+                return "status-biru";
+            default:
+                return "";
+        }
+    };    
 
     return (
         <>
@@ -203,8 +233,8 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                             onChange={(e) => setSortBy(e.target.value)}
                         >
                             <option value="">Urutkan...</option>
-                            <option value="createdAt">Tanggal Awal</option>
-                            <option value="updatedAt">Terakhir Diedit</option>
+                            <option value="createdAt">Tanggal Buat</option>
+                            <option value="updatedAt">Terakhir Update</option>
                             <option value="pilih_tanggal">Tanggal Booking</option>
                             <option value="nama_hewan">Nama Hewan</option>
                             <option value="biaya">Biaya</option>
@@ -262,7 +292,13 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                                                     .filter(Boolean)
                                                     .join(", ") || "-"}
                                             </td>
-                                            <td>{r.status_booking}</td>
+                                            {/* <td>{r.status_booking}</td> */}
+                                            <td>
+                                                <span className={`status-label ${getStatusClass(r.status_booking)}`}>
+                                                    {r.status_booking}
+                                                </span>
+                                            </td>
+
                                             <td>{new Date(r.updatedAt).toLocaleString()}</td>
                                             <td className="riwayat-actions">
                                                 {[

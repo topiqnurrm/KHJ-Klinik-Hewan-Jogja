@@ -331,11 +331,13 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
       }
       
       // Sekarang lakukan update booking yang sebenarnya
+      // Tambahkan status_booking untuk set kembali ke "menunggu respon administrasi"
       const updatedBooking = await updateBooking(bookingId, {
         id_pasien: selectedPasien.value,
         pilih_tanggal: formatLocalDate(selectedDate),
         keluhan: complaint,
-        pelayanans1: [{ id_pelayanan: selectedLayanan.value }]
+        pelayanans1: [{ id_pelayanan: selectedLayanan.value }],
+        status_booking: "menunggu respon administrasi" // Set status booking kembali ke menunggu
       });
       
       setValidationMessage("Data booking berhasil diperbarui!");
@@ -477,6 +479,13 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
                 <div className="form-group-edit">
                 <label className="warna">Pilih Lokasi Pemeriksaan *</label>
                 <input className="warna" type="text" value={lokasiPemeriksaan} readOnly disabled={isSubmitting} />
+                </div>
+
+                {/* Notice for the user about status change */}
+                <div className="form-group-edit">
+                <div className="status-info" style={{ fontSize: "0.9rem", color: "#666", backgroundColor: "#f8f8f8", padding: "10px", borderRadius: "5px", marginTop: "10px" }}>
+                  <p><strong>Catatan:</strong> Setelah diperbarui, status booking akan kembali menjadi "menunggu respon administrasi".</p>
+                </div>
                 </div>
             </div>
             )}

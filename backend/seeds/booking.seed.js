@@ -18,7 +18,7 @@ const data = [
   {
     _id: new mongoose.Types.ObjectId('67f0aca488fa9662fb8c2158'),
     id_pasien: samplePasienId1,
-    status_booking: 'menunggu respon administrasi',
+    status_booking: 'selesai',
     pilih_tanggal: new Date('2025-05-15'),
     keluhan: 'Hewan sering muntah-muntah',
     administrasis1: [
@@ -94,7 +94,8 @@ const data = [
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu pembayaran',
+    status_booking: 'selesai',
+    createdAt: new Date('2025-01-11T03:25:12.222Z'),
     pilih_tanggal: new Date('2025-05-07'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
@@ -116,6 +117,7 @@ const data = [
   {
     id_pasien: samplePasienId3,
     status_booking: 'disetujui administrasi',
+    createdAt: new Date('2025-01-12T03:25:12.222Z'),
     pilih_tanggal: new Date('2025-05-07'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
@@ -136,7 +138,8 @@ const data = [
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'disetujui administrasi',
+    status_booking: 'ditolak administrasi',
+    createdAt: new Date('2025-01-13T03:25:12.222Z'),
     pilih_tanggal: new Date('2025-05-07'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
@@ -157,7 +160,8 @@ const data = [
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'disetujui administrasi',
+    status_booking: 'sedang diperiksa',
+    createdAt: new Date('2025-01-14T03:25:12.222Z'),
     pilih_tanggal: new Date('2025-05-07'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
@@ -178,7 +182,8 @@ const data = [
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu respon administrasi',
+    status_booking: 'dirawat inap',
+    createdAt: new Date('2025-01-15T03:25:12.222Z'),
     pilih_tanggal: new Date('2025-05-08'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
@@ -199,7 +204,8 @@ const data = [
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu respon administrasi',
+    status_booking: 'dibatalkan administrasi',
+    createdAt: new Date('2025-01-16T03:25:12.222Z'),
     pilih_tanggal: new Date('2025-05-08'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
@@ -220,7 +226,8 @@ const data = [
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu respon administrasi',
+    status_booking: 'menunggu pembayaran',
+    createdAt: new Date('2025-01-17T03:25:12.222Z'),
     pilih_tanggal: new Date('2025-05-08'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
@@ -241,7 +248,8 @@ const data = [
   },
   {
     id_pasien: samplePasienId3,
-    status_booking: 'menunggu respon administrasi',
+    status_booking: 'mengambil obat',
+    createdAt: new Date('2025-01-18T03:25:12.222Z'),
     pilih_tanggal: new Date('2025-05-08'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
     administrasis1: [
@@ -260,27 +268,6 @@ const data = [
       }
     ],
   },
-  {
-    id_pasien: samplePasienId3,
-    status_booking: 'menunggu respon administrasi',
-    pilih_tanggal: new Date('2025-05-08'),
-    keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
-    administrasis1: [
-      {
-        id_user: sampleUserId1,
-        catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
-        status_booking: 'menunggu respon administrasi',
-        tanggal: new Date('2025-05-16')
-      }
-    ],
-    pelayanans1: [
-      {
-        id_pelayanan: samplePelayananId1,
-        jumlah: 2,
-        tanggal: new Date('2025-05-16')
-      }
-    ],
-  }
 ];
 
 export default async function seed() {

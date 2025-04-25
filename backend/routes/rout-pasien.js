@@ -1,6 +1,7 @@
 // routes/pasien.js
 import express from 'express';
 import Pasien from '../models/pasien.js';
+import Booking from '../models/booking.js';
 
 const router = express.Router();
 
@@ -29,11 +30,27 @@ router.get('/user/:userId', async (req, res) => {
 // Hapus data pasien berdasarkan ID
 router.delete('/:id', async (req, res) => {
   try {
-    await Pasien.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'Pasien berhasil dihapus' });
+    const idHewan = req.params.id;
+
+    // Cek apakah hewan ini masih ada booking yang belum selesai
+    const hasUnfinishedBooking = await Booking.exists({
+      id_pasien: idHewan,
+      status_booking: { $ne: 'selesai' }
+    });
+
+    if (hasUnfinishedBooking) {
+      return res.status(400).json({
+        message: 'Data hewan ini telah Anda daftarkan di booking dan belum menyelesaikannya.'
+      });
+    }
+
+    // Kalau aman, lanjut hapus hewan
+    await Pasien.findByIdAndDelete(idHewan);
+    res.status(200).json({ message: 'Hewan berhasil dihapus' });
+
   } catch (error) {
-    console.error("Gagal menghapus pasien:", error);
-    res.status(500).json({ message: 'Gagal menghapus pasien' });
+    console.error("Gagal menghapus hewan:", error);
+    res.status(500).json({ message: 'Terjadi kesalahan saat menghapus hewan' });
   }
 });
 

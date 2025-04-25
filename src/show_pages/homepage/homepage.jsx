@@ -13,6 +13,7 @@ function Userland() {
   const [userId, setUserId] = useState(null);      
   const [userIdentity, setUserIdentity] = useState(null);  // _id dari MongoDB
 
+  // Rename to be consistent with the NavBar component's expected prop
   const [refetchToggle, setRefetchToggle] = useState(false);
 
   const handleRefetchBooking = () => {
@@ -42,7 +43,8 @@ function Userland() {
       <NavBar
         userId={userId}
         identity={userIdentity}
-        refetchBooking={refetchToggle}  // Change to refetchBooking
+        refetchBooking={handleRefetchBooking}  // Pass the function
+        refreshTrigger={refetchToggle}  // Pass the state value as the trigger
       />
 
       <ChatButton />

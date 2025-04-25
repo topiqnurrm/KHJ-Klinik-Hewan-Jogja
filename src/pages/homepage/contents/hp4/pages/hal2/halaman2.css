@@ -359,3 +359,20 @@
     margin-top: 0px;
     margin-bottom: 0px;
   }
+
+
+
+
+  .error-message {
+    width: 100%;
+    max-width: 300px;
+    color: red;
+    text-align: center;
+    font-weight: normal;
+    position: sticky;
+    top: 0;
+    background-color: #fff; /* Optional: Add background to avoid overlap */
+    z-index: 10; /* Ensure it stays above other elements */
+    margin: 0 auto; /* Center horizontally */
+  }
+  
