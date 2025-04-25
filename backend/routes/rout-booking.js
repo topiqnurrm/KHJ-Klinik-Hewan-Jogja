@@ -12,6 +12,7 @@ router.post('/booking', async (req, res) => {
       id_pasien,
       pilih_tanggal,
       keluhan,
+      nama,
       status_booking = 'menunggu respon administrasi',
       pelayanans1 = [],
       administrasis1 = []
@@ -54,6 +55,7 @@ router.post('/booking', async (req, res) => {
       keluhan,
       status_booking,
       pelayanans1,
+      nama,
       administrasis1
     });
 
@@ -265,10 +267,18 @@ router.delete('/delete/:id', async (req, res) => {
   }
 });
 
+// Add this debugging to the update route in rout-booking.js
+
 router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
+    
+    console.log("Received booking update:", {
+      id,
+      data: updateData,
+      petName: updateData.nama // Specifically log the pet name
+    });
     
     const booking = await Booking.findById(id);
     if (!booking) {
@@ -276,7 +286,6 @@ router.put('/update/:id', async (req, res) => {
     }
     
     // Optional: Check if the user has permission to update this booking
-    // For example, only allow updates if status is in certain states
     const allowedStatuses = [
       'menunggu respon administrasi',
       'disetujui administrasi',
@@ -290,11 +299,18 @@ router.put('/update/:id', async (req, res) => {
       });
     }
     
+    // Ensure all fields are properly updated, including nama
     const updatedBooking = await Booking.findByIdAndUpdate(
       id, 
       updateData, 
       { new: true, runValidators: true }
     );
+    
+    console.log("Updated booking:", {
+      id: updatedBooking._id,
+      nama: updatedBooking.nama, // Verify the name was updated
+      status: updatedBooking.status_booking
+    });
     
     res.json({ 
       message: 'Booking berhasil diperbarui', 

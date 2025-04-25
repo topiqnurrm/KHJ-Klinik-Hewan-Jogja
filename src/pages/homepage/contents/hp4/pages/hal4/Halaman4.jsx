@@ -33,35 +33,37 @@ function Halaman4({ onPre, onBookingSaved }) {
 
   const handleKonfirmasi = async () => {
     if (!savedInput || !pasien) return;
-
+  
     const bookingData = {
       id_pasien: pasien._id,
       pilih_tanggal: savedInput.tanggal,
       keluhan: savedInput.keluhan,
+      nama: pasien.nama, // Tambahkan nama hewan ke data booking
       pelayanans1: [
         {
           id_pelayanan: savedInput.layanan.value,
+          nama: savedInput.layanan.label,  // Add the service name here
           jumlah: 1,
         },
       ],
       administrasis1: [],
     };
-
+  
     try {
       setLoading(true);
       const response = await createBooking(bookingData);
-      
+  
       // Hapus data dari localStorage
       localStorage.removeItem("savedInput");
       localStorage.removeItem("selectedPasienData");
-
+  
       // Reset state
       setSavedInput(null);
       setPasien(null);
-
+  
       // Trigger the onBookingSaved callback to refresh NavBar notifications
       if (onBookingSaved) onBookingSaved();
-
+  
       // Panggil onPre untuk kembali ke Halaman3 setelah booking berhasil
       onPre();
     } catch (error) {
@@ -70,6 +72,7 @@ function Halaman4({ onPre, onBookingSaved }) {
       setLoading(false);
     }
   };
+  
 
   const openPopup = () => {
     setIsPopupOpen(true);

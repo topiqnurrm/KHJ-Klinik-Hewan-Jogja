@@ -8,7 +8,7 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
   const [originalData, setOriginalData] = useState({});
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false); // Status untuk memantau proses pengiriman
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const sanitizedData = {
@@ -31,10 +31,11 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
   const showSuccess = (msg) => {
     setSuccessMessage(msg);
     setTimeout(() => {
-      setSuccessMessage(""); // Hapus pesan sukses setelah beberapa detik
-      onClose(); // Tutup modal setelah beberapa detik
+      setSuccessMessage("");
+      onClose(); // Ini tetap dipanggil setelah delay
     }, 2000);
   };
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,13 +75,18 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
     }
 
     try {
-      setIsSubmitting(true); // Set status pengiriman jadi true (tombol dinonaktifkan)
+      setIsSubmitting(true);
 
+      // Construct the payload with the properly formatted data
       const payload = {
         ...formData,
         jenis_kelamin: formData.kelamin,
+        // Include the nama field explicitly to ensure it's updated in bookings
+        nama: formData.nama,
       };
       delete payload.kelamin;
+
+      console.log("Sending update with payload:", payload);
 
       const res = await fetch(
         `http://localhost:5000/api/pasien/${formData._id}`,
@@ -96,15 +102,17 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
       const result = await res.json();
 
       if (res.ok) {
-        onSuccess(result);
+        console.log("Update success:", result);
         showSuccess("Data pasien berhasil diperbarui!");
+        onSuccess(result); // Pindahkan ke sini agar dipanggil setelah showSuccess
       } else {
         showError(result.message || "Gagal memperbarui data.");
       }
-    } catch (err) {
-      showError("Terjadi kesalahan saat memperbarui data.");
+    } catch (error) {
+      console.error("Error updating pet:", error.response?.data || error);
+      showError(`Gagal memperbarui data: ${error.response?.data?.message || error.message}`);
     } finally {
-      setIsSubmitting(false); // Setelah backend selesai, aktifkan tombol lagi
+      setIsSubmitting(false);
     }
   };
 
@@ -126,10 +134,10 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
             <label>Nama Hewan *</label>
             <input
               name="nama"
-              value={formData.nama}
+              value={formData.nama || ""}
               onChange={handleChange}
               placeholder="Nama Hewan"
-              className={formData.nama ? "edited" : ""}
+              className={formData.nama !== originalData.nama ? "edited" : ""}
             />
 
             <label>Jenis Hewan *</label>
@@ -156,9 +164,9 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
             <label>Kategori Hewan *</label>
             <select
               name="kategori"
-              value={formData.kategori}
+              value={formData.kategori || ""}
               onChange={handleChange}
-              className={formData.kategori ? "edited" : ""}
+              className={formData.kategori !== originalData.kategori ? "edited" : ""}
             >
               <option value="">Pilih Kategori Hewan</option>
               <option value="ternak">Ternak</option>
@@ -171,10 +179,10 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
             <label>Ras Hewan</label>
             <input
               name="ras"
-              value={formData.ras}
+              value={formData.ras || ""}
               onChange={handleChange}
               placeholder="Ras Hewan"
-              className={formData.ras ? "edited" : ""}
+              className={formData.ras !== originalData.ras ? "edited" : ""}
             />
 
             <label>Jenis Kelamin Hewan *</label>
@@ -182,7 +190,7 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
               name="kelamin"
               value={formData.kelamin || ""}
               onChange={handleChange}
-              className={formData.kelamin ? "edited" : ""}
+              className={formData.kelamin !== originalData.kelamin ? "edited" : ""}
             >
               <option value="">Pilih Jenis Kelamin Hewan</option>
               <option value="jantan">Jantan</option>
@@ -194,10 +202,10 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
               name="umur"
               type="number"
               step="0.1"
-              value={formData.umur}
+              value={formData.umur || ""}
               onChange={handleChange}
               placeholder="Umur Hewan (tahun)"
-              className={formData.umur ? "edited" : ""}
+              className={formData.umur !== originalData.umur ? "edited" : ""}
             />
           </div>
         </form>
@@ -206,14 +214,14 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
           <button
             className="btn cancel"
             onClick={onClose}
-            disabled={isButtonDisabled} // Tombol Batal dinonaktifkan jika sedang mengirim atau pesan sukses muncul
+            disabled={isButtonDisabled}
           >
             Batal
           </button>
           <button
             className="btn confirm"
             onClick={handleSubmit}
-            disabled={isButtonDisabled} // Tombol Simpan dinonaktifkan jika sedang mengirim atau pesan sukses muncul
+            disabled={isButtonDisabled}
           >
             {isSubmitting ? "Menyimpan..." : "Simpan"}
           </button>

@@ -1,7 +1,7 @@
-// routes/pasien.js
 import express from 'express';
 import Pasien from '../models/pasien.js';
 import Booking from '../models/booking.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ router.get('/user/:userId', async (req, res) => {
   });
   
 
-  router.post('/', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
       const pasien = new Pasien(req.body);
       await pasien.save();
@@ -54,17 +54,46 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Update data pasien berdasarkan ID
+// Update data pasien berdasarkan ID dan juga semua booking terkait
 router.put('/:id', async (req, res) => {
   try {
-    const updatedPasien = await Pasien.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const pasienId = req.params.id;
+    const updateData = req.body;
+
+    console.log("Updating pasien with ID:", pasienId);
+    console.log("Update data:", updateData);
+
+    // 1. Update pasien data
+    const updatedPasien = await Pasien.findByIdAndUpdate(
+      pasienId,
+      updateData,
+      { new: true }
+    );
+
     if (!updatedPasien) {
       return res.status(404).json({ message: 'Pasien tidak ditemukan' });
     }
-    res.json(updatedPasien);
+
+    // 2. Jika nama hewan berubah, update semua booking terkait
+    if (updateData.nama) {
+      const bookingUpdateResult = await Booking.updateMany(
+        { id_pasien: pasienId },
+        { $set: { nama: updateData.nama } }
+      );
+
+      console.log(`Updated ${bookingUpdateResult.modifiedCount} booking records`);
+    }
+
+    res.json({
+      pasien: updatedPasien,
+      message: 'Data pasien dan booking terkait berhasil diperbarui'
+    });
   } catch (error) {
     console.error("Gagal memperbarui pasien:", error);
-    res.status(500).json({ message: 'Gagal memperbarui data pasien' });
+    res.status(500).json({
+      message: 'Gagal memperbarui data pasien',
+      error: error.message
+    });
   }
 });
 

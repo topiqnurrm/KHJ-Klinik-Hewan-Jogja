@@ -25,13 +25,13 @@ function Halaman2() {
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  useEffect(() => {
+  const fetchHewanList = async () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const userId = storedUser?._id;
-
+  
     if (userId) {
-      getPasienByUserId(userId).then((data) => {
-        // Urutkan dari yang terbaru ke yang lama berdasarkan createdAt
+      try {
+        const data = await getPasienByUserId(userId);
         const sortedData = [...data].sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
@@ -39,10 +39,21 @@ function Halaman2() {
         setFilteredHewanList(sortedData);
         if (sortedData.length > 0) {
           setSelectedHewan(sortedData[0]);
+        } else {
+          setSelectedHewan(null);
         }
-      });
+      } catch (err) {
+        console.error("Gagal mengambil data hewan:", err);
+        setErrorMessage("Gagal memuat data hewan.");
+      }
     }
+  };
+  
+
+  useEffect(() => {
+    fetchHewanList();
   }, []);
+  
 
   useEffect(() => {
     const filtered = hewanList.filter((item) =>
@@ -67,14 +78,11 @@ function Halaman2() {
     setSelectedHewan(dataBaru);
   };
 
-  const handleEditBerhasil = (updatedData) => {
-    const updatedList = hewanList.map((item) =>
-      item._id === updatedData._id ? updatedData : item
-    );
-    setHewanList(updatedList);
-    setFilteredHewanList(updatedList);
-    setSelectedHewan(updatedData);
-  };  
+  const handleEditBerhasil = () => {
+    fetchHewanList(); // Panggil ulang untuk ambil data dari server
+  };
+  
+  
 
   return (
     <div className="hlmhwn2-judul">
