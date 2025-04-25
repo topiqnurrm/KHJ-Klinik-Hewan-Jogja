@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Popup from "../popup/popupriwayat";
 import ConfirmPopup from "../popup/popup2"; // Import your ConfirmPopup component
+import PopupEditBooking from "../popup/popupeditbooking"; // Import the PopupEditBooking component
 import { getBookingWithRetribusi, deleteBooking } from "../../api/api-booking";
 import "./riwayatklien.css";
 
@@ -30,6 +31,10 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
     const [confirmDelete, setConfirmDelete] = useState(null);
     const [showConfirmPopup, setShowConfirmPopup] = useState(false);
     const [bookingToDelete, setBookingToDelete] = useState(null);
+    
+    // Add new state for edit popup
+    const [showEditPopup, setShowEditPopup] = useState(false);
+    const [bookingToEdit, setBookingToEdit] = useState(null);
 
     const fetchRiwayat = () => {
         setIsLoading(true);
@@ -116,6 +121,20 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
     const handleDelete = (booking) => {
         setBookingToDelete(booking);
         setShowConfirmPopup(true);
+    };
+
+    // Handle edit booking
+    const handleEdit = (booking) => {
+        setBookingToEdit(booking);
+        setShowEditPopup(true);
+    };
+
+    // Handle closing the edit popup
+    const handleCloseEditPopup = () => {
+        setShowEditPopup(false);
+        setBookingToEdit(null);
+        // Refresh the booking list after edit
+        fetchRiwayat();
     };
 
     const confirmDeleteBooking = () => {
@@ -280,7 +299,11 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                                                     "dibatalkan administrasi",
                                                 ].includes(r.status_booking) && (
                                                     <>
-                                                    <button className="btn-green" title="Edit" onClick={() => alert(`Edit booking ${r._id}`)}>
+                                                    <button 
+                                                        className="btn-green" 
+                                                        title="Edit" 
+                                                        onClick={() => handleEdit(r)}
+                                                    >
                                                         <img src={editIcon} alt="edit" />
                                                     </button>
                                                     <button 
@@ -302,6 +325,13 @@ const RiwayatPopup = ({ isOpen, onClose }) => {
                     )}
                 </div>
             </Popup>
+
+            {/* Add PopupEditBooking component */}
+            <PopupEditBooking 
+                isOpen={showEditPopup} 
+                onClose={handleCloseEditPopup} 
+                bookingData={bookingToEdit} 
+            />
 
             {/* Use your ConfirmPopup for delete confirmation */}
             <ConfirmPopup

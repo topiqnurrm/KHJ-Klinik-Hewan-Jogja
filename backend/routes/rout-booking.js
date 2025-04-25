@@ -68,37 +68,77 @@ router.post('/booking', async (req, res) => {
 
 // Endpoint untuk cek ketersediaan slot
 router.get('/cek-ketersediaan', async (req, res) => {
-    try {
-      const { tanggal } = req.query;
-  
-      if (!tanggal) {
-        return res.status(400).json({ message: 'Tanggal diperlukan' });
-      }
-  
-      const tanggalMulai = new Date(tanggal);
-      tanggalMulai.setHours(0, 0, 0, 0);
-      const tanggalAkhir = new Date(tanggalMulai);
-      tanggalAkhir.setDate(tanggalAkhir.getDate() + 1);
-  
-      const bookingCount = await Booking.countDocuments({
-        pilih_tanggal: {
-          $gte: tanggalMulai,
-          $lt: tanggalAkhir
-        }
-      });
-  
-      const sisa = Math.max(5 - bookingCount, 0);
-      res.json({
-        tanggal: tanggalMulai.toISOString().split('T')[0],
-        total_booking: bookingCount,
-        tersedia: sisa,  // Pastikan properti ini ada
-        message: `Sudah ada ${bookingCount} pesanan di tanggal ini. Tersedia ${sisa} slot lagi.`
-      });
-    } catch (error) {
-      console.error('Gagal cek ketersediaan:', error);
-      res.status(500).json({ message: 'Terjadi kesalahan saat cek ketersediaan booking' });
+  try {
+    const { tanggal, excludeBookingId } = req.query;
+
+    if (!tanggal) {
+      return res.status(400).json({ message: 'Tanggal diperlukan' });
     }
-  });
+
+    const tanggalMulai = new Date(tanggal);
+    tanggalMulai.setHours(0, 0, 0, 0);
+    const tanggalAkhir = new Date(tanggalMulai);
+    tanggalAkhir.setDate(tanggalAkhir.getDate() + 1);
+
+    // Create the base query object
+    const query = {
+      pilih_tanggal: {
+        $gte: tanggalMulai,
+        $lt: tanggalAkhir
+      }
+    };
+
+    // If excludeBookingId is provided, exclude that booking from the count
+    if (excludeBookingId) {
+      query._id = { $ne: excludeBookingId };
+    }
+
+    const bookingCount = await Booking.countDocuments(query);
+
+    const sisa = Math.max(5 - bookingCount, 0);
+    res.json({
+      tanggal: tanggalMulai.toISOString().split('T')[0],
+      total_booking: bookingCount,
+      tersedia: sisa,
+      message: `Sudah ada ${bookingCount} pesanan di tanggal ini. Tersedia ${sisa} slot lagi.`
+    });
+  } catch (error) {
+    console.error('Gagal cek ketersediaan:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan saat cek ketersediaan booking' });
+  }
+});
+// router.get('/cek-ketersediaan', async (req, res) => {
+//     try {
+//       const { tanggal } = req.query;
+  
+//       if (!tanggal) {
+//         return res.status(400).json({ message: 'Tanggal diperlukan' });
+//       }
+  
+//       const tanggalMulai = new Date(tanggal);
+//       tanggalMulai.setHours(0, 0, 0, 0);
+//       const tanggalAkhir = new Date(tanggalMulai);
+//       tanggalAkhir.setDate(tanggalAkhir.getDate() + 1);
+  
+//       const bookingCount = await Booking.countDocuments({
+//         pilih_tanggal: {
+//           $gte: tanggalMulai,
+//           $lt: tanggalAkhir
+//         }
+//       });
+  
+//       const sisa = Math.max(5 - bookingCount, 0);
+//       res.json({
+//         tanggal: tanggalMulai.toISOString().split('T')[0],
+//         total_booking: bookingCount,
+//         tersedia: sisa,  // Pastikan properti ini ada
+//         message: `Sudah ada ${bookingCount} pesanan di tanggal ini. Tersedia ${sisa} slot lagi.`
+//       });
+//     } catch (error) {
+//       console.error('Gagal cek ketersediaan:', error);
+//       res.status(500).json({ message: 'Terjadi kesalahan saat cek ketersediaan booking' });
+//     }
+//   });
 
 // 🔍 Ambil semua booking
 router.get('/all', async (req, res) => {
@@ -222,5 +262,45 @@ router.delete('/delete/:id', async (req, res) => {
   } catch (error) {
     console.error('Gagal menghapus booking:', error);
     res.status(500).json({ message: 'Terjadi kesalahan saat menghapus booking' });
+  }
+});
+
+router.put('/update/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    
+    const booking = await Booking.findById(id);
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking tidak ditemukan' });
+    }
+    
+    // Optional: Check if the user has permission to update this booking
+    // For example, only allow updates if status is in certain states
+    const allowedStatuses = [
+      'menunggu respon administrasi',
+      'disetujui administrasi',
+      'ditolak administrasi'
+    ];
+    
+    if (!allowedStatuses.includes(booking.status_booking)) {
+      return res.status(403).json({ 
+        message: 'Booking tidak dapat diubah karena status sudah berubah' 
+      });
+    }
+    
+    const updatedBooking = await Booking.findByIdAndUpdate(
+      id, 
+      updateData, 
+      { new: true, runValidators: true }
+    );
+    
+    res.json({ 
+      message: 'Booking berhasil diperbarui', 
+      booking: updatedBooking 
+    });
+  } catch (error) {
+    console.error('Gagal memperbarui booking:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan saat memperbarui booking' });
   }
 });

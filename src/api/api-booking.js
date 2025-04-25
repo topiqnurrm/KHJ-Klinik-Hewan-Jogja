@@ -5,10 +5,25 @@ const BOOKING_API_URL = 'http://localhost:5000/api/booking';
 const BOOKING_RETRIBUSI_API_URL = 'http://localhost:5000/api/bookings-retribusi';
 
 // === Booking API ===
-export const checkBookingAvailability = async (tanggal) => {
+// export const checkBookingAvailability = async (tanggal) => {
+//   try {
+//     const response = await axios.get(`${BOOKING_API_URL}/cek-ketersediaan`, {
+//       params: { tanggal }
+//     });
+//     return response.data;
+//   } catch (error) {
+//     console.error('Gagal cek ketersediaan booking:', error);
+//     throw error;
+//   }
+// };
+
+export const checkBookingAvailability = async (tanggal, excludeBookingId = null) => {
   try {
     const response = await axios.get(`${BOOKING_API_URL}/cek-ketersediaan`, {
-      params: { tanggal }
+      params: { 
+        tanggal,
+        excludeBookingId // Pass this to the backend
+      }
     });
     return response.data;
   } catch (error) {
@@ -16,6 +31,7 @@ export const checkBookingAvailability = async (tanggal) => {
     throw error;
   }
 };
+
 
 export const createBooking = async (bookingData) => {
   try {
@@ -90,6 +106,17 @@ export const deleteBooking = async (bookingId) => {
     return response.data;
   } catch (error) {
     console.error('Gagal menghapus booking:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+
+export const updateBooking = async (bookingId, bookingData) => {
+  try {
+    const response = await axios.put(`${BOOKING_API_URL}/update/${bookingId}`, bookingData);
+    return response.data;
+  } catch (error) {
+    console.error('Gagal memperbarui booking:', error.response?.data || error.message);
     throw error;
   }
 };
