@@ -32,39 +32,41 @@ function Halaman4({ onPre, onBookingSaved }) {
   };
 
   const handleKonfirmasi = async () => {
-    if (!savedInput || !pasien) return;
+    if (!savedInput || !pasien || !user) return;
   
     const bookingData = {
       id_pasien: pasien._id,
       pilih_tanggal: savedInput.tanggal,
       keluhan: savedInput.keluhan,
-      nama: pasien.nama, // Tambahkan nama hewan ke data booking
+      nama: `${pasien.nama} (${pasien.jenis})`, // ✅ Gabungkan nama dan jenis hewan
       pelayanans1: [
         {
           id_pelayanan: savedInput.layanan.value,
-          nama: savedInput.layanan.label,  // Add the service name here
+          nama: savedInput.layanan.label,
           jumlah: 1,
         },
       ],
-      administrasis1: [],
+      administrasis1: [
+        {
+          id_user: user._id,
+          catatan: "-",
+          status_administrasi: "menunggu respon administrasi",
+          tanggal: new Date(),
+        },
+      ],
     };
   
     try {
       setLoading(true);
       const response = await createBooking(bookingData);
   
-      // Hapus data dari localStorage
       localStorage.removeItem("savedInput");
       localStorage.removeItem("selectedPasienData");
   
-      // Reset state
       setSavedInput(null);
       setPasien(null);
   
-      // Trigger the onBookingSaved callback to refresh NavBar notifications
       if (onBookingSaved) onBookingSaved();
-  
-      // Panggil onPre untuk kembali ke Halaman3 setelah booking berhasil
       onPre();
     } catch (error) {
       alert("❌ Gagal booking: " + (error.response?.data?.message || error.message));
@@ -72,7 +74,6 @@ function Halaman4({ onPre, onBookingSaved }) {
       setLoading(false);
     }
   };
-  
 
   const openPopup = () => {
     setIsPopupOpen(true);

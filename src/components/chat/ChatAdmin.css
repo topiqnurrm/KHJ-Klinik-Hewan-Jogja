@@ -1,7 +1,10 @@
 .chat-button {
+    margin-left: 485px;
+    width: 170px;
     position: fixed;
     bottom: 80px;
-    right: 40px;
+    left: 50%;
+    transform: translateX(-50%);
     background-color: #08A78B; /* Warna hijau */
     color: white;
     border: none;

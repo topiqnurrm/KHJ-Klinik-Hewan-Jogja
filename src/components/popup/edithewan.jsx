@@ -32,10 +32,9 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
     setSuccessMessage(msg);
     setTimeout(() => {
       setSuccessMessage("");
-      onClose(); // Ini tetap dipanggil setelah delay
+      onClose();
     }, 2000);
   };
-  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,39 +54,50 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
     });
   };
 
+  const updateBookingName = async (pasienId, newNamaJenis) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/booking/pasien/${pasienId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ namaPasien: newNamaJenis }),
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message || "Gagal update booking.");
+    } catch (err) {
+      console.error("Gagal update booking:", err);
+      showError(`Gagal update nama di booking: ${err.message}`);
+    }
+  };
+
   const handleSubmit = async () => {
     const requiredFields = ["nama", "jenis", "kategori"];
-    const changedFields = Object.keys(formData).filter(
-      (key) => originalData[key] !== formData[key]
-    );
-
-    // Cek apakah field wajib sudah terisi setelah perubahan
+    
     const missingRequiredFields = requiredFields.filter(
       (field) => !formData[field]
     );
-
+  
     if (missingRequiredFields.length > 0) {
       return showError("Field wajib harus diisi: " + missingRequiredFields.join(", "));
     }
-
-    if (changedFields.length === 0) {
+  
+    if (!hasChanges()) {
       return showError("Tidak ada perubahan data.");
     }
-
+  
     try {
       setIsSubmitting(true);
-
-      // Construct the payload with the properly formatted data
+  
       const payload = {
         ...formData,
         jenis_kelamin: formData.kelamin,
-        // Include the nama field explicitly to ensure it's updated in bookings
         nama: formData.nama,
       };
       delete payload.kelamin;
-
-      console.log("Sending update with payload:", payload);
-
+  
+      // Use the existing API endpoint to update the pet
       const res = await fetch(
         `http://localhost:5000/api/pasien/${formData._id}`,
         {
@@ -98,13 +108,12 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
           body: JSON.stringify(payload),
         }
       );
-
+  
       const result = await res.json();
-
+  
       if (res.ok) {
-        console.log("Update success:", result);
         showSuccess("Data pasien berhasil diperbarui!");
-        onSuccess(result); // Pindahkan ke sini agar dipanggil setelah showSuccess
+        onSuccess(result);
       } else {
         showError(result.message || "Gagal memperbarui data.");
       }
@@ -118,7 +127,6 @@ const EditHewan = ({ isOpen, onClose, initialData, onSuccess }) => {
 
   if (!isOpen) return null;
 
-  // Menonaktifkan tombol Batal dan Simpan jika ada pesan sukses atau sedang mengirim data
   const isButtonDisabled = isSubmitting || successMessage;
 
   return ReactDOM.createPortal(

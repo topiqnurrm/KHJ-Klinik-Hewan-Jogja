@@ -10,6 +10,7 @@ const samplePasienId2 = new mongoose.Types.ObjectId('67f0a2c5822bae46f6580e3f');
 const samplePasienId3 = new mongoose.Types.ObjectId('67f0a2c5822bae46f6580e40');
 const sampleUserId1 = new mongoose.Types.ObjectId('67f023259a0e77614f51a079');
 const sampleUserId2 = new mongoose.Types.ObjectId('67f023259a0e77614f51a080');
+const sampleUserId3 = new mongoose.Types.ObjectId('67f023259a0e77614f51a07a');
 const samplePelayananId1 = new mongoose.Types.ObjectId('67f026757099fba35c613520');
 const samplePelayananId2 = new mongoose.Types.ObjectId('67f026757099fba35c613521');
 const samplePelayananId3 = new mongoose.Types.ObjectId('67f026757099fba35c613522');
@@ -19,6 +20,7 @@ const data = [
     _id: new mongoose.Types.ObjectId('67f0aca488fa9662fb8c2158'),
     id_pasien: samplePasienId1,
     status_booking: 'selesai',
+    biaya: 50000,
     pilih_tanggal: new Date('2025-05-15'),
     keluhan: 'Hewan sering muntah-muntah',
     administrasis1: [
@@ -33,8 +35,14 @@ const data = [
         catatan: 'Pemeriksaan kedua untuk muntah',
         status_booking: 'disetujui administrasi',
         tanggal: new Date('2025-05-16')
-      }
+      },
+      {
+        id_user: sampleUserId3,
+        catatan: 'dibuat',
+        status_administrasi: "menunggu respon administrasi",
+      },
     ],
+    nama: 'Ayam Kampung (Ayam Jantan)',
     pelayanans1: [
       {
         id_pelayanan: samplePelayananId3,
@@ -55,8 +63,14 @@ const data = [
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
         status_booking: 'disetujui administrasi',
         tanggal: new Date('2025-05-16')
-      }
+      },
+      {
+        id_user: sampleUserId3,
+        catatan: 'dibuat',
+        status_administrasi: "menunggu respon administrasi",
+      },
     ],
+    nama: 'Kucing Manis (Kucing Anggora)',
     pelayanans1: [
       {
         id_pelayanan: samplePelayananId1,
@@ -82,8 +96,14 @@ const data = [
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
         status_booking: 'disetujui administrasi',
         tanggal: new Date('2025-05-16')
-      }
+      },
+      {
+        id_user: sampleUserId3,
+        catatan: 'dibuat',
+        status_administrasi: "menunggu respon administrasi",
+      },
     ],
+    nama: 'Ayam Kampung (Ayam Jantan)',
     pelayanans1: [
       {
         id_pelayanan: samplePelayananId1,
@@ -98,14 +118,21 @@ const data = [
     createdAt: new Date('2025-01-11T03:25:12.222Z'),
     pilih_tanggal: new Date('2025-05-07'),
     keluhan: 'Hewan terlihat lesu dan tidak nafsu makan',
+    biaya: 125000,
     administrasis1: [
       {
         id_user: sampleUserId1,
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
         status_booking: 'menunggu pembayaran',
         tanggal: new Date('2025-05-16')
-      }
+      },
+      {
+        id_user: sampleUserId3,
+        catatan: 'dibuat',
+        status_administrasi: "menunggu respon administrasi",
+      },
     ],
+    nama: 'Kucing Manis (Kucing Anggora)',
     pelayanans1: [
       {
         id_pelayanan: samplePelayananId1,
@@ -126,8 +153,14 @@ const data = [
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
         status_booking: 'disetujui administrasi',
         tanggal: new Date('2025-05-16')
-      }
+      },
+      {
+        id_user: sampleUserId3,
+        catatan: 'dibuat',
+        status_administrasi: "menunggu respon administrasi",
+      },
     ],
+    nama: 'Ayam Kampung (Ayam Jantan)',
     pelayanans1: [
       {
         id_pelayanan: samplePelayananId1,
@@ -148,8 +181,14 @@ const data = [
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
         status_booking: 'disetujui administrasi',
         tanggal: new Date('2025-05-16')
-      }
+      },
+      {
+        id_user: sampleUserId3,
+        catatan: 'dibuat',
+        status_administrasi: "menunggu respon administrasi",
+      },
     ],
+    nama: 'Kucing Manis (Kucing Anggora)',
     pelayanans1: [
       {
         id_pelayanan: samplePelayananId1,
@@ -170,8 +209,14 @@ const data = [
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
         status_booking: 'disetujui administrasi',
         tanggal: new Date('2025-05-16')
-      }
+      },
+      {
+        id_user: sampleUserId3,
+        catatan: 'dibuat',
+        status_administrasi: "menunggu respon administrasi",
+      },
     ],
+    nama: 'Anjing Gembul (Anjing Labrador)',
     pelayanans1: [
       {
         id_pelayanan: samplePelayananId1,
@@ -192,8 +237,14 @@ const data = [
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
         status_booking: 'menunggu respon administrasi',
         tanggal: new Date('2025-05-16')
-      }
+      },
+      {
+        id_user: sampleUserId3,
+        catatan: 'dibuat',
+        status_administrasi: "menunggu respon administrasi",
+      },
     ],
+    nama: 'Ayam Kampung (Ayam Jantan)',
     pelayanans1: [
       {
         id_pelayanan: samplePelayananId1,
@@ -214,8 +265,14 @@ const data = [
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
         status_booking: 'menunggu respon administrasi',
         tanggal: new Date('2025-05-16')
-      }
+      },
+      {
+        id_user: sampleUserId3,
+        catatan: 'dibuat',
+        status_administrasi: "menunggu respon administrasi",
+      },
     ],
+    nama: 'Ayam Kampung (Ayam Jantan)',
     pelayanans1: [
       {
         id_pelayanan: samplePelayananId1,
@@ -236,8 +293,14 @@ const data = [
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
         status_booking: 'menunggu respon administrasi',
         tanggal: new Date('2025-05-16')
-      }
+      },
+      {
+        id_user: sampleUserId3,
+        catatan: 'dibuat',
+        status_administrasi: "menunggu respon administrasi",
+      },
     ],
+    nama: 'Ayam Kampung (Ayam Jantan)',
     pelayanans1: [
       {
         id_pelayanan: samplePelayananId1,
@@ -258,8 +321,14 @@ const data = [
         catatan: 'Pemeriksaan lanjutan untuk keluhan lesu',
         status_booking: 'menunggu respon administrasi',
         tanggal: new Date('2025-05-16')
-      }
+      },
+      {
+        id_user: sampleUserId3,
+        catatan: 'dibuat',
+        status_administrasi: "menunggu respon administrasi",
+      },
     ],
+    nama: 'Anjing Gembul (Anjing Labrador)',
     pelayanans1: [
       {
         id_pelayanan: samplePelayananId1,

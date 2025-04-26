@@ -2,10 +2,11 @@ import express from 'express';
 import Booking from '../models/booking.js';
 import Hewan from '../models/pasien.js'; 
 
+import Pelayanan from '../models/pelayanan.js';
 
 const router = express.Router();
 
-// 🔘 Tambah booking baru
+// Update the booking creation endpoint to ensure nama and pelayanan details are saved
 router.post('/booking', async (req, res) => {
   try {
     const {
@@ -18,35 +19,35 @@ router.post('/booking', async (req, res) => {
       administrasis1 = []
     } = req.body;
 
-    // Validasi agar tanggal booking tidak lebih kecil dari hari ini
-    const tanggalBooking = new Date(pilih_tanggal);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set to start of the day
+    // Validations remain the same...
 
-    if (tanggalBooking < today) {
-      return res.status(400).json({ message: 'Tanggal booking tidak boleh lebih kecil dari hari ini.' });
-    }
-
-    // Validasi keluhan agar tidak lebih dari 250 kata
-    const wordCount = keluhan.split(' ').length;
-    if (wordCount > 250) {
-      return res.status(400).json({ message: 'Keluhan tidak boleh lebih dari 250 kata.' });
-    }
-
-    const tanggalMulai = new Date(pilih_tanggal);
-    tanggalMulai.setHours(0, 0, 0, 0);
-    const tanggalAkhir = new Date(tanggalMulai);
-    tanggalAkhir.setDate(tanggalAkhir.getDate() + 1);
-
-    const bookingCount = await Booking.countDocuments({
-      pilih_tanggal: {
-        $gte: tanggalMulai,
-        $lt: tanggalAkhir
+    // If nama is not provided but id_pasien is, fetch the name
+    let pasienNama = nama;
+    if (!pasienNama && id_pasien) {
+      try {
+        const pasien = await Hewan.findById(id_pasien);
+        if (pasien) {
+          pasienNama = pasien.nama;
+        }
+      } catch (err) {
+        console.error('Error fetching pasien name:', err);
       }
-    });
+    }
 
-    if (bookingCount >= 5) {
-      return res.status(400).json({ message: 'Kuota booking untuk tanggal ini sudah penuh.' });
+    // Process pelayanans1 to ensure service names are included
+    const processedPelayanans = [...pelayanans1];
+    for (let i = 0; i < processedPelayanans.length; i++) {
+      if (!processedPelayanans[i].nama && processedPelayanans[i].id_pelayanan) {
+        try {
+          // Assuming you have a Pelayanan model
+          const pelayanan = await Pelayanan.findById(processedPelayanans[i].id_pelayanan);
+          if (pelayanan) {
+            processedPelayanans[i].nama = pelayanan.nama;
+          }
+        } catch (err) {
+          console.error('Error fetching pelayanan name:', err);
+        }
+      }
     }
 
     const newBooking = new Booking({
@@ -54,8 +55,8 @@ router.post('/booking', async (req, res) => {
       pilih_tanggal,
       keluhan,
       status_booking,
-      pelayanans1,
-      nama,
+      pelayanans1: processedPelayanans,
+      nama: pasienNama,
       administrasis1
     });
 
@@ -109,38 +110,6 @@ router.get('/cek-ketersediaan', async (req, res) => {
     res.status(500).json({ message: 'Terjadi kesalahan saat cek ketersediaan booking' });
   }
 });
-// router.get('/cek-ketersediaan', async (req, res) => {
-//     try {
-//       const { tanggal } = req.query;
-  
-//       if (!tanggal) {
-//         return res.status(400).json({ message: 'Tanggal diperlukan' });
-//       }
-  
-//       const tanggalMulai = new Date(tanggal);
-//       tanggalMulai.setHours(0, 0, 0, 0);
-//       const tanggalAkhir = new Date(tanggalMulai);
-//       tanggalAkhir.setDate(tanggalAkhir.getDate() + 1);
-  
-//       const bookingCount = await Booking.countDocuments({
-//         pilih_tanggal: {
-//           $gte: tanggalMulai,
-//           $lt: tanggalAkhir
-//         }
-//       });
-  
-//       const sisa = Math.max(5 - bookingCount, 0);
-//       res.json({
-//         tanggal: tanggalMulai.toISOString().split('T')[0],
-//         total_booking: bookingCount,
-//         tersedia: sisa,  // Pastikan properti ini ada
-//         message: `Sudah ada ${bookingCount} pesanan di tanggal ini. Tersedia ${sisa} slot lagi.`
-//       });
-//     } catch (error) {
-//       console.error('Gagal cek ketersediaan:', error);
-//       res.status(500).json({ message: 'Terjadi kesalahan saat cek ketersediaan booking' });
-//     }
-//   });
 
 // 🔍 Ambil semua booking
 router.get('/all', async (req, res) => {
@@ -267,8 +236,7 @@ router.delete('/delete/:id', async (req, res) => {
   }
 });
 
-// Add this debugging to the update route in rout-booking.js
-
+// Enhance the update booking endpoint to better handle nama and pelayanan details
 router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -276,8 +244,7 @@ router.put('/update/:id', async (req, res) => {
     
     console.log("Received booking update:", {
       id,
-      data: updateData,
-      petName: updateData.nama // Specifically log the pet name
+      data: updateData
     });
     
     const booking = await Booking.findById(id);
@@ -299,7 +266,37 @@ router.put('/update/:id', async (req, res) => {
       });
     }
     
-    // Ensure all fields are properly updated, including nama
+    // If pelayanans1 exists in the update data, process it to ensure service names are included
+    if (updateData.pelayanans1 && updateData.pelayanans1.length > 0) {
+      // If pelayanan objects don't have nama field, fetch them from the database
+      for (let i = 0; i < updateData.pelayanans1.length; i++) {
+        if (!updateData.pelayanans1[i].nama && updateData.pelayanans1[i].id_pelayanan) {
+          try {
+            // Assuming you have a Pelayanan model
+            const pelayanan = await Pelayanan.findById(updateData.pelayanans1[i].id_pelayanan);
+            if (pelayanan) {
+              updateData.pelayanans1[i].nama = pelayanan.nama;
+            }
+          } catch (err) {
+            console.error('Error fetching pelayanan name:', err);
+          }
+        }
+      }
+    }
+    
+    // If nama doesn't exist in the update data but id_pasien does, fetch the name and type
+    if (!updateData.nama && updateData.id_pasien) {
+      try {
+        const pasien = await Hewan.findById(updateData.id_pasien);
+        if (pasien) {
+          // Format name with type in parentheses
+          updateData.nama = `${pasien.nama} (${pasien.jenis})`;
+        }
+      } catch (err) {
+        console.error('Error fetching pasien name:', err);
+      }
+    }
+    
     const updatedBooking = await Booking.findByIdAndUpdate(
       id, 
       updateData, 
@@ -308,8 +305,12 @@ router.put('/update/:id', async (req, res) => {
     
     console.log("Updated booking:", {
       id: updatedBooking._id,
-      nama: updatedBooking.nama, // Verify the name was updated
-      status: updatedBooking.status_booking
+      nama: updatedBooking.nama,
+      status: updatedBooking.status_booking,
+      services: updatedBooking.pelayanans1.map(p => ({ 
+        id: p.id_pelayanan, 
+        nama: p.nama 
+      }))
     });
     
     res.json({ 

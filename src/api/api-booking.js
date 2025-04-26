@@ -4,19 +4,6 @@ import axios from 'axios';
 const BOOKING_API_URL = 'http://localhost:5000/api/booking';
 const BOOKING_RETRIBUSI_API_URL = 'http://localhost:5000/api/bookings-retribusi';
 
-// === Booking API ===
-// export const checkBookingAvailability = async (tanggal) => {
-//   try {
-//     const response = await axios.get(`${BOOKING_API_URL}/cek-ketersediaan`, {
-//       params: { tanggal }
-//     });
-//     return response.data;
-//   } catch (error) {
-//     console.error('Gagal cek ketersediaan booking:', error);
-//     throw error;
-//   }
-// };
-
 export const checkBookingAvailability = async (tanggal, excludeBookingId = null) => {
   try {
     const response = await axios.get(`${BOOKING_API_URL}/cek-ketersediaan`, {

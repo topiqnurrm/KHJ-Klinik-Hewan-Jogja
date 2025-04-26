@@ -78,8 +78,9 @@ router.put('/:id', async (req, res) => {
     if (updateData.nama) {
       const bookingUpdateResult = await Booking.updateMany(
         { id_pasien: pasienId },
-        { $set: { nama: updateData.nama } }
-      );
+        { $set: { nama: `${updateData.nama} (${updateData.jenis})` } },
+        { timestamps: false }
+      );      
 
       console.log(`Updated ${bookingUpdateResult.modifiedCount} booking records`);
     }

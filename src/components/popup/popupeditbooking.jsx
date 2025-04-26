@@ -371,6 +371,13 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
             <div className="loading-state">Loading...</div>
             ) : (
             <div className="edit-booking-form">
+                {/* Notice for the user about status change */}
+                <div className="form-group-edit">
+                  <div className="status-info" style={{ fontSize: "0.9rem", color: "#666", backgroundColor: "#f8f8f8", padding: "10px", borderRadius: "5px", marginTop: "10px" }}>
+                    <p><strong>Catatan:</strong> Setelah diperbarui, status booking akan kembali menjadi "menunggu respon administrasi".</p>
+                  </div>
+                </div>
+                
                 {/* Form Fields */}
                 <div className="form-group-edit">
                 <label>Pilih Pasien *</label>
@@ -479,13 +486,6 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
                 <div className="form-group-edit">
                 <label className="warna">Pilih Lokasi Pemeriksaan *</label>
                 <input className="warna" type="text" value={lokasiPemeriksaan} readOnly disabled={isSubmitting} />
-                </div>
-
-                {/* Notice for the user about status change */}
-                <div className="form-group-edit">
-                <div className="status-info" style={{ fontSize: "0.9rem", color: "#666", backgroundColor: "#f8f8f8", padding: "10px", borderRadius: "5px", marginTop: "10px" }}>
-                  <p><strong>Catatan:</strong> Setelah diperbarui, status booking akan kembali menjadi "menunggu respon administrasi".</p>
-                </div>
                 </div>
             </div>
             )}

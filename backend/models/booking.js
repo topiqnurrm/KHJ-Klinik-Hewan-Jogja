@@ -44,7 +44,8 @@ const BookingSchema = new mongoose.Schema({
                 return /^\d{1,10}(\.\d{1,2})?$/.test(value.toString());
             },
             message: 'Grand total harus berupa angka dengan maksimal 10 digit dan 2 digit desimal.'
-        }
+        },
+        default: 0,
     },
     tanggal: {
         type: Date,

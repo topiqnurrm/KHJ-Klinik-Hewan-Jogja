@@ -28,11 +28,10 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
     const [sortBy, setSortBy] = useState("");
     const [sortOrder, setSortOrder] = useState("asc");
     const [isLoading, setIsLoading] = useState(false);
-    const [confirmDelete, setConfirmDelete] = useState(null);
     const [showConfirmPopup, setShowConfirmPopup] = useState(false);
     const [bookingToDelete, setBookingToDelete] = useState(null);
     
-    // Add new state for edit popup
+    // State for edit popup
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [bookingToEdit, setBookingToEdit] = useState(null);
 
@@ -48,8 +47,17 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
 
         getBookingWithRetribusi()
             .then((data) => {
+                // Filter bookings where the user ID is found in administrasis1.id_user
                 const filteredByUser = data.filter(
-                    (item) => item.id_pasien?.id_user === userId
+                    (item) => {
+                        // Check in administrasis1.id_user
+                        const foundInAdministrasis = item.administrasis1?.some(
+                            admin => admin.id_user === userId
+                        );
+                        
+                        // If found in either location, include this booking
+                        return foundInAdministrasis;
+                    }
                 );
                 setRiwayat(filteredByUser);
                 setFiltered(filteredByUser);
@@ -73,19 +81,23 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
     useEffect(() => {
         const lower = searchTerm.toLowerCase();
         let result = riwayat.filter((r) => {
-            const grandTotalStr = formatRupiah(r.grand_total);
+            const biayaStr = formatRupiah(r.biaya);
             const layananStr = (r.pelayanans1 || [])
-                .map((p) => p.id_pelayanan?.nama)
+                .map((p) => p.nama || p.id_pelayanan?.nama)
+                .filter(Boolean)
+                .join(", ");
+            const catatanStr = (r.administrasis1 || [])
+                .map(a => a.catatan)
                 .filter(Boolean)
                 .join(", ");
             const allFields = `
-                ${r.id_pasien?.nama || ""}
+                ${r.nama || r.id_pasien?.nama || ""}
                 ${r.keluhan || ""}
                 ${r.status_booking || ""}
-                ${r.administrasis1?.[0]?.catatan || ""}
+                ${catatanStr}
                 ${new Date(r.createdAt).toLocaleString()}
                 ${new Date(r.updatedAt).toLocaleString()}
-                ${grandTotalStr}
+                ${biayaStr}
                 ${layananStr}
                 ${new Date(r.pilih_tanggal).toLocaleDateString("id-ID")}
             `.toLowerCase();
@@ -100,11 +112,11 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                     valueA = new Date(a[sortBy]).getTime();
                     valueB = new Date(b[sortBy]).getTime();
                 } else if (sortBy === "nama_hewan") {
-                    valueA = a.id_pasien?.nama?.toLowerCase() || "";
-                    valueB = b.id_pasien?.nama?.toLowerCase() || "";
+                    valueA = (a.nama || a.id_pasien?.nama || "").toLowerCase();
+                    valueB = (b.nama || b.id_pasien?.nama || "").toLowerCase();
                 } else if (sortBy === "biaya") {
-                    const aVal = a.grand_total?.$numberDecimal ?? a.grand_total ?? 0;
-                    const bVal = b.grand_total?.$numberDecimal ?? b.grand_total ?? 0;
+                    const aVal = a.biaya?.$numberDecimal ?? a.biaya ?? 0;
+                    const bVal = b.biaya?.$numberDecimal ?? b.biaya ?? 0;
                     valueA = parseFloat(aVal);
                     valueB = parseFloat(bVal);
                 }
@@ -161,7 +173,6 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                 if (typeof onBookingDeleted === 'function') {
                     onBookingDeleted();
                 }
-                // alert("Booking berhasil dihapus!");
             })
             .catch((error) => {
                 console.error("Gagal menghapus booking:", error);
@@ -282,23 +293,21 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                                             <td>{index + 1}</td>
                                             <td>{new Date(r.createdAt).toLocaleString()}</td>
                                             <td>{new Date(r.pilih_tanggal).toLocaleDateString("id-ID")}</td>
-                                            <td>{r.id_pasien?.nama || "Tidak diketahui"}</td>
+                                            <td>{r.nama || r.id_pasien?.nama || "Tidak diketahui"}</td>
                                             <td>{r.keluhan}</td>
-                                            <td>{formatRupiah(r.grand_total)}</td>
+                                            <td>{formatRupiah(r.biaya)}</td>
                                             <td>{r.administrasis1?.[0]?.catatan || "-"}</td>
                                             <td>
                                                 {(r.pelayanans1 || [])
-                                                    .map((p) => p.id_pelayanan?.nama)
+                                                    .map((p) => p.nama || p.id_pelayanan?.nama)
                                                     .filter(Boolean)
                                                     .join(", ") || "-"}
                                             </td>
-                                            {/* <td>{r.status_booking}</td> */}
                                             <td>
                                                 <span className={`status-label ${getStatusClass(r.status_booking)}`}>
                                                     {r.status_booking}
                                                 </span>
                                             </td>
-
                                             <td>{new Date(r.updatedAt).toLocaleString()}</td>
                                             <td className="riwayat-actions">
                                                 {[
@@ -376,7 +385,7 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                 title="Konfirmasi Hapus"
                 description={
                     <p>
-                        Apakah Anda yakin ingin menghapus booking untuk <strong>{bookingToDelete?.id_pasien?.nama || 'hewan ini'},</strong> 
+                        Apakah Anda yakin ingin menghapus booking untuk <strong>{bookingToDelete?.nama || bookingToDelete?.id_pasien?.nama || 'hewan ini'},</strong> 
                         <br />pada booking tanggal <strong>{bookingToDelete ? new Date(bookingToDelete.pilih_tanggal).toLocaleDateString("id-ID") : ''}</strong>?
                     </p>
                 }
