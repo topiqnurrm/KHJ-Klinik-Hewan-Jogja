@@ -1,14 +1,15 @@
 // src/ProtectedRoute.jsx
+
 import React from "react";
-import { Navigate, useNavigate } from "react-router-dom";
 import './ProtectedRoute.css';
+import { useLocation } from "react-router-dom";
 
 const ProtectedRoute = ({ allowedRoles, children }) => {
   const userData = JSON.parse(localStorage.getItem("user"));
-  const navigate = useNavigate();
 
   if (!userData) {
-    return <Navigate to="/login" />;
+    // Jika tidak ada user, tetap izinkan akses ke halaman umum
+    return children;
   }
 
   const userRole = userData.aktor;
@@ -18,7 +19,10 @@ const ProtectedRoute = ({ allowedRoles, children }) => {
       <div className="access-denied-container">
         <h1>❌ Akses Ditolak</h1>
         <p>Anda tidak memiliki izin untuk mengakses halaman ini.</p>
-        <button className="access-denied-button" onClick={() => navigate("/")}>
+        <button 
+          className="access-denied-button" 
+          onClick={() => window.location.href = "/"}
+        >
           Kembali ke Login
         </button>
       </div>

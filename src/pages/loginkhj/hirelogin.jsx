@@ -1,12 +1,18 @@
+// src/pages/Loginkhj.jsx
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+// Import halaman
 import Login from "./contents/login/login.jsx";
 import Homepage from "../../show_pages/homepage/homepage.jsx";
 import Hireadmin from "../../show_pages/adminkhj/adminkhj.jsx";
 import Registrasi from "./contents/registrasi/registrasi.jsx";
 
+// Import ProtectedRoute
 import ProtectedRoute from "../../ProtectedRoute.jsx";
 
+// Import CSS
 import "./hirelogin.css";
 
 function Loginkhj() {
@@ -14,15 +20,20 @@ function Loginkhj() {
     <Router>
       <div className="hirelogin">
         <Routes>
+          {/* Route login */}
           <Route path="/" element={<Login />} />
+
+          {/* Route homepage */}
           <Route 
             path="/homepage" 
             element={
-              <ProtectedRoute allowedRoles={["klien"]}>
+              <ProtectedRoute allowedRoles={["klien", ""]}>
                 <Homepage />
               </ProtectedRoute>
             } 
           />
+
+          {/* Route admin page */}
           <Route 
             path="/hireadmin" 
             element={
@@ -31,7 +42,9 @@ function Loginkhj() {
               </ProtectedRoute>
             } 
           />
-          <Route path="/registrasi" element={<Registrasi />} /> 
+
+          {/* Route registrasi */}
+          <Route path="/registrasi" element={<Registrasi />} />
         </Routes>
       </div>
     </Router>

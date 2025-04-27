@@ -1,3 +1,5 @@
+// src/pages/homepage/Userland.jsx
+
 import React, { useEffect, useState } from "react";
 import HomePage from "../../pages/homepage/HomePage.jsx";
 import NavBar from "../../components/navbar/NavBar.jsx";
@@ -6,22 +8,21 @@ import ChatButton from "../../components/chat/ChatAdmin.jsx";
 import './homepage.css';
 
 import Hp4 from "../../pages/homepage/contents/hp4/hp4.jsx"; 
+import ProtectedRoute from "../../ProtectedRoute.jsx";
 
 function Userland() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user")));
   const [showGreeting, setShowGreeting] = useState(!!user);
-  const [userId, setUserId] = useState(null);      
-  const [userIdentity, setUserIdentity] = useState(null);  // _id dari MongoDB
-
-  // Rename to be consistent with the NavBar component's expected prop
+  const [userId, setUserId] = useState(user ? user.user_id : null);      
+  const [userIdentity, setUserIdentity] = useState(user ? user._id : null);  
   const [refetchToggle, setRefetchToggle] = useState(false);
 
   const handleRefetchBooking = () => {
-    setRefetchToggle(prev => !prev); // toggle untuk memicu useEffect di NavBar
+    setRefetchToggle(prev => !prev); // toggle untuk trigger refresh
   };
 
   useEffect(() => {
-    // Hapus data yang tersisa dari sesi sebelumnya
+    // Hapus data sisa session
     localStorage.removeItem("savedInput");
     localStorage.removeItem("selectedPasienData");
 
@@ -40,22 +41,24 @@ function Userland() {
 
   return (
     <>
+      {/* Navbar */}
       <NavBar
         userId={userId}
         identity={userIdentity}
-        refetchBooking={handleRefetchBooking}  // Pass the function
-        refreshTrigger={refetchToggle}  // Pass the state value as the trigger
+        refetchBooking={handleRefetchBooking}
+        refreshTrigger={refetchToggle}
       />
 
+      {/* Chat Button */}
       <ChatButton />
 
+      {/* Greeting popup */}
       {showGreeting && user && (
         <div className="user-greeting-fixed">
           <div className="a">
             <h2>Selamat datang, {user.nama}!</h2>
             <p>Email kamu: {user.email}</p>
             <p>User ID kamu: {userId}</p>
-            {/* <p>ID biasa kamu: {userIdentity}</p> */}
           </div>
           <div className="b">
             <button className="close-button" onClick={() => setShowGreeting(false)}>✖</button>
@@ -63,14 +66,24 @@ function Userland() {
         </div>
       )}
 
-      <ProtectedRoute allowedRoles={["klien"]}>
-        <HomePage 
-          identity={userIdentity} 
-          onBookingSaved={handleRefetchBooking}
-        />
-      </ProtectedRoute>
+      {/* HomePage content */}
+      <>
+        {user ? (
+          <ProtectedRoute allowedRoles={["klien", ""]}>
+            <HomePage 
+              identity={userIdentity}
+              onBookingSaved={handleRefetchBooking}
+            />
+          </ProtectedRoute>
+        ) : (
+          <HomePage 
+            identity={userIdentity}
+            onBookingSaved={handleRefetchBooking}
+          />
+        )}
+      </>
 
-      {/* ✅ Tambahkan di sini jika ingin tampilkan Hp4 */}
+      {/* Optional: Page tambahan */}
       {/* <Hp4 identity={userIdentity} /> */}
     </>
   );
