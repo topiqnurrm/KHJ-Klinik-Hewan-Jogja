@@ -49,8 +49,8 @@ const HomePage = () => {
     return (
         <div className="hireadmin">
             <NavBar />
-            <div className='admin'>
-                <NavLeft activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
+            <div className="admin">
+                <NavLeft className="nav_left" activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
                 
                 {/* Gunakan renderContent untuk menampilkan komponen sesuai activeMenu */}
                 <div className="isi">

@@ -1,0 +1,121 @@
+@font-face {
+    font-family: "SansSerifBldFLF";
+    src: url("/assets/fonts/SansSerifBldFLF.ttf") format("truetype"),
+         url("/assets/fonts/SansSerifFLF.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  
+.profile-admin {
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001;
+    margin-left: 85px;
+}
+
+.profile-admin .profile-card {
+    background: #4A5A57;
+    /* background-color: rgba(255, 255, 255, 0.5); 
+    backdrop-filter: blur(5px); */
+    
+    border-radius: 12px;
+    padding: 15px 15px;
+    width: 250px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.profile-admin .profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.profile-admin .profile-photo {
+    width: 55px;
+    height: 55px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-right: 12px;
+}
+
+.profile-admin .profile-text h4 {
+    margin: 0;
+    color: #dddddd;
+
+    font-family: "SansSerifBldFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 0.95rem;
+}
+
+.profile-admin .profile-text p {
+    margin: 4px 0 0 0;
+    color: #dddddd;
+
+    font-family: "SansSerifBldFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 0.95rem;
+}
+
+.profile-admin .profile-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.profile-admin .btn-edit, .btn-logout {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    padding: 8px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 0.95rem;
+}
+
+.profile-admin .icon {
+    padding-right: 10px;
+}
+
+.profile-admin .btn-edit {
+    background-color: #358f5d;
+    color: white;
+}
+
+.profile-admin .btn-logout {
+    background-color: #95393a;
+    color: white;
+}
+
+.profile-admin .btn-edit .icon, .btn-logout .icon {
+    font-size: 16px;
+}
+
+.profile-admin .btn-edit:hover {
+    background-color: #3da76d; /* Hijau lebih gelap */
+    transition: background-color 0.3s ease;
+}
+
+.profile-admin .btn-logout:hover {
+    background-color: #a83d3e; /* Merah lebih gelap */
+    transition: background-color 0.3s ease;
+}
+
+
+
+
+.login-content {
+    display: flex;
+    align-items: center; /* untuk vertikal center */
+    justify-content: center; /* kalau mau posisinya di tengah keseluruhan */
+    gap: 10px; /* ubah jarak antar teks dan gambar, misal 6px */
+}

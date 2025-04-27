@@ -1,5 +1,5 @@
 .nav-left {
-    width: 250px;
+    width: 17%;
     height: 100vh;
     background-color: #2F3B37;
     /* padding: 20px; */
@@ -13,6 +13,8 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    max-height: calc(100vh - 50px); /* Adjust height to fit within the viewport */
+    overflow-y: auto; /* Enable vertical scrolling */
 }
 
 /* .nav-left .nav-title {

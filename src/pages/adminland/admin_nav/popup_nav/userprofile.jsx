@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./userprofile.css";
-import Default from "./gambar/default.png";
+import Default from "./gambar/defaultadmin.png";
 import Edit from "./gambar/edit.png";
 import Keluar from "./gambar/keluar.png";
-import { getUserById } from "../../api/api-user";
+import { getUserById } from "../../../../api/api-user";
 import { useNavigate } from "react-router-dom";
-import Popup2 from "../../components/popup/popup2";
-import Popup3 from "../../components/popup/popup3";
+import Popup2 from "./popup2";
+import Popup3 from "./popup3";
 
 function UserProfile({ isVisible, onClose, triggerRef, identity }) {
     const popupRef = useRef(null);
@@ -78,16 +78,16 @@ function UserProfile({ isVisible, onClose, triggerRef, identity }) {
 
     return (
         <>
-            <div className="profile-popup" ref={popupRef}>
+            <div className="profile-admin" ref={popupRef}>
                 <div className="profile-card">
                     <div className="profile-header">
                         <img
-                            src={userData && userData.gambar ? `http://localhost:5000${userData.gambar}` : userImg}
+                            src={userData && userData.gambar ? `http://localhost:5000${userData.gambar}` : Default}
                             alt="User"
                             className="profile-photo"
                             onError={(e) => {
                                 e.target.onerror = null;
-                                e.target.src = userImg;
+                                e.target.src = Default;
                             }}
                         />
                         <div className="profile-text">

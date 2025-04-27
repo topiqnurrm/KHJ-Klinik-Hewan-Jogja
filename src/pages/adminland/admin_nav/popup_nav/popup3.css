@@ -1,0 +1,259 @@
+@font-face {
+    font-family: "SansSerifBldFLF";
+    src: url("/assets/fonts/SansSerifBldFLF.ttf") format("truetype"),
+         url("/assets/fonts/SansSerifFLF.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+.popup-overlay3-admin {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.popup-overlay3-admin .popup-content {
+    background: #d9d9d9;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 1090px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: "SansSerifFLF", sans-serif;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.popup-overlay3-admin .popup-content h2 {
+    font-family: "SansSerifFLF";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 22px;
+    background: #267065;
+    color: white;
+    padding: 12px;
+    text-align: center;
+    border-radius: 10px 10px 0 0;
+    margin: 0;
+}
+
+.popup-overlay3-admin .popup-description {
+    text-align: center;
+    font-size: 20px;
+    color: #3F4254;
+    /* margin-bottom: 10px; */
+
+    font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+}
+
+.popup-overlay3-admin .popup-description::after {
+    content: "Untuk melakukan layanan booking online anda harus login kembali";
+    display: block;
+    font-weight: normal;
+    font-size: 17px;
+    margin-top: 10px;
+    color: #3F4254;
+}
+
+.popup-overlay3-admin .popup-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    position: absolute;
+    bottom: 30px;
+    width: 90%;
+}
+
+.popup-overlay3-admin .popup-button {
+    width: 120px;
+    padding: 12px 0;
+    font-size: 18px;
+    font-family: inherit;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid;
+    transition: 0.3s ease;
+}
+
+.popup-overlay3-admin .popup-button.cancel {
+    border-color: #B4374B;
+    color: #B4374B;
+    background: #d9d9d9;
+}
+
+.popup-overlay3-admin .popup-button.cancel:hover {
+    background: #B4374B;
+    color: #d9d9d9;
+}
+
+.popup-overlay3-admin .popup-button.confirm {
+    border-color: #38AB97;
+    color: #38AB97;
+    background: #d9d9d9;
+}
+
+.popup-overlay3-admin .popup-button.confirm:hover {
+    background: #38AB97;
+    color: #d9d9d9;
+}
+
+
+
+
+
+
+.popup-overlay3-admin .edit-form {
+    display: flex;
+    gap: 40px;
+    padding: 20px 50px;
+    font-size: 16px;
+    flex-wrap: wrap;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.popup-overlay3-admin .form-left,
+.popup-overlay3-admin .form-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 300px;
+}
+
+.popup-overlay3-admin .edit-form label {
+    font-family: "SansSerifBldFLF";
+    font-weight: normal;
+    font-style: normal;
+    color: #3F4254;
+}
+
+.popup-overlay3-admin .edit-form input {
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 10px;
+    font-family: inherit;
+}
+
+.popup-overlay3-admin .form-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px;
+    border-top: 1px solid #555555;
+}
+
+
+
+
+
+.popup-overlay3-admin .edit-form input {
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 10px;
+    font-family: inherit;
+    color: transparent;
+    transition: color 0.2s ease;
+    background-color: #d9d9d9;
+}
+
+.popup-overlay3-admin .edit-form input.edited {
+    color: #3F4254;
+    background-color: #d9d9d9;
+}
+
+
+
+.popup-overlay3-admin .edit-form select {
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 10px;
+    font-family: inherit;
+    color: transparent;
+    transition: color 0.2s ease;
+}
+
+.popup-overlay3-admin .edit-form select.edited {
+    color: #3F4254;
+    background-color: #d9d9d9;
+}
+
+
+
+
+.popup-overlay3-admin .file-input-wrapper {
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 10px;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    background-color: #d9d9d9;
+    overflow: hidden;
+}
+
+.popup-overlay3-admin .custom-file-upload-inside {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    cursor: pointer;
+    position: relative;
+}
+
+.popup-overlay3-admin .custom-file-upload-inside input[type="file"] {
+    display: none;
+}
+
+.popup-overlay3-admin .upload-button {
+    padding: 3px 12px;
+    background-color: #eaeaea;
+    border: 1px solid #000;
+    border-radius: 8px;
+    /* font-weight: bold; */
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.popup-overlay3-admin .file-name-inside {
+    font-size: 14px;
+    color: #3F4254;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+
+
+
+.popup-overlay3-admin select {
+    padding-right: 50px; 
+}
+
+
+
+
+
+
+.popup-overlay3-admin .error-alert {
+    color: red;
+    text-align: center;
+    /* margin-bottom: 1em; */
+    padding: 10px 10px;
+    font-weight: bold;
+  }
+  

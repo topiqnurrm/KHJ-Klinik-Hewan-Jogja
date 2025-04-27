@@ -8,7 +8,7 @@ import userImg from "./image/user.png";
 import loginImg from "./image/login.png";
 import "./NavBar.css";
 import ProfilePopup from "../userprofile/userprofile";
-import { getUserById } from "../../api/user";
+import { getUserById } from "../../api/api-user";
 import { Link } from "react-router-dom";
 import RiwayatPopup from "../riwayat/riwayatklien";
 

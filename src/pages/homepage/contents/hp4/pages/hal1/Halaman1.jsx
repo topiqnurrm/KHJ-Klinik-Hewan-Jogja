@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getUserById } from "../../../../../../api/user";
+import { getUserById } from "../../../../../../api/api-user";
 import "./halaman1.css";
 
 function Halaman1() {

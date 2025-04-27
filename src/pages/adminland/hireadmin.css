@@ -35,3 +35,14 @@
     align-items: center;
     justify-content: center;
 }
+
+.isi {
+  width: 83%;
+  height: 100vh;
+  background-color: #ffffff;
+  /* padding: 20px; */
+  position: fixed;
+  top: 0;
+  right: 0;
+  padding-top: 50px;
+}

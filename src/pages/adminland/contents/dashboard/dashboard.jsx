@@ -5,8 +5,8 @@ import './dashboard.css';
 const Dashboard = () => {
     return (
         <div className='dashboard'>
-            <h1>Dashboard</h1>
-            <p>Welcome to the admin dashboard!</p>
+            <h1>dashboard</h1>
+            <p>ini dashboard</p>
         </div>
     );
 };
