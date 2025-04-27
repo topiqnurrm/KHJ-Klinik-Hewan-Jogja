@@ -63,10 +63,12 @@ function Userland() {
         </div>
       )}
 
-      <HomePage 
-        identity={userIdentity} 
-        onBookingSaved={handleRefetchBooking}
-      />
+      <ProtectedRoute allowedRoles={["klien"]}>
+        <HomePage 
+          identity={userIdentity} 
+          onBookingSaved={handleRefetchBooking}
+        />
+      </ProtectedRoute>
 
       {/* ✅ Tambahkan di sini jika ingin tampilkan Hp4 */}
       {/* <Hp4 identity={userIdentity} /> */}
