@@ -1,54 +1,826 @@
-@font-face {
-  font-family: "SansSerifBldFLF";
-  src: url("/src/components/fonts/SansSerifBldFLF.ttf") format("truetype"),
-       url("/src/components/fonts/SansSerifFLF.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+/* Base Styles */
+.dashboard-container * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+.dashboard-container body {
+  font-family: "SansSerifFLF", sans-serif;
+  background-color: #d9d9d9;
+  color: #3F4254;
+}
+
+/* Dashboard Layout */
 .dashboard-container {
+  font-family: "SansSerifFLF", sans-serif;
+  background-color: #d9d9d9;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-container .dashboard-header {
+  padding: 20px;
+  background-color: #d9d9d9;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.dashboard-container .dashboard-header h1 {
+  color: #3F4254;
+  margin: 0;
+  font-size: 24px;
+}
+
+/* Main content container with scroll */
+.dashboard-container .wadah {
+  height: calc(100vh - 80px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 20px;
+}
+
+/* Search Section */
+.dashboard-container .search-section {
+  background-color: white;
+  padding: 20px;
+  margin: 0 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-container .search-input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.dashboard-container .search-input:focus {
+  border-color: #00AEEF;
+}
+
+.dashboard-container .date-picker-group {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.dashboard-container .date-picker-item {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  width: 400px;
+  align-items: center; /* Ensures proper vertical alignment */
+}
+
+.dashboard-container .date-picker-item label {
+  font-size: 18px;
+  width: 400px;
+  color: #555;
+  font-weight: bold;
+}
+
+.dashboard-container .date-picker-input {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 200px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.dashboard-container .date-picker-input:focus {
+  border-color: #00AEEF;
+}
+
+/* Dashboard Content - Cards and Chart */
+.dashboard-container .dashboard-content {
+  display: flex;
+  padding: 0 20px 20px 20px;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.dashboard-container .cards-section1 {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.dashboard-container .card {
+  background-color: #00AEEF;
+  padding: 24px;
+  border-radius: 10px;
+  color: white;
+  width: 250px;
+  box-shadow: 0 4px 10px rgba(0, 174, 239, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.dashboard-container .card:hover {
+  transform: translateY(-5px);
+}
+
+.dashboard-container .card h2 {
+  font-size: 48px;
+  margin: 0;
+  font-weight: 700;
+}
+
+.dashboard-container .card p {
+  margin: 5px 0 20px 0;
+  opacity: 0.9;
+}
+
+.dashboard-container .card button {
   font-family: "SansSerifFLF", sans-serif;
   font-weight: normal;
   font-style: normal;
-  background-color: #d9d9d9;
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column; /* Stack atas bawah */
-}
-
-.dashboard-header {
-  width: 100%;
-  background-color: #d9d9d9;
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-top: 20px;
   font-size: 14px;
-  /* border-bottom: 2px solid red; */
-
-  font-family: "SansSerifFLF";
-  font-weight: bold;
-  font-style: normal;
+  background-color: #008CBA;
+  color: white;
+  border: none;
+  padding: 12px;
+  width: 100%;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
 }
 
-.dashboard-header h1 {
-  padding: 0px;
-  margin: 0px;
+.dashboard-container .card button:hover {
+  background-color: #0077a2;
+}
+
+.dashboard-container .chart-section2 {
+  flex: 1;
+  background-color: white;
+  padding: 24px;
+  border-radius: 10px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 300px;
+}
+
+.dashboard-container .chart-section2 h3 {
+  margin: 0;
+  margin-bottom: 16px;
   color: #3F4254;
+  font-size: 18px;
 }
 
-.dashboard-content {
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  font-family: "SansSerifFLF";
+.dashboard-container .chart-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dashboard Table Section */
+.dashboard-container .dashboard-table-section {
+  background-color: white;
+  border-radius: 10px;
+  margin: 20px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-container .dashboard-table-section h2 {
+  color: #3F4254;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.dashboard-container .table-container {
+  width: 100%;
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+/* Modifikasi Table untuk menyesuaikan lebar kolom dengan isi */
+.dashboard-container .dashboard-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: "SansSerifFLF", sans-serif;
+  table-layout: auto; /* Ubah dari fixed ke auto untuk menyesuaikan konten */
+}
+
+.dashboard-container .dashboard-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
   font-weight: normal;
   font-style: normal;
-  
-  flex: 1;
-  background-color: #d9d9d9;
   font-size: 14px;
-  text-align: left;
   color: #3F4254;
+  vertical-align: middle;
+  white-space: normal; /* Memungkinkan text wrapping */
+}
+
+.dashboard-container .dashboard-table th {
+  border: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  background-color: #b0fff2;
+  z-index: 5;
+  padding: 14px 12px;
+  color: #3F4254;
+  font-family: "SansSerifFLF", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap; /* Mencegah header wrap */
+}
+
+/* Kolom dengan konten pendek */
+.dashboard-container .dashboard-table .column-small {
+  width: 1%; /* Kolom akan menjadi sekecil mungkin */
+  white-space: nowrap; /* Mencegah text wrap untuk konten pendek */
+}
+
+/* Kolom dengan konten lebih panjang */
+.dashboard-container .dashboard-table .column-medium {
+  width: auto; /* Otomatis menyesuaikan */
+}
+
+/* Kolom dengan konten yang sangat panjang */
+.dashboard-container .dashboard-table .column-large {
+  width: auto; /* Otomatis menyesuaikan */
+  max-width: 300px; /* Tetapkan lebar maksimum */
+}
+
+.dashboard-container .dashboard-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.dashboard-container .dashboard-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Table Filters */
+.dashboard-container .table-filter-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.dashboard-container .table-search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.dashboard-container .table-search-label {
+  font-family: "SansSerifFLF", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 14px;
+  color: #3F4254;
+  white-space: nowrap;
+}
+
+.dashboard-container .search-input-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.dashboard-container .table-search-input {
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: "SansSerifFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  border: 1px solid #ccc;
+  color: #3F4254;
+  border-radius: 6px;
+  width: 100%;
+  outline: none;
+  transition: border 0.3s ease;
+}
+
+.dashboard-container .table-search-input:focus {
+  border-color: #00c4aa;
+  box-shadow: 0 0 0 2px rgba(0, 196, 170, 0.1);
+}
+
+.dashboard-container .table-clear-button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 1px solid #ccc;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: "SansSerifFLF", sans-serif;
+  color: #555;
+}
+
+.dashboard-container .table-clear-button:hover {
+  background-color: #eee;
+  color: #000;
+}
+
+.dashboard-container .table-sort-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dashboard-container .table-sort-select,
+.dashboard-container .table-sort-order {
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: "SansSerifFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+  color: #3F4254;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.dashboard-container .table-sort-select:focus,
+.dashboard-container .table-sort-order:focus {
+  border-color: #00c4aa;
+}
+
+.dashboard-container .table-sort-select {
+  min-width: 180px;
+}
+
+.dashboard-container .table-sort-order {
+  min-width: 120px;
+}
+
+/* Loading & Empty States */
+.dashboard-container .loading-indicator {
+  text-align: center;
+  padding: 40px;
+  font-family: "SansSerifFLF", sans-serif;
+  color: #666;
+  font-size: 16px;
+}
+
+.dashboard-container .no-data {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Action buttons */
+.dashboard-container .table-actions {
+  height: 100%;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.dashboard-container .table-actions button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-container .table-actions button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-container .table-actions img {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(1); /* Makes icons white */
+}
+
+/* Button styles */
+.dashboard-container .btn-blue {
+  background-color: #3b82f6; /* Tailwind 'blue-500' */
+}
+
+.dashboard-container .btn-green {
+  background-color: #22c55e; /* Tailwind 'green-500' */
+}
+
+.dashboard-container .btn-red {
+  background-color: #ef4444; /* Tailwind 'red-500' */
+}
+
+.dashboard-container .btn-blue.disabled,
+.dashboard-container .btn-green.disabled,
+.dashboard-container .btn-red.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Status labels */
+.dashboard-container .status-label {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: center;
+  display: inline-block;
+  min-width: 120px;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+.dashboard-container .status-kuning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
+
+.dashboard-container .status-hijau {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.dashboard-container .status-merah {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.dashboard-container .status-biru {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+/* Custom scrollbar */
+.dashboard-container .wadah::-webkit-scrollbar,
+.dashboard-container .table-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dashboard-container .wadah::-webkit-scrollbar-track,
+.dashboard-container .table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.dashboard-container .wadah::-webkit-scrollbar-thumb,
+.dashboard-container .table-container::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 10px;
+}
+
+.dashboard-container .wadah::-webkit-scrollbar-thumb:hover,
+.dashboard-container .table-container::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .dashboard-container .dashboard-content {
+    flex-direction: column;
+  }
+  
+  .dashboard-container .chart-section2 {
+    margin-top: 20px;
+    height: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container .wadah {
+    height: auto;
+    max-height: none;
+  }
+  
+  .dashboard-container .dashboard-header h1 {
+    font-size: 20px;
+  }
+  
+  .dashboard-container .cards-section1 {
+    width: 100%;
+  }
+  
+  .dashboard-container .card {
+    width: 100%;
+  }
+  
+  .dashboard-container .chart-section2 {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .dashboard-container .table-filter-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .dashboard-container .table-search-wrapper,
+  .dashboard-container .table-sort-wrapper {
+    width: 100%;
+  }
+  
+  .dashboard-container .table-sort-select,
+  .dashboard-container .table-sort-order {
+    flex: 1;
+  }
+  
+  .dashboard-container .dashboard-table-section {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container .search-section,
+  .dashboard-container .dashboard-table-section {
+    margin: 0 10px 20px;
+    padding: 15px;
+  }
+  
+  .dashboard-container .date-picker-group {
+    flex-direction: column;
+  }
+  
+  .dashboard-container .date-picker-input {
+    width: 100%;
+  }
+}
+
+.dashboard-container .date-picker-input {
+  width: 250px;
+  font-family: "SansSerifFLF", sans-serif;
+  color: #3F4254;
+}
+
+
+
+
+
+
+
+
+/* DatePicker Container Styles */
+.dashboard-container .react-datepicker-wrapper {
+  width: 100%;
+}
+
+.dashboard-container .react-datepicker {
+  font-family: "SansSerifFLF", sans-serif;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  background-color: white;
+}
+
+/* Header and navigation */
+.dashboard-container .react-datepicker__header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  padding-top: 10px;
+  position: relative;
+}
+
+.dashboard-container .react-datepicker__navigation {
+  top: 12px;
+}
+
+.dashboard-container .react-datepicker__navigation--previous {
+  left: 10px;
+}
+
+.dashboard-container .react-datepicker__navigation--next {
+  right: 10px;
+}
+
+/* Month and Year Selection */
+.dashboard-container .react-datepicker__month-dropdown-container,
+.dashboard-container .react-datepicker__year-dropdown-container {
+  margin: 0 5px;
+  padding: 5px 0;
+}
+
+.dashboard-container .react-datepicker__month-select,
+.dashboard-container .react-datepicker__year-select {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 14px;
+  color: #3F4254;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.dashboard-container .react-datepicker__month-select:focus,
+.dashboard-container .react-datepicker__year-select:focus {
+  border-color: #00AEEF;
+  box-shadow: 0 0 0 3px rgba(0, 174, 239, 0.2);
+}
+
+/* Current date */
+.dashboard-container .react-datepicker__day--selected,
+.dashboard-container .react-datepicker__day--keyboard-selected {
+  background-color: #00AEEF;
+  color: white;
+  border-radius: 50%;
+}
+
+.dashboard-container .react-datepicker__day--selected:hover,
+.dashboard-container .react-datepicker__day--keyboard-selected:hover {
+  background-color: #008CBA;
+}
+
+/* Days */
+.dashboard-container .react-datepicker__day {
+  margin: 0.2rem;
+  width: 2rem;
+  height: 2rem;
+  line-height: 2rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.dashboard-container .react-datepicker__day:hover {
+  background-color: #e9ecef;
+  border-radius: 50%;
+}
+
+/* Today's date */
+.dashboard-container .react-datepicker__day--today {
+  font-weight: bold;
+  color: #00AEEF;
+}
+
+/* Month container */
+.dashboard-container .react-datepicker__month-container {
+  float: left;
+  padding-bottom: 10px;
+}
+
+/* Day names (S M T W T F S) */
+.dashboard-container .react-datepicker__day-name {
+  margin: 0.2rem;
+  width: 2rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+/* Outside month days (days from prev/next month) */
+.dashboard-container .react-datepicker__day--outside-month {
+  color: #ced4da;
+}
+
+/* Time selection if needed */
+.dashboard-container .react-datepicker__time-container {
+  border-left: 1px solid #e9ecef;
+}
+
+/* Year dropdown */
+.dashboard-container .react-datepicker__year-dropdown {
+  background-color: white;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 5px 0;
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-container .react-datepicker__year-option {
+  padding: 6px 16px;
+  transition: background-color 0.2s ease;
+}
+
+.dashboard-container .react-datepicker__year-option:hover {
+  background-color: #f8f9fa;
+  cursor: pointer;
+}
+
+/* Month dropdown */
+.dashboard-container .react-datepicker__month-dropdown {
+  background-color: white;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 5px 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-container .react-datepicker__month-option {
+  padding: 6px 16px;
+  transition: background-color 0.2s ease;
+}
+
+.dashboard-container .react-datepicker__month-option:hover {
+  background-color: #f8f9fa;
+  cursor: pointer;
+}
+
+/* Year read view (when clicking on the year) */
+.dashboard-container .react-datepicker__year-read-view--selected-year {
+  color: #3F4254;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.dashboard-container .react-datepicker__year-read-view--down-arrow {
+  border-top-color: #3F4254;
+  margin-right: 5px;
+}
+
+/* Month read view (when clicking on the month) */
+.dashboard-container .react-datepicker__month-read-view--selected-month {
+  color: #3F4254;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.dashboard-container .react-datepicker__month-read-view--down-arrow {
+  border-top-color: #3F4254;
+  margin-right: 5px;
+}
+
+/* Make sure our datepicker works well with the existing styles */
+.dashboard-container .dashboard-container .date-picker-input {
+  width: 250px;
+  font-family: "SansSerifFLF", sans-serif;
+  color: #3F4254;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: white;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-container .dashboard-container .date-picker-input:focus,
+.dashboard-container .dashboard-container .date-picker-input:hover {
+  border-color: #00AEEF;
+  box-shadow: 0 0 0 3px rgba(0, 174, 239, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .dashboard-container .dashboard-container .date-picker-input {
+    width: 100%;
+  }
+  
+  .dashboard-container .react-datepicker__month-container {
+    float: none;
+    width: 100%;
+  }
+  
+  .dashboard-container .react-datepicker {
+    width: 280px;
+  }
+}
+
+.dashboard-container .react-datepicker__close-icon {
+  margin-right: 15px !important;
 }
