@@ -4,9 +4,13 @@ import './laporan.css';
 
 const Laporan = () => {
     return (
-        <div className='laporan'>
-            <h1>laporan</h1>
-            <p>ini laporan</p>
+        <div className='laporan-container'>
+            <div className="dashboard-header">
+                <h1>Laporan</h1>
+            </div>
+            <div className="dashboard-content">
+                <p>ini dashboard</p>
+            </div>
         </div>
     );
 };

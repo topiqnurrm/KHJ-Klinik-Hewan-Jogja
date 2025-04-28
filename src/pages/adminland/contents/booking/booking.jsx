@@ -4,9 +4,13 @@ import './booking.css';
 
 const Booking = () => {
     return (
-        <div className='booking'>
-            <h1>booking</h1>
-            <p>ini booking</p>
+        <div className='dashboard-container-booking'>
+            <div className="dashboard-header">
+                <h1>Booking</h1>
+            </div>
+            <div className="dashboard-content">
+                <p>ini dashboard</p>
+            </div>
         </div>
     );
 };

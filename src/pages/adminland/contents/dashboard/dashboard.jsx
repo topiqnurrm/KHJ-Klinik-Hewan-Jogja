@@ -1,12 +1,15 @@
 import React from 'react';
-
 import './dashboard.css';
 
 const Dashboard = () => {
     return (
-        <div className='dashboard'>
-            <h1>dashboard</h1>
-            <p>ini dashboard</p>
+        <div className='dashboard-container'>
+            <div className="dashboard-header">
+                <h1>Dashboard</h1>
+            </div>
+            <div className="dashboard-content">
+                <p>ini dashboard</p>
+            </div>
         </div>
     );
 };

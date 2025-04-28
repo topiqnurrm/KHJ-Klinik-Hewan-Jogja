@@ -4,9 +4,13 @@ import './kasir.css';
 
 const Kasir = () => {
     return (
-        <div className='kasir'>
-            <h1>kasir</h1>
-            <p>ini kasir</p>
+        <div className='kasir-container'>
+            <div className="dashboard-header">
+                <h1>Kasir</h1>
+            </div>
+            <div className="dashboard-content">
+                <p>ini dashboard</p>
+            </div>
         </div>
     );
 };

@@ -16,9 +16,8 @@ import Farmasi from './contents/farmasi/farmasi.jsx';
 import "./hireadmin.css";
 
 const HomePage = () => {
-    const [activeMenu, setActiveMenu] = useState("Dashboard"); // State untuk menyimpan menu aktif
+    const [activeMenu, setActiveMenu] = useState("Dashboard");
 
-    // Fungsi untuk menampilkan konten berdasarkan activeMenu
     const renderContent = () => {
         switch (activeMenu) {
             case "Pasien":
@@ -42,7 +41,7 @@ const HomePage = () => {
             case "Farmasi":
                 return <Farmasi />;
             default:
-                return <Dashboard />; // Default ke Dashboard jika tidak ada yang cocok
+                return <Dashboard />;
         }
     };
 
@@ -52,7 +51,7 @@ const HomePage = () => {
             <div className="admin">
                 <NavLeft className="nav_left" activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
                 
-                {/* Gunakan renderContent untuk menampilkan komponen sesuai activeMenu */}
+                {/* Ini bagian konten isi */}
                 <div className="isi">
                     {renderContent()}
                 </div>

@@ -4,9 +4,13 @@ import './farmasi.css';
 
 const Farmasi = () => {
     return (
-        <div className='farmasi'>
-            <h1>farmasi</h1>
-            <p>ini farmasi</p>
+        <div className='dashboard-container-farmasi'>
+            <div className="dashboard-header">
+                <h1>Farmasi</h1>
+            </div>
+            <div className="dashboard-content">
+                <p>ini dashboard</p>
+            </div>
         </div>
     );
 };

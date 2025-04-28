@@ -4,9 +4,13 @@ import './pasien.css';
 
 const Pasien = () => {
     return (
-        <div className='pasien'>
-            <h1>pasien</h1>
-            <p>ini pasien</p>
+        <div className='pasien-container'>
+            <div className="dashboard-header">
+                <h1>Pasien</h1>
+            </div>
+            <div className="dashboard-content">
+                <p>ini dashboard</p>
+            </div>
         </div>
     );
 };
