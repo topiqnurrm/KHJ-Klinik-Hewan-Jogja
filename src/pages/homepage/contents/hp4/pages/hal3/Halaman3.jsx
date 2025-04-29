@@ -72,6 +72,11 @@ const parseLocalDate = (dateString) => {
   return new Date(year, month - 1, day);
 };
 
+const jenisLayananOptions = [
+  { value: "onsite", label: "Onsite (Booking Online)" },
+  { value: "house call", label: "House Call (Booking Online)" }
+];
+
 function Halaman3({ onNext }) {
   const [selectedPasien, setSelectedPasien] = useState(null);
   const [pasienOptions, setPasienOptions] = useState([]);
@@ -85,9 +90,11 @@ function Halaman3({ onNext }) {
   const [savedData, setSavedData] = useState(null);
   const [validationMessage, setValidationMessage] = useState("");
   const [messageType, setMessageType] = useState("");
+  const [selectedJenisLayanan, setSelectedJenisLayanan] = useState(jenisLayananOptions[0]);
+  const [lokasiPemeriksaan, setLokasiPemeriksaan] = useState("Klinik KHJ");
+  const [isLokasiEditable, setIsLokasiEditable] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const jenisLayanan = "Onsite (Booking Online)";
-  const lokasiPemeriksaan = "Klinik Hewan A";
   const navigate = useNavigate();
 
   const fetchMonthAvailability = async (date) => {
@@ -115,12 +122,52 @@ function Halaman3({ onNext }) {
     setMonthAvailability(availMap);
   };
 
+  // Initial data loading from localStorage
   useEffect(() => {
     const savedInput = JSON.parse(localStorage.getItem("savedInput"));
+    
+    // Initialize fields from saved data first if available
+    if (savedInput) {
+      setSelectedPasien(savedInput.pasien);
+      setSelectedLayanan(savedInput.layanan);
+      setComplaint(savedInput.keluhan || "");
+      
+      // Load jenis layanan from saved data
+      if (savedInput.jenisLayanan) {
+        const jenisOption = jenisLayananOptions.find(opt => 
+          opt.value === savedInput.jenisLayanan || opt.label === savedInput.jenisLayananLabel
+        );
+        
+        if (jenisOption) {
+          setSelectedJenisLayanan(jenisOption);
+          // Set editable status based on saved jenis layanan
+          setIsLokasiEditable(jenisOption.value === "house call");
+        }
+      }
+      
+      // Important: Always load the saved location regardless of the service type
+      if (savedInput.lokasi) {
+        setLokasiPemeriksaan(savedInput.lokasi);
+      }
+      
+      if (savedInput.tanggal) {
+        const savedDate = parseLocalDate(savedInput.tanggal);
+        setSelectedDate(savedDate);
+        setCalendarMonth(savedDate);
+      }
+      
+      setSavedData(savedInput);
+    }
+    
+    setIsInitialized(true);
+  }, []);
+
+  // Fetch patient and service data
+  useEffect(() => {
     const fetchDataPasien = async () => {
       const storedUser = JSON.parse(localStorage.getItem("user"));
       const userId = storedUser?._id;
-
+  
       if (userId) {
         try {
           const pasienData = await getPasienByUserId(userId);
@@ -135,40 +182,61 @@ function Halaman3({ onNext }) {
         }
       }
     };
-
+  
     const loadLayanan = async () => {
-      const layananData = await fetchLayanan();
-      const sortedLayanan = layananData.sort((a, b) => a.label.localeCompare(b.label));
-      setLayananOptions(sortedLayanan);
-      const savedLayanan = savedInput?.layanan || sortedLayanan.find(l => l.label === "Pemeriksaan Umum");
-      if (savedLayanan) {
-        setSelectedLayanan(savedLayanan);
+      try {
+        const layananData = await fetchLayanan();
+        const sortedLayanan = layananData.sort((a, b) => a.label.localeCompare(b.label));
+        setLayananOptions(sortedLayanan);
+    
+        const savedInput = JSON.parse(localStorage.getItem("savedInput"));
+    
+        if (savedInput && savedInput.layanan) {
+          const layananSaved = sortedLayanan.find(l => l.value === savedInput.layanan.value);
+          if (layananSaved) {
+            setSelectedLayanan(layananSaved);
+          }
+        } else {
+          // Kalau tidak ada saved input, baru pilih default
+          const defaultLayanan = sortedLayanan.find(l => l.label === "Pemeriksaan Umum");
+          if (defaultLayanan) {
+            setSelectedLayanan(defaultLayanan);
+          }
+        }
+      } catch (error) {
+        console.error("Gagal mengambil data layanan:", error);
       }
     };
-
+    
+  
     fetchDataPasien();
     loadLayanan();
-
-    if (savedInput) {
-      setSelectedPasien(savedInput.pasien);
-      setSelectedLayanan(savedInput.layanan);
-      setComplaint(savedInput.keluhan);
-      const savedDate = parseLocalDate(savedInput.tanggal);
-      setSelectedDate(savedDate);
-      setCalendarMonth(savedDate);
-      setSavedData(savedInput);
-
-      // Fetch month availability based on the saved date
-      fetchMonthAvailability(savedDate);
-    } else {
-      setCalendarMonth(new Date());
-    }
   }, []);
 
+  // Effect to handle changes in service type
+  useEffect(() => {
+    if (!isInitialized) return;
+    
+    // Update lokasi whenever service type changes AFTER initialization
+    if (selectedJenisLayanan?.value === "onsite") {
+      // For onsite, always set to clinic location and make readonly
+      setLokasiPemeriksaan("Klinik KHJ");
+      setIsLokasiEditable(false);
+    } else if (selectedJenisLayanan?.value === "house call") {
+      setIsLokasiEditable(true);
+      // Only clear location if it's the default clinic location
+      if (lokasiPemeriksaan === "Klinik KHJ") {
+        setLokasiPemeriksaan("");
+      }
+    }
+  }, [selectedJenisLayanan, isInitialized]);
+
+  // Fetch availability when calendar month changes
   useEffect(() => {
     if (calendarMonth) fetchMonthAvailability(calendarMonth);
   }, [calendarMonth]);
 
+  // Check if selected date is available
   useEffect(() => {
     if (selectedDate && Object.keys(monthAvailability).length > 0) {
       const dateStr = formatLocalDate(selectedDate);
@@ -207,7 +275,7 @@ function Halaman3({ onNext }) {
   };
 
   const handleSave = () => {
-    if (!selectedPasien || !selectedLayanan || !selectedDate || !complaint) {
+    if (!selectedPasien || !selectedLayanan || !selectedDate || !complaint || !selectedJenisLayanan) {
       setValidationMessage("Harap lengkapi semua kolom terlebih dahulu!");
       setMessageType("error");
       setTimeout(() => {
@@ -216,6 +284,18 @@ function Halaman3({ onNext }) {
       }, 2000);
       return;
     }
+  
+    // Validasi khusus untuk house call - lokasi harus diisi
+    if (selectedJenisLayanan.value === "house call" && !lokasiPemeriksaan.trim()) {
+      setValidationMessage("Harap isi lokasi pemeriksaan untuk House Call!");
+      setMessageType("error");
+      setTimeout(() => {
+        setValidationMessage("");
+        setMessageType("");
+      }, 2000);
+      return;
+    }
+  
     if (complaint.length > 250) {
       setValidationMessage("Keluhan maksimal 250 karakter.");
       setMessageType("error");
@@ -225,13 +305,12 @@ function Halaman3({ onNext }) {
       }, 2000);
       return;
     }
-    
-
+  
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const bookingDate = new Date(selectedDate);
     bookingDate.setHours(0, 0, 0, 0);
-
+  
     if (bookingDate < today) {
       setValidationMessage("Tanggal booking tidak boleh lebih kecil dari hari ini.");
       setMessageType("error");
@@ -241,7 +320,7 @@ function Halaman3({ onNext }) {
       }, 2000);
       return;
     }
-
+  
     const dateStr = formatLocalDate(selectedDate);
     if (monthAvailability[dateStr] === 0) {
       setValidationMessage("Kuota penuh pada tanggal tersebut. Pilih tanggal lain.");
@@ -252,18 +331,19 @@ function Halaman3({ onNext }) {
       }, 2000);
       return;
     }
-
+  
     const fullPasienData = rawPasienData.find(p => p._id === selectedPasien?.value);
-
+  
     const newData = {
       pasien: selectedPasien,
       layanan: selectedLayanan,
       tanggal: dateStr,
       keluhan: complaint,
-      jenisLayanan,
+      jenisLayanan: selectedJenisLayanan.value,
+      jenisLayananLabel: selectedJenisLayanan.label,
       lokasi: lokasiPemeriksaan,
     };
-
+  
     if (JSON.stringify(newData) === JSON.stringify(savedData)) {
       setValidationMessage("Data masih sama, tidak ada perubahan.");
       setMessageType("warning");
@@ -273,7 +353,7 @@ function Halaman3({ onNext }) {
       }, 2000);
       return;
     }
-
+  
     localStorage.setItem("savedInput", JSON.stringify(newData));
     localStorage.setItem("selectedPasienData", JSON.stringify(fullPasienData));
     setSavedData(newData);
@@ -285,6 +365,7 @@ function Halaman3({ onNext }) {
       setMessageType("");
     }, 2000);
   };
+  
 
   return (
     <div className="hal3">
@@ -360,8 +441,14 @@ function Halaman3({ onNext }) {
       </div>
 
       <div className="form-group">
-        <label className="warna">Pilih Jenis Layanan *</label>
-        <input className="warna" type="text" value={jenisLayanan} readOnly />
+        <label>Pilih Jenis Layanan *</label>
+        <Select
+          styles={customSelectStyles}
+          options={jenisLayananOptions}
+          placeholder="Pilih Jenis Layanan"
+          onChange={setSelectedJenisLayanan}
+          value={selectedJenisLayanan}
+        />
       </div>
 
       <div className="form-group">
@@ -380,12 +467,23 @@ function Halaman3({ onNext }) {
         <div style={{ textAlign: "right", fontSize: "0.85rem", color: complaint.length > 240 ? "#c00" : "#666" }}>
           {complaint.length}/250
         </div>
-
       </div>
 
       <div className="form-group">
-        <label className="warna">Pilih Lokasi Pemeriksaan *</label>
-        <input className="warna" type="text" value={lokasiPemeriksaan} readOnly />
+        <label className="warna">Lokasi Pemeriksaan *</label>
+        <input 
+          className={`warna ${!isLokasiEditable ? "readonly-field" : ""}`}
+          type="text" 
+          value={lokasiPemeriksaan} 
+          onChange={(e) => setLokasiPemeriksaan(e.target.value)}
+          readOnly={!isLokasiEditable}
+          placeholder={isLokasiEditable ? "Masukkan alamat lengkap Anda" : ""}
+        />
+        {isLokasiEditable && (
+          <div className="lokasi-info">
+            Dokter hewan akan melakukan kunjungan
+          </div>
+        )}
       </div>
 
       <div className="simpan">

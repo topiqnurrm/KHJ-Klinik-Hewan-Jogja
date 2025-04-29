@@ -4,9 +4,9 @@ import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./popupeditbooking.css";
-import { getPasienByUserId } from "../../api/api-pasien";
-import { fetchLayanan } from "../../api/api-pelayanan";
-import { checkBookingAvailability, updateBooking } from "../../api/api-booking";
+import { getPasienByUserId } from "../../../../../api/api-pasien";
+import { fetchLayanan } from "../../../../../api/api-pelayanan";
+import { checkBookingAvailability, updateBooking } from "../../../../../api/api-booking";
 
 // Custom select styles remain the same
 const customSelectStyles = {

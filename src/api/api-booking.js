@@ -9,7 +9,7 @@ export const checkBookingAvailability = async (tanggal, excludeBookingId = null)
     const response = await axios.get(`${BOOKING_API_URL}/cek-ketersediaan`, {
       params: { 
         tanggal,
-        excludeBookingId // Pass this to the backend
+        excludeBookingId
       }
     });
     return response.data;
@@ -19,13 +19,38 @@ export const checkBookingAvailability = async (tanggal, excludeBookingId = null)
   }
 };
 
-
 export const createBooking = async (bookingData) => {
   try {
+    // Make sure services include both name and type
+    if (bookingData.pelayanans1) {
+      bookingData.pelayanans1 = bookingData.pelayanans1.map(service => {
+        // If we have a service object with proper fields, ensure it's correctly formatted
+        if (service.id_pelayanan && service.nama && service.jenis_layanan) {
+          return {
+            id_pelayanan: service.id_pelayanan,
+            nama: service.nama,
+            jenis_layanan: service.jenis_layanan
+          };
+        }
+        // Otherwise, just return the service as is
+        return service;
+      });
+    }
+    
+    // Add logging to see what we're sending
+    console.log('Creating booking with data:', JSON.stringify(bookingData, null, 2));
+    
     const response = await axios.post(`${BOOKING_API_URL}/booking`, bookingData);
+    console.log('Booking created successfully:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Gagal membuat booking:', error.response?.data || error.message);
+    // Enhanced error logging
+    console.error('Gagal membuat booking:', {
+      message: error.message,
+      response: error.response?.data,
+      request: error.request ? 'Request was made but no response received' : null,
+      config: error.config
+    });
     throw error;
   }
 };
@@ -53,7 +78,7 @@ export const getBookingWithRetribusi = async () => {
 
 export const checkUnfinishedBooking = async (id_pasien) => {
   try {
-    const response = await axios.get(`http://localhost:5000/api/booking/ada-booking-belum-selesai/${id_pasien}`);
+    const response = await axios.get(`${BOOKING_API_URL}/ada-booking-belum-selesai/${id_pasien}`);
     console.log("Cek unfinished booking response:", response.data); // Debug
     return response.data.ada;
   } catch (error) {
@@ -61,8 +86,6 @@ export const checkUnfinishedBooking = async (id_pasien) => {
     return false;
   }
 };
-
-
 
 export const getAllBookingByUserId = async (id_pasien) => {
   try {
@@ -74,18 +97,15 @@ export const getAllBookingByUserId = async (id_pasien) => {
   }
 };
 
-
-
 export const checkUnfinishedBookingByUserId = async (id_user) => {
   try {
-    const response = await axios.get(`http://localhost:5000/api/booking/cek-booking-user/${id_user}`);
+    const response = await axios.get(`${BOOKING_API_URL}/cek-booking-user/${id_user}`);
     return response.data.ada;
   } catch (error) {
     console.error("Gagal cek booking user:", error);
     return false;
   }
 };
-
 
 export const deleteBooking = async (bookingId) => {
   try {
@@ -96,7 +116,6 @@ export const deleteBooking = async (bookingId) => {
     throw error;
   }
 };
-
 
 export const updateBooking = async (bookingId, bookingData) => {
   try {

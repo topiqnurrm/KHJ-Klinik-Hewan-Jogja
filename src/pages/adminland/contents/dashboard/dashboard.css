@@ -171,7 +171,7 @@
   background-color: white;
   padding: 24px;
   border-radius: 10px;
-  height: 400px;
+  height: 370px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -191,13 +191,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  height: 220px;
+  width: 100%;
 }
 
 /* Dashboard Table Section */
 .dashboard-container .dashboard-table-section {
   background-color: white;
   border-radius: 10px;
-  margin: 20px;
+  margin-top: 0px;
+  margin-bottom: 30px;
+  margin-left: 20px;
+  margin-right: 20px;
   padding: 24px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -823,4 +829,59 @@
 
 .dashboard-container .react-datepicker__close-icon {
   margin-right: 15px !important;
+}
+
+
+
+/* Add these styles to dashboard.css */
+
+/* Empty state message styling */
+.dashboard-container .no-data-message {
+  text-align: center;
+  padding: 30px;
+  font-size: 16px;
+  color: #666;
+  background-color: #f8f8f8;
+  border-radius: 5px;
+  margin: 20px 0;
+}
+
+/* Dynamic text for date ranges */
+.dashboard-container .card p {
+  font-size: 14px;
+  /* margin-bottom: 10px; */
+  margin: 0px;
+  padding: 10px 0px;
+  /* min-height: 40px; */
+}
+
+/* Make buttons more interactive */
+.dashboard-container .card button {
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.dashboard-container .card button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.dashboard-container .card button:active {
+  transform: translateY(0);
+}
+
+
+@media (max-width: 768px) {
+  .dashboard-container .chart-wrapper {
+    height: 180px;
+  }
+  
+  .dashboard-container .date-picker-group {
+    flex-direction: column;
+  }
+  
+  .dashboard-container .date-picker-item {
+    width: 100%;
+    margin-bottom: 10px;
+  }
 }

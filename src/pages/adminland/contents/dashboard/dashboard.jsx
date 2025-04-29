@@ -4,23 +4,33 @@ import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useNavigate } from 'react-router-dom';
 
-// Import icons for the table actions - you'll need to provide these images
+// Import icons for the table actions
 import retribusiIcon from "./gambar/retribusi.png";
 import rekamIcon from "./gambar/rekam.png";
 import editIcon from "./gambar/edit.png";
 import hapusIcon from "./gambar/hapus.png";
 
-// Import API functions - adjust as needed for your actual API
+import Laporan from '../laporan/laporan.jsx';
+
+// Import popup components
+import PopupEditBooking from './popup/popupeditbooking.jsx';
+import Popup from '../../admin_nav/popup_nav/popup2.jsx';
+
+// Import API functions
 import { getBookingWithRetribusi, deleteBooking } from "../../../../api/api-booking";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const Dashboard = () => {
+const Dashboard = ({ setActiveMenu }) => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDate, setSelectedDate] = useState(null);
+  // Set today's date as the default selected date
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
+  const [activeView, setActiveView] = useState('dashboard');
   
   // States for table data
   const [bookings, setBookings] = useState([]);
@@ -28,6 +38,21 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [sortBy, setSortBy] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
+
+  // States for dashboard metrics
+  const [visitsCount, setVisitsCount] = useState(0);
+  const [bookingsCount, setBookingsCount] = useState(0);
+  const [categoryData, setCategoryData] = useState({
+    ternak: 0,
+    kesayangan: 0,
+    unggas: 0
+  });
+
+  // States for popups
+  const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
+  const [bookingToDelete, setBookingToDelete] = useState(null);
 
   // Handle single date selection
   const handleSingleDateChange = (date) => {
@@ -38,49 +63,23 @@ const Dashboard = () => {
     setSelectedDate(date);
   };
 
-    // Handle date range selection
-    const handleDateRangeChange = (update) => {
-        // Only clear the single date when both start and end dates are selected
-        if (update[0] && update[1]) {
-        setSelectedDate(null);
-        }
-        setDateRange(update);
-    };
-
-  const pieData = {
-    labels: ['Ternak', 'Kesayangan / Satwa Liar', 'Unggas'],
-    datasets: [
-      {
-        data: [30, 50, 20],
-        backgroundColor: ['#E79999', '#719C5E', '#5887C1'],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const pieOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'left',
-        align: 'start',
-        labels: {
-          boxWidth: 20,
-          padding: 15,
-        },
-      },
-    },
+  // Handle date range selection
+  const handleDateRangeChange = (update) => {
+    // Only clear the single date when both start and end dates are selected
+    if (update[0] && update[1]) {
+      setSelectedDate(null);
+    }
+    setDateRange(update);
   };
 
   // Format currency helper function
   const formatRupiah = (value) => {
     if (!value) return "Rp0";
     const amount = typeof value === "object" && value.$numberDecimal
-        ? parseFloat(value.$numberDecimal)
-        : typeof value === "string"
-        ? parseFloat(value)
-        : value;
+      ? parseFloat(value.$numberDecimal)
+      : typeof value === "string"
+      ? parseFloat(value)
+      : value;
     return amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
   };
 
@@ -114,6 +113,34 @@ const Dashboard = () => {
     return ["dirawat inap", "menunggu pembayaran", "mengambil obat", "selesai"].includes(status);
   };
 
+  // Navigation functions
+  const handleReportClick = () => {
+    // Prepare date params for the report
+    const dateParams = {};
+    if (selectedDate) {
+      dateParams.date = selectedDate.toISOString();
+    } else if (startDate && endDate) {
+      dateParams.startDate = startDate.toISOString();
+      dateParams.endDate = endDate.toISOString();
+    }
+    
+    // Switch to report view with date params
+    setActiveView('laporan');
+    
+    // If using the parent component's state management:
+    if (setActiveMenu) {
+      setActiveMenu("Laporan");
+    }
+  };
+
+  const handleDataClick = () => {
+    // Scroll to table section
+    const tableSection = document.querySelector('.dashboard-table-section');
+    if (tableSection) {
+      tableSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   // Fetch bookings data
   const fetchBookings = () => {
     setIsLoading(true);
@@ -121,7 +148,7 @@ const Dashboard = () => {
     getBookingWithRetribusi()
       .then((data) => {
         setBookings(data);
-        setFilteredBookings(data);
+        // Initial filtering happens in the useEffect below
         setIsLoading(false);
       })
       .catch((err) => {
@@ -135,87 +162,132 @@ const Dashboard = () => {
     fetchBookings();
   }, []);
 
-  // Handle filtering and sorting
-  useEffect(() => {
-    if (!bookings.length) return;
-
-    const lower = searchTerm.toLowerCase();
-    let result = bookings.filter((booking) => {
-      const biayaStr = formatRupiah(booking.biaya);
-      const layananStr = (booking.pelayanans1 || [])
-        .map((p) => p.nama || p.id_pelayanan?.nama)
-        .filter(Boolean)
-        .join(", ");
-      const catatanStr = (booking.administrasis1 || [])
-        .map(a => a.catatan)
-        .filter(Boolean)
-        .join(", ");
-      const userName = booking.administrasis1?.[0]?.user_name || "Tidak diketahui";
-      
-      const allFields = `
-        ${booking.nama || booking.id_pasien?.nama || ""}
-        ${booking.keluhan || ""}
-        ${booking.status_booking || ""}
-        ${catatanStr}
-        ${userName}
-        ${new Date(booking.createdAt).toLocaleString()}
-        ${new Date(booking.updatedAt).toLocaleString()}
-        ${biayaStr}
-        ${layananStr}
-        ${new Date(booking.pilih_tanggal).toLocaleDateString("id-ID")}
-      `.toLowerCase();
-
-      return allFields.includes(lower);
-    });
-
-    if (sortBy) {
-      result = result.sort((a, b) => {
-        let valueA, valueB;
-        if (sortBy === "createdAt" || sortBy === "updatedAt" || sortBy === "pilih_tanggal") {
-          valueA = new Date(a[sortBy]).getTime();
-          valueB = new Date(b[sortBy]).getTime();
-        } else if (sortBy === "nama_hewan") {
-          valueA = (a.nama || a.id_pasien?.nama || "").toLowerCase();
-          valueB = (b.nama || b.id_pasien?.nama || "").toLowerCase();
-        } else if (sortBy === "user_name") {
-          valueA = (a.administrasis1?.[0]?.user_name || "").toLowerCase();
-          valueB = (b.administrasis1?.[0]?.user_name || "").toLowerCase();
-        } else if (sortBy === "biaya") {
-          const aVal = a.biaya?.$numberDecimal ?? a.biaya ?? 0;
-          const bVal = b.biaya?.$numberDecimal ?? b.biaya ?? 0;
-          valueA = parseFloat(aVal);
-          valueB = parseFloat(bVal);
-        }
-
-        if (sortOrder === "asc") return valueA > valueB ? 1 : -1;
-        return valueA < valueB ? 1 : -1;
-      });
-    }
-
-    setFilteredBookings(result);
-  }, [searchTerm, bookings, sortBy, sortOrder]);
-
-  // Filter bookings based on dates
+  // Apply date filtering to bookings immediately when data is loaded or date changes
   useEffect(() => {
     if (!bookings.length) return;
     
+    // Filter bookings based on date selection
+    let filteredData = [...bookings];
+    
+    if (selectedDate) {
+      const selectedDateStart = new Date(selectedDate);
+      selectedDateStart.setHours(0, 0, 0, 0);
+      const selectedDateEnd = new Date(selectedDate);
+      selectedDateEnd.setHours(23, 59, 59, 999);
+      
+      filteredData = filteredData.filter(booking => {
+        const bookingDate = new Date(booking.pilih_tanggal);
+        return bookingDate >= selectedDateStart && bookingDate <= selectedDateEnd;
+      });
+    } else if (startDate && endDate) {
+      const rangeStart = new Date(startDate);
+      rangeStart.setHours(0, 0, 0, 0);
+      const rangeEnd = new Date(endDate);
+      rangeEnd.setHours(23, 59, 59, 999);
+      
+      filteredData = filteredData.filter(booking => {
+        const bookingDate = new Date(booking.pilih_tanggal);
+        return bookingDate >= rangeStart && bookingDate <= rangeEnd;
+      });
+    }
+    
+    // Apply initial filtering for table view
+    setFilteredBookings(filteredData);
+    
+    // Calculate dashboard metrics based on date filtering
+    // Count visits (bookings with specific statuses)
+    const visitStatuses = ['sedang diperiksa', 'dirawat inap', 'menunggu pembayaran', 'mengambil obat', 'selesai'];
+    const visitCount = filteredData.filter(booking => visitStatuses.includes(booking.status_booking)).length;
+    
+    // Count bookings (bookings with other specific statuses)
+    const bookingStatuses = ['menunggu respon administrasi', 'disetujui administrasi', 'ditolak administrasi', 'dibatalkan administrasi'];
+    const bookingCount = filteredData.filter(booking => bookingStatuses.includes(booking.status_booking)).length;
+    
+    // Calculate category distribution for pie chart
+    const categoryDistribution = {
+      ternak: 0,
+      kesayangan: 0,
+      unggas: 0
+    };
+    
+    // Only count visits (not all bookings) for the pie chart
+    filteredData
+      .filter(booking => visitStatuses.includes(booking.status_booking))
+      .forEach(booking => {
+        if (booking.kategori === 'ternak') {
+          categoryDistribution.ternak += 1;
+        } else if (booking.kategori === 'kesayangan / satwa liar') {
+          categoryDistribution.kesayangan += 1;
+        } else if (booking.kategori === 'unggas') {
+          categoryDistribution.unggas += 1;
+        }
+      });
+    
+    setVisitsCount(visitCount);
+    setBookingsCount(bookingCount);
+    setCategoryData(categoryDistribution);
+    
+  }, [bookings, selectedDate, startDate, endDate]);
+
+  // Generate pie chart data based on category distribution
+  const pieData = {
+    labels: ['Ternak', 'Kesayangan / Satwa Liar', 'Unggas'],
+    datasets: [
+      {
+        data: [categoryData.ternak, categoryData.kesayangan, categoryData.unggas],
+        backgroundColor: ['#E79999', '#719C5E', '#5887C1'],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const pieOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'left',
+        align: 'start',
+        labels: {
+          boxWidth: 20,
+          padding: 15,
+        },
+      },
+    },
+  };
+
+  // Handle filtering and sorting for table
+  useEffect(() => {
+    if (!bookings.length) return;
+    
+    // Start with date-filtered bookings
     let result = [...bookings];
     
-    // Filter by single date if selected
-    if (selectedDate) {
-      const selectedDateStr = selectedDate.toDateString();
-      result = result.filter(booking => {
-        const bookingDate = new Date(booking.pilih_tanggal);
-        return bookingDate.toDateString() === selectedDateStr;
-      });
-    }
+    // Check if both date filters are cleared
+    const areBothDateFiltersEmpty = !selectedDate && !startDate && !endDate;
     
-    // Filter by date range if selected
-    if (startDate && endDate) {
-      result = result.filter(booking => {
-        const bookingDate = new Date(booking.pilih_tanggal);
-        return bookingDate >= startDate && bookingDate <= endDate;
-      });
+    if (!areBothDateFiltersEmpty) {
+      if (selectedDate) {
+        const selectedDateStart = new Date(selectedDate);
+        selectedDateStart.setHours(0, 0, 0, 0);
+        const selectedDateEnd = new Date(selectedDate);
+        selectedDateEnd.setHours(23, 59, 59, 999);
+        
+        result = result.filter(booking => {
+          const bookingDate = new Date(booking.pilih_tanggal);
+          return bookingDate >= selectedDateStart && bookingDate <= selectedDateEnd;
+        });
+      } else if (startDate && endDate) {
+        const rangeStart = new Date(startDate);
+        rangeStart.setHours(0, 0, 0, 0);
+        const rangeEnd = new Date(endDate);
+        rangeEnd.setHours(23, 59, 59, 999);
+        
+        result = result.filter(booking => {
+          const bookingDate = new Date(booking.pilih_tanggal);
+          return bookingDate >= rangeStart && bookingDate <= rangeEnd;
+        });
+      }
     }
     
     // Apply search term filter
@@ -280,23 +352,72 @@ const Dashboard = () => {
 
   // Function for handling actions
   const handleEdit = (booking) => {
-    alert(`Edit booking for ${booking.nama || booking.id_pasien?.nama}`);
-    // Add your edit logic here
+    setSelectedBooking(booking);
+    setIsEditPopupOpen(true);
   };
 
-  const handleDelete = (booking) => {
-    if (window.confirm(`Are you sure you want to delete booking for ${booking.nama || booking.id_pasien?.nama}?`)) {
-      deleteBooking(booking._id)
-        .then(() => {
-          // Refresh the booking list after deletion
-          fetchBookings();
-        })
-        .catch((error) => {
-          console.error("Failed to delete booking:", error);
-          alert("Failed to delete booking: " + (error.response?.data?.message || error.message));
-        });
+  const handleEditClose = (wasUpdated = false) => {
+    setIsEditPopupOpen(false);
+    setSelectedBooking(null);
+    
+    // If booking was updated, refresh the data
+    if (wasUpdated) {
+      fetchBookings();
     }
   };
+
+  const handleDeleteRequest = (booking) => {
+    setBookingToDelete(booking);
+    setIsDeletePopupOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!bookingToDelete) return;
+    
+    setIsLoading(true);
+    deleteBooking(bookingToDelete._id)
+      .then(() => {
+        // Refresh the booking list after deletion
+        fetchBookings();
+        setIsDeletePopupOpen(false);
+        setBookingToDelete(null);
+      })
+      .catch((error) => {
+        console.error("Failed to delete booking:", error);
+        alert("Failed to delete booking: " + (error.response?.data?.message || error.message));
+        setIsDeletePopupOpen(false);
+        setBookingToDelete(null);
+        setIsLoading(false);
+      });
+  };
+
+  // Prepare date parameters for Laporan component
+  const getLaporanParams = () => {
+    const params = {};
+    if (selectedDate) {
+      params.date = selectedDate;
+    } else if (startDate && endDate) {
+      params.startDate = startDate;
+      params.endDate = endDate;
+    }
+    return params;
+  };
+
+  // Get current date display text 
+  const getDateDisplayText = () => {
+    if (selectedDate) {
+      return `tanggal ${selectedDate.toLocaleDateString("id-ID")}`;
+    } else if (startDate && endDate) {
+      return `rentang tanggal ${startDate.toLocaleDateString("id-ID")} - ${endDate.toLocaleDateString("id-ID")}`;
+    } else {
+      return "Filter tanggal belum dipilih";
+    }
+  };
+
+  // Render based on active view
+  if (activeView === 'laporan') {
+    return <Laporan {...getLaporanParams()} setActiveView={setActiveView} />;
+  }
 
   return (
     <div className="dashboard-container">
@@ -306,13 +427,6 @@ const Dashboard = () => {
         <div className="wadah">
             {/* Search and Date Filter */}
             <div className="search-section">
-                {/* <input
-                type="text"
-                placeholder="Cari pasien..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-                /> */}
                 <div className="date-picker-group">
                     <div className="date-picker-item">
                         <label>Pilih Tanggal:</label>
@@ -354,25 +468,25 @@ const Dashboard = () => {
             <div className="dashboard-content">
                 <div className="cards-section1">
                 <div className="card">
-                    <h2>2</h2>
-                    <p>Kunjungan Pasien Hari Ini</p>
-                    <button>Laporan {'>'}</button>
+                    <h2>{visitsCount}</h2>
+                    <p>Kunjungan {selectedDate ? " Tanggal Ini" : startDate && endDate ? " Pada Rentang Ini" : " (All)"}</p>
+                    <button onClick={handleReportClick}>Laporan {'>'}</button>
                 </div>
                 <div className="card">
-                    <h2>1</h2>
-                    <p>Booking Hari Ini</p>
-                    <button>Data {'>'}</button>
+                    <h2>{bookingsCount}</h2>
+                    <p>Booking{selectedDate ? " Tanggal Ini" : startDate && endDate ? " Pada Rentang Ini" : " (All)"}</p>
+                    <button onClick={handleDataClick}>Data {'>'}</button>
                 </div>
                 </div>
                 <div className="chart-section2">
-                <h3>Presentase Kunjungan Pasien</h3>
+                <h3>Presentase Kunjungan Pasien{selectedDate ? " Tanggal Ini" : startDate && endDate ? " Pada Rentang Ini" : ""}</h3>
                 <div className="chart-wrapper">
                     <Pie data={pieData} options={pieOptions} />
                 </div>
                 </div>
             </div>
 
-            {/* New Table Section */}
+            {/* Table Section */}
             <div className="dashboard-table-section">
                 <h2>Data Pemeriksaan Pasien</h2>
                 
@@ -424,6 +538,10 @@ const Dashboard = () => {
                 <div className="table-container">
                 {isLoading ? (
                     <div className="loading-indicator">Memuat data...</div>
+                ) : filteredBookings.length === 0 ? (
+                    <div className="no-data-message">
+                      Tidak ada data pemeriksaan pasien pada {getDateDisplayText()}
+                    </div>
                 ) : (
                     <table className="dashboard-table">
                     <thead>
@@ -443,12 +561,7 @@ const Dashboard = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredBookings.length === 0 ? (
-                        <tr>
-                            <td colSpan="12" className="no-data">Tidak ada data booking</td>
-                        </tr>
-                        ) : (
-                        filteredBookings.map((booking, index) => (
+                        {filteredBookings.map((booking, index) => (
                             <tr key={booking._id}>
                             <td>{index + 1}</td>
                             <td>{new Date(booking.createdAt).toLocaleString()}</td>
@@ -515,7 +628,7 @@ const Dashboard = () => {
                                     <button 
                                     className="btn-red" 
                                     title="Hapus" 
-                                    onClick={() => handleDelete(booking)}
+                                    onClick={() => handleDeleteRequest(booking)}
                                     disabled={isLoading}
                                     >
                                     <img src={hapusIcon} alt="hapus" />
@@ -524,14 +637,28 @@ const Dashboard = () => {
                                 )}
                             </td>
                             </tr>
-                        ))
-                        )}
+                        ))}
                     </tbody>
                     </table>
                 )}
                 </div>
             </div>
         </div>
+
+        {/* Popups */}
+        <PopupEditBooking 
+          isOpen={isEditPopupOpen} 
+          onClose={handleEditClose} 
+          bookingData={selectedBooking} 
+        />
+
+        <Popup
+          isOpen={isDeletePopupOpen}
+          onClose={() => setIsDeletePopupOpen(false)}
+          title="Konfirmasi Hapus"
+          description={`Apakah Anda yakin ingin menghapus booking untuk ${bookingToDelete?.nama || bookingToDelete?.id_pasien?.nama || 'pasien ini'}?`}
+          onConfirm={handleConfirmDelete}
+        />
     </div>
   );
 };

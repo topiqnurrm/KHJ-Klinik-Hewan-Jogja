@@ -8,7 +8,8 @@ function Halaman4({ onPre, onBookingSaved }) {
   const [savedInput, setSavedInput] = useState(null);
   const [pasien, setPasien] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isPopupOpen, setIsPopupOpen] = useState(false); // ✅ Popup state
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user"));
@@ -32,18 +33,36 @@ function Halaman4({ onPre, onBookingSaved }) {
   };
 
   const handleKonfirmasi = async () => {
-    if (!savedInput || !pasien || !user) return;
-  
+    if (!savedInput || !pasien || !user) {
+      setError("Data tidak lengkap. Silakan lengkapi data terlebih dahulu.");
+      return;
+    }
+    
+    // Validasi alamat untuk house call
+    if (savedInput.jenisLayanan === "house call" && (!savedInput.lokasi || savedInput.lokasi.trim() === "")) {
+      setError("Alamat untuk house call tidak boleh kosong.");
+      return;
+    }
+
+    // Log data yang akan disimpan
+    console.log("Jenis layanan:", savedInput.jenisLayanan);
+    console.log("Lokasi dari input:", savedInput.lokasi);
+    
+    // Prepare booking data object sesuai dengan skema
     const bookingData = {
       id_pasien: pasien._id,
-      pilih_tanggal: savedInput.tanggal,
-      keluhan: savedInput.keluhan,
-      nama: `${pasien.nama} (${pasien.jenis})`, // ✅ Gabungkan nama dan jenis hewan
+      pilih_tanggal: savedInput.tanggal, // Format YYYY-MM-DD
+      keluhan: savedInput.keluhan || "-",
+      nama: `${pasien.nama} (${pasien.jenis})`,
+      kategori: pasien.kategori,
+      jenis_layanan: savedInput.jenisLayanan, // onsite atau house call
+      alamat: savedInput.lokasi, // Gunakan lokasi yang telah diinput di Halaman3
       pelayanans1: [
         {
           id_pelayanan: savedInput.layanan.value,
           nama: savedInput.layanan.label,
           jumlah: 1,
+          tanggal: new Date().toISOString()
         },
       ],
       administrasis1: [
@@ -51,25 +70,38 @@ function Halaman4({ onPre, onBookingSaved }) {
           id_user: user._id,
           catatan: "-",
           status_administrasi: "menunggu respon administrasi",
-          tanggal: new Date(),
+          tanggal: new Date().toISOString(),
         },
       ],
+      status_booking: "menunggu respon administrasi", // Menetapkan status booking awal
+      biaya: 0, // Biaya default
     };
   
     try {
       setLoading(true);
+      setError(null);
+      
+      console.log("Submitting booking data:", bookingData); // Debugging
       const response = await createBooking(bookingData);
+      console.log("Booking response:", response); // Debugging
   
+      // Clear local storage
       localStorage.removeItem("savedInput");
       localStorage.removeItem("selectedPasienData");
   
+      // Clear state
       setSavedInput(null);
       setPasien(null);
   
+      // Call callback functions
       if (onBookingSaved) onBookingSaved();
       onPre();
     } catch (error) {
-      alert("❌ Gagal booking: " + (error.response?.data?.message || error.message));
+      console.error("Error during booking:", error);
+      setError(
+        error.response?.data?.message || 
+        "Gagal membuat booking. Silakan coba lagi."
+      );
     } finally {
       setLoading(false);
     }
@@ -98,6 +130,12 @@ function Halaman4({ onPre, onBookingSaved }) {
     );
   }
 
+  // Dapatkan label untuk jenis layanan
+  const jenisLayananLabel = savedInput.jenisLayananLabel || 
+    (savedInput.jenisLayanan === "onsite" ? "Onsite (Booking Online)" : 
+     savedInput.jenisLayanan === "house call" ? "House Call (Booking Online)" : 
+     savedInput.jenisLayanan);
+
   return (
     <div className="hal4">
       <p><strong>Nama Klien :</strong> {user?.nama}</p>
@@ -105,7 +143,7 @@ function Halaman4({ onPre, onBookingSaved }) {
       <p><strong>Nama Hewan :</strong> {pasien.nama}</p>
       <p><strong>Jenis Hewan :</strong> {pasien.jenis}</p>
       <p><strong>Kategori Hewan :</strong> {pasien.kategori}</p>
-      <p><strong>Jenis Pelayanan :</strong> {savedInput.jenisLayanan}</p>
+      <p><strong>Jenis Pelayanan :</strong> {jenisLayananLabel}</p>
       <p><strong>Waktu Pemeriksaan :</strong> {formatTanggal(savedInput.tanggal)}</p>
       <p><strong>Lokasi Pemeriksaan :</strong> {savedInput.lokasi}</p>
       <p><strong>Keluhan :</strong> {savedInput.keluhan}</p>
@@ -116,6 +154,12 @@ function Halaman4({ onPre, onBookingSaved }) {
         * Jangan lupa untuk datang sesuai hari booking anda
       </p>
 
+      {error && (
+        <div className="error-message" style={{ color: "red", margin: "10px 0", padding: "10px", background: "#ffeeee", borderRadius: "5px" }}>
+          {error}
+        </div>
+      )}
+
       <button
         className="btn-konfirmasi"
         onClick={openPopup}
@@ -124,7 +168,7 @@ function Halaman4({ onPre, onBookingSaved }) {
         {loading ? "Memproses..." : "Konfirmasi"}
       </button>
 
-      {/* ✅ Popup Konfirmasi */}
+      {/* Popup Konfirmasi */}
       <Popup
         isOpen={isPopupOpen}
         onClose={closePopup}

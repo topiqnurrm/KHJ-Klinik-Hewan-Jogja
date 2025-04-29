@@ -50,6 +50,7 @@ const data = [
         tanggal: new Date('2025-05-15')
       }
     ],
+    kategori: "ternak",
   },
   {
     _id: new mongoose.Types.ObjectId('67f0aca488fa9662fb8c215c'),
@@ -83,6 +84,7 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
+    kategori: "ternak",
   },
   {
     _id: new mongoose.Types.ObjectId('67f0aca488fa9662fb8c2160'),
@@ -111,6 +113,7 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
+    kategori: "ternak",
   },
   {
     id_pasien: samplePasienId3,
@@ -140,6 +143,7 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
+    kategori: "ternak",
   },
   {
     id_pasien: samplePasienId3,
@@ -168,6 +172,7 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
+    kategori: "kesayangan / satwa liar",
   },
   {
     id_pasien: samplePasienId3,
@@ -196,6 +201,7 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
+    kategori: "kesayangan / satwa liar",
   },
   {
     id_pasien: samplePasienId3,
@@ -224,6 +230,7 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
+    kategori: "kesayangan / satwa liar",
   },
   {
     id_pasien: samplePasienId3,
@@ -252,6 +259,7 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
+    kategori: "kesayangan / satwa liar",
   },
   {
     id_pasien: samplePasienId3,
@@ -280,6 +288,7 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
+    kategori: "kesayangan / satwa liar",
   },
   {
     id_pasien: samplePasienId3,
@@ -308,6 +317,7 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
+    kategori: "unggas",
   },
   {
     id_pasien: samplePasienId3,
@@ -336,6 +346,7 @@ const data = [
         tanggal: new Date('2025-05-16')
       }
     ],
+    kategori: "unggas",
   },
 ];
 

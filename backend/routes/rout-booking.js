@@ -1,12 +1,12 @@
 import express from 'express';
 import Booking from '../models/booking.js';
 import Hewan from '../models/pasien.js'; 
-
 import Pelayanan from '../models/pelayanan.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
-// Update the booking creation endpoint to ensure nama and pelayanan details are saved
+// Update the booking creation endpoint to ensure nama, pelayanan, and alamat details are saved
 router.post('/booking', async (req, res) => {
   try {
     const {
@@ -14,42 +14,67 @@ router.post('/booking', async (req, res) => {
       pilih_tanggal,
       keluhan,
       nama,
+      kategori,
+      jenis_layanan,
+      alamat, // Add alamat field
       status_booking = 'menunggu respon administrasi',
       pelayanans1 = [],
       administrasis1 = []
     } = req.body;
 
-    // Validations remain the same...
+    // Validate required fields
+    if (!id_pasien) {
+      return res.status(400).json({ message: 'ID pasien diperlukan' });
+    }
+    
+    if (!pilih_tanggal) {
+      return res.status(400).json({ message: 'Tanggal diperlukan' });
+    }
+
+    // Validate alamat for house call
+    if (jenis_layanan === 'house call' && !alamat) {
+      return res.status(400).json({ message: 'Alamat diperlukan untuk house call' });
+    }
 
     // If nama is not provided but id_pasien is, fetch the name
     let pasienNama = nama;
-    if (!pasienNama && id_pasien) {
+    let pasienKategori = kategori;
+    
+    if ((!pasienNama || !pasienKategori) && id_pasien) {
       try {
         const pasien = await Hewan.findById(id_pasien);
         if (pasien) {
-          pasienNama = pasien.nama;
+          if (!pasienNama) pasienNama = `${pasien.nama} (${pasien.jenis})`;
+          if (!pasienKategori) pasienKategori = pasien.kategori;
         }
       } catch (err) {
-        console.error('Error fetching pasien name:', err);
+        console.error('Error fetching pasien data:', err);
       }
     }
 
     // Process pelayanans1 to ensure service names are included
     const processedPelayanans = [...pelayanans1];
     for (let i = 0; i < processedPelayanans.length; i++) {
-      if (!processedPelayanans[i].nama && processedPelayanans[i].id_pelayanan) {
+      if (processedPelayanans[i].id_pelayanan) {
         try {
-          // Assuming you have a Pelayanan model
+          // Fetch the pelayanan service details
           const pelayanan = await Pelayanan.findById(processedPelayanans[i].id_pelayanan);
           if (pelayanan) {
-            processedPelayanans[i].nama = pelayanan.nama;
+            // Make sure to include both name and service type
+            if (!processedPelayanans[i].nama) {
+              processedPelayanans[i].nama = pelayanan.nama;
+            }
+            if (!processedPelayanans[i].jenis_layanan) {
+              processedPelayanans[i].jenis_layanan = pelayanan.jenis_layanan;
+            }
           }
         } catch (err) {
-          console.error('Error fetching pelayanan name:', err);
+          console.error('Error fetching pelayanan details:', err);
         }
       }
     }
 
+    // Create booking object with all fields including alamat
     const newBooking = new Booking({
       id_pasien,
       pilih_tanggal,
@@ -57,6 +82,9 @@ router.post('/booking', async (req, res) => {
       status_booking,
       pelayanans1: processedPelayanans,
       nama: pasienNama,
+      kategori: pasienKategori,
+      jenis_layanan,
+      alamat, // Include alamat field
       administrasis1
     });
 
@@ -64,7 +92,7 @@ router.post('/booking', async (req, res) => {
 
     res.status(201).json({ message: 'Booking berhasil ditambahkan', booking: newBooking });
   } catch (error) {
-    console.error(error);
+    console.error('Error creating booking:', error);
     res.status(500).json({ message: 'Terjadi kesalahan saat menambahkan booking' });
   }
 });
@@ -128,33 +156,28 @@ router.get('/all', async (req, res) => {
     }
   });
 
-
-
-  // 🔔 Endpoint untuk cek apakah ada booking belum selesai
-  import mongoose from 'mongoose';
-
-  router.get('/ada-booking-belum-selesai/:id_pasien', async (req, res) => {
-    try {
-      const { id_pasien } = req.params;
+// 🔔 Endpoint untuk cek apakah ada booking belum selesai
+router.get('/ada-booking-belum-selesai/:id_pasien', async (req, res) => {
+  try {
+    const { id_pasien } = req.params;
   
-      // Ubah string jadi ObjectId
-      const idPasienObj = new mongoose.Types.ObjectId(id_pasien);
+    // Ubah string jadi ObjectId
+    const idPasienObj = new mongoose.Types.ObjectId(id_pasien);
   
-      const count = await Booking.countDocuments({
-        id_pasien: idPasienObj,
-        status_booking: { $ne: "selesai" }
-      });
+    const count = await Booking.countDocuments({
+      id_pasien: idPasienObj,
+      status_booking: { $ne: "selesai" }
+    });
   
-      console.log("ID pasien:", id_pasien);
-      console.log("Jumlah booking belum selesai:", count);
+    console.log("ID pasien:", id_pasien);
+    console.log("Jumlah booking belum selesai:", count);
   
-      res.json({ ada: count > 0 });
-    } catch (error) {
-      console.error('Gagal cek booking belum selesai:', error);
-      res.status(500).json({ message: 'Terjadi kesalahan saat cek status booking' });
-    }
-  });  
-
+    res.json({ ada: count > 0 });
+  } catch (error) {
+    console.error('Gagal cek booking belum selesai:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan saat cek status booking' });
+  }
+});  
 
 // 🔍 Ambil semua booking berdasarkan ID pasien
 router.get('/by-user/:id_pasien', async (req, res) => {
@@ -167,11 +190,6 @@ router.get('/by-user/:id_pasien', async (req, res) => {
     res.status(500).json({ message: 'Terjadi kesalahan saat mengambil data booking user' });
   }
 });
-
-
-export default router;
-
-
 
 // 🔍 Cek apakah user punya booking belum selesai
 router.get('/cek-booking-user/:id_user', async (req, res) => {
@@ -200,8 +218,6 @@ router.get('/cek-booking-user/:id_user', async (req, res) => {
     res.status(500).json({ message: 'Terjadi kesalahan saat cek booking user' });
   }
 });
-
-
 
 // 🗑️ Delete booking by ID
 router.delete('/delete/:id', async (req, res) => {
@@ -268,17 +284,21 @@ router.put('/update/:id', async (req, res) => {
     
     // If pelayanans1 exists in the update data, process it to ensure service names are included
     if (updateData.pelayanans1 && updateData.pelayanans1.length > 0) {
-      // If pelayanan objects don't have nama field, fetch them from the database
       for (let i = 0; i < updateData.pelayanans1.length; i++) {
-        if (!updateData.pelayanans1[i].nama && updateData.pelayanans1[i].id_pelayanan) {
+        if (updateData.pelayanans1[i].id_pelayanan) {
           try {
-            // Assuming you have a Pelayanan model
             const pelayanan = await Pelayanan.findById(updateData.pelayanans1[i].id_pelayanan);
             if (pelayanan) {
-              updateData.pelayanans1[i].nama = pelayanan.nama;
+              // Make sure to include both name and service type
+              if (!updateData.pelayanans1[i].nama) {
+                updateData.pelayanans1[i].nama = pelayanan.nama;
+              }
+              if (!updateData.pelayanans1[i].jenis_layanan) {
+                updateData.pelayanans1[i].jenis_layanan = pelayanan.jenis_layanan;
+              }
             }
           } catch (err) {
-            console.error('Error fetching pelayanan name:', err);
+            console.error('Error fetching pelayanan details:', err);
           }
         }
       }
@@ -322,3 +342,5 @@ router.put('/update/:id', async (req, res) => {
     res.status(500).json({ message: 'Terjadi kesalahan saat memperbarui booking' });
   }
 });
+
+export default router;

@@ -53,7 +53,13 @@ const BookingSchema = new mongoose.Schema({
     },
     nama: {
       type: String,
-      required: false,
+      required: true,
+    },
+    kategori: {
+      type: String,
+      enum: ['ternak', 'kesayangan / satwa liar', 'unggas'],
+      required: true,
+
     },
     keluhan: {
       type: String,
@@ -100,7 +106,17 @@ const BookingSchema = new mongoose.Schema({
               //   'pembayaran', 'ambil_obat', 'selesai'],
         default: 'menunggu respon administrasi',
         required: true
-    }
+    },
+    jenis_layanan: {
+      type: String,
+      enum: ['onsite', 'house call'],
+      required: true
+    },
+    alamat: {
+      type: String,
+      required: true,
+      default: "Klinik KHJ"
+    },
 }, { timestamps: true });
 
 export default mongoose.model('Booking', BookingSchema);

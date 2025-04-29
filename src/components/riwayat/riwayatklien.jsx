@@ -5,7 +5,6 @@ import PopupEditBooking from "../popup/popupeditbooking";
 import { getBookingWithRetribusi, deleteBooking } from "../../api/api-booking";
 import "./riwayatklien.css";
 
-// Import ikon tombol
 import retribusiIcon from "./gambar/retribusi.png";
 import rekamIcon from "./gambar/rekam.png";
 import editIcon from "./gambar/edit.png";
@@ -30,8 +29,6 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [showConfirmPopup, setShowConfirmPopup] = useState(false);
     const [bookingToDelete, setBookingToDelete] = useState(null);
-    
-    // State for edit popup
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [bookingToEdit, setBookingToEdit] = useState(null);
 
@@ -47,17 +44,8 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
 
         getBookingWithRetribusi()
             .then((data) => {
-                // Filter bookings where the user ID is found in administrasis1.id_user
                 const filteredByUser = data.filter(
-                    (item) => {
-                        // Check in administrasis1.id_user
-                        const foundInAdministrasis = item.administrasis1?.some(
-                            admin => admin.id_user === userId
-                        );
-                        
-                        // If found in either location, include this booking
-                        return foundInAdministrasis;
-                    }
+                    (item) => item.administrasis1?.some(admin => admin.id_user === userId)
                 );
                 setRiwayat(filteredByUser);
                 setFiltered(filteredByUser);
@@ -83,7 +71,7 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
         let result = riwayat.filter((r) => {
             const biayaStr = formatRupiah(r.biaya);
             const layananStr = (r.pelayanans1 || [])
-                .map((p) => p.nama || p.id_pelayanan?.nama)
+                .map(p => formatServiceDisplay(p, r.jenis_layanan))
                 .filter(Boolean)
                 .join(", ");
             const catatanStr = (r.administrasis1 || [])
@@ -101,7 +89,6 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                 ${layananStr}
                 ${new Date(r.pilih_tanggal).toLocaleDateString("id-ID")}
             `.toLowerCase();
-
             return allFields.includes(lower);
         });
 
@@ -120,35 +107,27 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                     valueA = parseFloat(aVal);
                     valueB = parseFloat(bVal);
                 }
-
-                if (sortOrder === "asc") return valueA > valueB ? 1 : -1;
-                return valueA < valueB ? 1 : -1;
+                return sortOrder === "asc" ? (valueA > valueB ? 1 : -1) : (valueA < valueB ? 1 : -1);
             });
         }
 
         setFiltered(result);
     }, [searchTerm, riwayat, sortBy, sortOrder]);
 
-    // Handle delete booking
     const handleDelete = (booking) => {
         setBookingToDelete(booking);
         setShowConfirmPopup(true);
     };
 
-    // Handle edit booking
     const handleEdit = (booking) => {
         setBookingToEdit(booking);
         setShowEditPopup(true);
     };
 
-    // Handle closing the edit popup
     const handleCloseEditPopup = () => {
         setShowEditPopup(false);
         setBookingToEdit(null);
-        // Refresh the booking list after edit
         fetchRiwayat();
-        
-        // Notify parent about the change
         if (typeof onBookingDeleted === 'function') {
             onBookingDeleted();
         }
@@ -156,20 +135,16 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
 
     const confirmDeleteBooking = () => {
         if (!bookingToDelete) return;
-        
         setIsLoading(true);
         setShowConfirmPopup(false);
-        
+
         deleteBooking(bookingToDelete._id)
             .then(() => {
-                // Update the state by removing the deleted booking
                 const updatedRiwayat = riwayat.filter(r => r._id !== bookingToDelete._id);
                 setRiwayat(updatedRiwayat);
                 setFiltered(updatedRiwayat);
                 setBookingToDelete(null);
                 setIsLoading(false);
-                
-                // Call the callback to notify parent components
                 if (typeof onBookingDeleted === 'function') {
                     onBookingDeleted();
                 }
@@ -187,12 +162,10 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
         setBookingToDelete(null);
     };
 
-    // Fungsi untuk menentukan apakah tombol retribusi bisa diakses
     const canAccessRetribusi = (status) => {
         return ["mengambil obat", "selesai"].includes(status);
     };
 
-    // Fungsi untuk menentukan apakah tombol rekam medis bisa diakses
     const canAccessRekamMedis = (status) => {
         return ["dirawat inap", "menunggu pembayaran", "mengambil obat", "selesai"].includes(status);
     };
@@ -215,7 +188,15 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
             default:
                 return "";
         }
-    };    
+    };
+
+    // Fungsi format layanan (dengan default jenis layanan fallback)
+    const formatServiceDisplay = (pelayanan, defaultJenisLayanan) => {
+        const nama = pelayanan.nama || pelayanan.id_pelayanan?.nama || "";
+        const jenisLayanan = pelayanan.jenis_layanan || pelayanan.id_pelayanan?.jenis_layanan || defaultJenisLayanan || "";
+        const formattedJenisLayanan = jenisLayanan.charAt(0).toUpperCase() + jenisLayanan.slice(1);
+        return jenisLayanan ? `${nama} (${formattedJenisLayanan})` : nama;
+    };
 
     return (
         <>
@@ -231,9 +212,7 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                         {searchTerm && (
-                            <button className="riwayat-clear-button" onClick={() => setSearchTerm("")}>
-                                X
-                            </button>
+                            <button className="riwayat-clear-button" onClick={() => setSearchTerm("")}>X</button>
                         )}
                     </div>
 
@@ -274,10 +253,11 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                                     <th>Tgl Booking</th>
                                     <th>Nama Hewan</th>
                                     <th>Keluhan</th>
-                                    <th>Biaya</th>
-                                    <th>Catatan</th>
+                                    <th>Lokasi</th>
                                     <th>Layanan</th>
+                                    <th>Catatan</th>
                                     <th>Status</th>
+                                    <th>Biaya</th>
                                     <th>Tgl Update</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -295,70 +275,50 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                                             <td>{new Date(r.pilih_tanggal).toLocaleDateString("id-ID")}</td>
                                             <td>{r.nama || r.id_pasien?.nama || "Tidak diketahui"}</td>
                                             <td>{r.keluhan}</td>
-                                            <td>{formatRupiah(r.biaya)}</td>
-                                            <td>{r.administrasis1?.[0]?.catatan || "-"}</td>
+                                            <td>{r.alamat || "-"}</td>
                                             <td>
                                                 {(r.pelayanans1 || [])
-                                                    .map((p) => p.nama || p.id_pelayanan?.nama)
+                                                    .map(p => formatServiceDisplay(p, r.jenis_layanan))
                                                     .filter(Boolean)
                                                     .join(", ") || "-"}
                                             </td>
+                                            <td>{r.administrasis1?.[0]?.catatan || "-"}</td>
                                             <td>
                                                 <span className={`status-label ${getStatusClass(r.status_booking)}`}>
                                                     {r.status_booking}
                                                 </span>
                                             </td>
+                                            <td>{formatRupiah(r.biaya)}</td>
                                             <td>{new Date(r.updatedAt).toLocaleString()}</td>
                                             <td className="riwayat-actions">
-                                                {[
-                                                    "sedang diperiksa",
-                                                    "dirawat inap",
-                                                    "menunggu pembayaran",
-                                                    "mengambil obat",
-                                                    "selesai",
-                                                ].includes(r.status_booking) && (
+                                                {["sedang diperiksa", "dirawat inap", "menunggu pembayaran", "mengambil obat", "selesai"].includes(r.status_booking) && (
                                                     <>
-                                                    <button 
-                                                        className={`btn-blue ${canAccessRetribusi(r.status_booking) ? '' : 'disabled'}`} 
-                                                        title="Lihat Retribusi" 
-                                                        onClick={() => canAccessRetribusi(r.status_booking) && alert(`Lihat retribusi ${r._id}`)}
-                                                        disabled={!canAccessRetribusi(r.status_booking)}
-                                                    >
-                                                        <img src={retribusiIcon} alt="retribusi" />
-                                                    </button>
-                                                    <button 
-                                                        className={`btn-blue ${canAccessRekamMedis(r.status_booking) ? '' : 'disabled'}`} 
-                                                        title="Rekam Medis" 
-                                                        onClick={() => canAccessRekamMedis(r.status_booking) && alert(`Lihat rekam medis ${r._id}`)}
-                                                        disabled={!canAccessRekamMedis(r.status_booking)}
-                                                    >
-                                                        <img src={rekamIcon} alt="rekam" />
-                                                    </button>
+                                                        <button 
+                                                            className={`btn-blue ${canAccessRetribusi(r.status_booking) ? '' : 'disabled'}`} 
+                                                            title="Lihat Retribusi" 
+                                                            onClick={() => canAccessRetribusi(r.status_booking) && alert(`Lihat retribusi ${r._id}`)}
+                                                            disabled={!canAccessRetribusi(r.status_booking)}
+                                                        >
+                                                            <img src={retribusiIcon} alt="retribusi" />
+                                                        </button>
+                                                        <button 
+                                                            className={`btn-blue ${canAccessRekamMedis(r.status_booking) ? '' : 'disabled'}`} 
+                                                            title="Rekam Medis" 
+                                                            onClick={() => canAccessRekamMedis(r.status_booking) && alert(`Lihat rekam medis ${r._id}`)}
+                                                            disabled={!canAccessRekamMedis(r.status_booking)}
+                                                        >
+                                                            <img src={rekamIcon} alt="rekam" />
+                                                        </button>
                                                     </>
                                                 )}
-
-                                                {[
-                                                    "menunggu respon administrasi",
-                                                    "disetujui administrasi",
-                                                    "ditolak administrasi",
-                                                    "dibatalkan administrasi",
-                                                ].includes(r.status_booking) && (
+                                                {["menunggu respon administrasi", "disetujui administrasi", "ditolak administrasi", "dibatalkan administrasi"].includes(r.status_booking) && (
                                                     <>
-                                                    <button 
-                                                        className="btn-green" 
-                                                        title="Edit" 
-                                                        onClick={() => handleEdit(r)}
-                                                    >
-                                                        <img src={editIcon} alt="edit" />
-                                                    </button>
-                                                    <button 
-                                                        className="btn-red" 
-                                                        title="Hapus" 
-                                                        onClick={() => handleDelete(r)}
-                                                        disabled={isLoading}
-                                                    >
-                                                        <img src={hapusIcon} alt="hapus" />
-                                                    </button>
+                                                        <button className="btn-green" title="Edit" onClick={() => handleEdit(r)}>
+                                                            <img src={editIcon} alt="edit" />
+                                                        </button>
+                                                        <button className="btn-red" title="Hapus" onClick={() => handleDelete(r)} disabled={isLoading}>
+                                                            <img src={hapusIcon} alt="hapus" />
+                                                        </button>
                                                     </>
                                                 )}
                                             </td>
@@ -371,21 +331,14 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                 </div>
             </Popup>
 
-            {/* Add PopupEditBooking component */}
-            <PopupEditBooking 
-                isOpen={showEditPopup} 
-                onClose={handleCloseEditPopup} 
-                bookingData={bookingToEdit} 
-            />
-
-            {/* Use your ConfirmPopup for delete confirmation */}
+            <PopupEditBooking isOpen={showEditPopup} onClose={handleCloseEditPopup} bookingData={bookingToEdit} />
             <ConfirmPopup
                 isOpen={showConfirmPopup}
                 onClose={cancelDelete}
                 title="Konfirmasi Hapus"
                 description={
                     <p>
-                        Apakah Anda yakin ingin menghapus booking untuk <strong>{bookingToDelete?.nama || bookingToDelete?.id_pasien?.nama || 'hewan ini'},</strong> 
+                        Apakah Anda yakin ingin menghapus booking untuk <strong>{bookingToDelete?.nama || bookingToDelete?.id_pasien?.nama || 'hewan ini'}</strong>, 
                         <br />pada booking tanggal <strong>{bookingToDelete ? new Date(bookingToDelete.pilih_tanggal).toLocaleDateString("id-ID") : ''}</strong>?
                     </p>
                 }
