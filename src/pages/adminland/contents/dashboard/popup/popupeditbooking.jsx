@@ -9,10 +9,11 @@ import { fetchLayanan } from "../../../../../api/api-pelayanan";
 import { checkBookingAvailability, updateBooking } from "../../../../../api/api-booking";
 
 // Custom select styles remain the same
+// Update the customSelectStyles to handle the disabled state
 const customSelectStyles = {
   control: (provided, state) => ({
     ...provided,
-    backgroundColor: "#ecfcf7",
+    backgroundColor: "#d9d9d9", // Changed from #ecfcf7 to #d9d9d9 to match other inputs
     border: "1px solid #333",
     borderRadius: "7px",
     padding: "0px 4px",
@@ -26,6 +27,8 @@ const customSelectStyles = {
     '&:hover': {
       border: "1px solid #333",
     },
+    // Ensure the background color remains #d9d9d9 even when disabled
+    opacity: state.isDisabled ? 0.9 : 1,
   }),
   menu: (provided) => ({
     ...provided,
@@ -38,13 +41,17 @@ const customSelectStyles = {
     color: "#333",
     fontSize: "0.95rem",
   }),
-  singleValue: (provided) => ({
+  singleValue: (provided, state) => ({
     ...provided,
     color: "#3F4254",
+    // Ensure text color remains visible when disabled
+    opacity: state.isDisabled ? 0.8 : 1,
   }),
-  placeholder: (provided) => ({
+  placeholder: (provided, state) => ({
     ...provided,
     color: "#999",
+    // Ensure placeholder remains visible when disabled
+    opacity: state.isDisabled ? 0.7 : 1,
   }),
   valueContainer: (provided) => ({
     ...provided,
@@ -58,6 +65,11 @@ const customSelectStyles = {
     ...provided,
     maxHeight: "150px",
     overflowY: "auto",
+  }),
+  // Add styling for the disabled state
+  container: (provided, state) => ({
+    ...provided,
+    opacity: state.isDisabled ? 0.9 : 1,
   }),
 };
 
@@ -84,7 +96,6 @@ const jenisLayananOptions = [
 
 const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
   const [selectedPasien, setSelectedPasien] = useState(null);
-  const [pasienOptions, setPasienOptions] = useState([]);
   const [rawPasienData, setRawPasienData] = useState([]);
   const [layananOptions, setLayananOptions] = useState([]);
   const [selectedLayanan, setSelectedLayanan] = useState(null);
@@ -96,10 +107,12 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
   const [messageType, setMessageType] = useState("");
   const [loading, setLoading] = useState(true);
   // New state for jenis layanan
-  const [selectedJenisLayanan, setSelectedJenisLayanan] = useState(jenisLayananOptions[0]);
-  const [lokasiPemeriksaan, setLokasiPemeriksaan] = useState("Klinik Hewan A");
+  const [selectedJenisLayanan, setSelectedJenisLayanan] = useState(null);
+  const [lokasiPemeriksaan, setLokasiPemeriksaan] = useState("");
   // State to track form submission
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // State to track if lokasi is editable
+  const [isLokasiEditable, setIsLokasiEditable] = useState(false);
   
   // Store original data for comparison
   const [originalData, setOriginalData] = useState({
@@ -107,8 +120,8 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
     layananId: "",
     date: "",
     complaint: "",
-    jenisLayanan: "onsite",
-    lokasi: "Klinik Hewan A"
+    jenisLayanan: "",
+    lokasi: ""
   });
 
   const fetchMonthAvailability = async (date) => {
@@ -119,7 +132,7 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const promises = [];
   
-    // Pastikan kita menggunakan ID booking yang sedang diedit
+    // Use the ID of the booking being edited
     const bookingId = bookingData?._id;
   
     for (let day = 1; day <= daysInMonth; day++) {
@@ -145,6 +158,26 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
     if (!isOpen || !bookingData) return;
 
     setLoading(true);
+    
+    // Instead of fetching all patients, just use the booking data
+    if (bookingData?.id_pasien && bookingData?.nama) {
+      // Create an option directly from the booking data
+      const patientOption = {
+        value: typeof bookingData.id_pasien === 'object' ? bookingData.id_pasien._id : bookingData.id_pasien,
+        label: bookingData.nama
+      };
+      
+      // Set this as the selected patient
+      setSelectedPasien(patientOption);
+      
+      // Save to original data
+      setOriginalData(prev => ({
+        ...prev,
+        pasienId: patientOption.value
+      }));
+    }
+
+    // Still fetch patient data for later use (if needed for saving)
     const fetchDataPasien = async () => {
       const storedUser = JSON.parse(localStorage.getItem("user"));
       const userId = storedUser?._id;
@@ -153,23 +186,6 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
         try {
           const pasienData = await getPasienByUserId(userId);
           setRawPasienData(pasienData);
-          const formattedOptions = pasienData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((item) => ({
-            value: item._id,
-            label: `${item.nama} (${item.jenis})`,
-          }));
-          setPasienOptions(formattedOptions);
-          
-          // Find and set the current pasien from booking data
-          if (bookingData?.id_pasien?._id) {
-            const currentPasien = formattedOptions.find(option => option.value === bookingData.id_pasien._id);
-            setSelectedPasien(currentPasien || null);
-            
-            // Save to original data
-            setOriginalData(prev => ({
-              ...prev,
-              pasienId: bookingData.id_pasien._id
-            }));
-          }
         } catch (error) {
           console.error("Gagal mengambil data pasien:", error);
         }
@@ -184,13 +200,17 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
         
         // Find and set the current layanan from booking data
         if (bookingData?.pelayanans1?.[0]?.id_pelayanan) {
-          const currentLayanan = sortedLayanan.find(l => l.value === bookingData.pelayanans1[0].id_pelayanan._id);
+          const serviceId = typeof bookingData.pelayanans1[0].id_pelayanan === 'object' 
+            ? bookingData.pelayanans1[0].id_pelayanan._id 
+            : bookingData.pelayanans1[0].id_pelayanan;
+            
+          const currentLayanan = sortedLayanan.find(l => l.value === serviceId);
           setSelectedLayanan(currentLayanan || null);
           
           // Save to original data
           setOriginalData(prev => ({
             ...prev,
-            layananId: bookingData.pelayanans1[0].id_pelayanan._id
+            layananId: serviceId
           }));
         }
       } catch (error) {
@@ -231,18 +251,21 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
       if (currentJenisLayanan) {
         setSelectedJenisLayanan(currentJenisLayanan);
         
-        // Update lokasi pemeriksaan based on jenis layanan
-        if (currentJenisLayanan.value === "onsite") {
-          setLokasiPemeriksaan("Klinik Hewan A");
-        } else if (currentJenisLayanan.value === "house call") {
-          setLokasiPemeriksaan("Alamat Rumah Anda");
+        // Set if lokasi is editable based on jenis layanan
+        setIsLokasiEditable(currentJenisLayanan.value === "house call");
+        
+        // Set lokasi from booking data
+        let locationValue = "Klinik KHJ";  // Changed from "Klinik Hewan A" to "Klinik KHJ"
+        if (currentJenisLayanan.value === "house call") {
+          locationValue = bookingData.alamat || "Alamat Rumah Anda";
         }
+        setLokasiPemeriksaan(locationValue);
         
         // Save to original data
         setOriginalData(prev => ({
           ...prev,
           jenisLayanan: bookingData.jenis_layanan,
-          lokasi: currentJenisLayanan.value === "onsite" ? "Klinik Hewan A" : "Alamat Rumah Anda"
+          lokasi: locationValue
         }));
       }
     }
@@ -252,18 +275,24 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
     setLoading(false);
   }, [isOpen, bookingData]);
 
+  // Update lokasi editable state whenever jenis layanan changes
+  useEffect(() => {
+    if (selectedJenisLayanan) {
+      const isHouseCall = selectedJenisLayanan.value === "house call";
+      setIsLokasiEditable(isHouseCall);
+  
+      if (isHouseCall) {
+        setLokasiPemeriksaan(bookingData?.alamat || "");
+      } else {
+        setLokasiPemeriksaan("Klinik KHJ");
+      }
+    }
+  }, [selectedJenisLayanan, bookingData]);
+  
+
   useEffect(() => {
     if (calendarMonth) fetchMonthAvailability(calendarMonth);
   }, [calendarMonth]);
-
-  // Update lokasi pemeriksaan based on jenis layanan selection
-  useEffect(() => {
-    if (selectedJenisLayanan?.value === "onsite") {
-      setLokasiPemeriksaan("Klinik Hewan A");
-    } else if (selectedJenisLayanan?.value === "house call") {
-      setLokasiPemeriksaan("Alamat Rumah Anda");
-    }
-  }, [selectedJenisLayanan]);
 
   const getDayClassName = (date) => {
     const dateStr = formatLocalDate(date);
@@ -294,13 +323,15 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
     const currentDate = formatLocalDate(selectedDate);
     const currentComplaint = complaint;
     const currentJenisLayanan = selectedJenisLayanan?.value || "";
+    const currentLokasi = lokasiPemeriksaan;
     
     return (
       currentPasienId !== originalData.pasienId ||
       currentLayananId !== originalData.layananId ||
       currentDate !== originalData.date ||
       currentComplaint !== originalData.complaint ||
-      currentJenisLayanan !== originalData.jenisLayanan
+      currentJenisLayanan !== originalData.jenisLayanan ||
+      currentLokasi !== originalData.lokasi
     );
   };
 
@@ -319,6 +350,17 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
     // Check complaint length
     if (complaint.length > 250) {
       setValidationMessage("Keluhan maksimal 250 karakter.");
+      setMessageType("error");
+      setTimeout(() => {
+        setValidationMessage("");
+        setMessageType("");
+      }, 2000);
+      return;
+    }
+    
+    // Check if house call has location
+    if (selectedJenisLayanan.value === "house call" && (!lokasiPemeriksaan || lokasiPemeriksaan.trim() === "")) {
+      setValidationMessage("Alamat untuk house call tidak boleh kosong.");
       setMessageType("error");
       setTimeout(() => {
         setValidationMessage("");
@@ -346,8 +388,8 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
     // Check if any data has changed
     if (!hasDataChanged()) {
       setValidationMessage("Tidak ada perubahan data booking anda.");
-      setMessageType("error"); // Changed from the default to "info" style
-      setTimeout(() => {
+      setMessageType("error");
+      setTimeout(() => {  
         setValidationMessage("");
         setMessageType("");
       }, 2000);
@@ -361,7 +403,7 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
       // Set submitting state to true
       setIsSubmitting(true);
       
-      // Cek ketersediaan khusus untuk validasi akhir sebelum update
+      // Validate availability before update
       const availabilityCheck = await checkBookingAvailability(dateStr, bookingId);
       if (availabilityCheck.tersedia === 0) {
         setValidationMessage("Kuota penuh pada tanggal tersebut. Pilih tanggal lain.");
@@ -370,27 +412,53 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
           setValidationMessage("");
           setMessageType("");
         }, 2000);
-        setIsSubmitting(false); // Reset submitting state
+        setIsSubmitting(false);
         return;
       }
       
-      // Sekarang lakukan update booking yang sebenarnya
-      // Tambahkan status_booking untuk set kembali ke "menunggu respon administrasi"
-      const updatedBooking = await updateBooking(bookingId, {
+      // Create update object based on the service type
+      const updateObject = {
         id_pasien: selectedPasien.value,
         pilih_tanggal: formatLocalDate(selectedDate),
         keluhan: complaint,
         pelayanans1: [{ id_pelayanan: selectedLayanan.value }],
         jenis_layanan: selectedJenisLayanan.value,
-        status_booking: "menunggu respon administrasi" // Set status booking kembali ke menunggu
-      });
+        status_booking: "menunggu respon administrasi" // Reset status
+      };
+
+      // Add alamat field only for house call, otherwise it will be null/undefined
+      if (selectedJenisLayanan.value === "house call") {
+        updateObject.alamat = lokasiPemeriksaan;
+      }
+      
+      const updatedBooking = await updateBooking(bookingId, updateObject);
+      
+      // Find the patient data from the raw patient data
+      const selectedPasienData = rawPasienData.find(p => p._id === selectedPasien.value);
+      
+      // Create saved input object similar to Halaman3's format
+      const savedInput = {
+        pasien: selectedPasien,
+        layanan: selectedLayanan,
+        tanggal: formatLocalDate(selectedDate),
+        keluhan: complaint,
+        jenisLayanan: selectedJenisLayanan.value,
+        jenisLayananLabel: selectedJenisLayanan.label,
+        lokasi: lokasiPemeriksaan
+      };
+      
+      // Update localStorage with the most recent data
+      localStorage.setItem("savedInput", JSON.stringify(savedInput));
+      if (selectedPasienData) {
+        localStorage.setItem("selectedPasienData", JSON.stringify(selectedPasienData));
+      }
       
       setValidationMessage("Data booking berhasil diperbarui!");
       setMessageType("success");
       setTimeout(() => {
         setValidationMessage("");
         setMessageType("");
-        setIsSubmitting(false); // Reset submitting state
+        setIsSubmitting(false);
         onClose(true); // Pass true to indicate successful update
       }, 2000);
     } catch (error) {
@@ -400,7 +468,7 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
       setTimeout(() => {
         setValidationMessage("");
         setMessageType("");
-        setIsSubmitting(false); // Reset submitting state
+        setIsSubmitting(false);
       }, 2000);
     }
   };
@@ -408,7 +476,7 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
-    <div className="popup-overlay-edit">
+    <div className="popup-overlay-edit-admin">
       <div className="popup-content-edit" onClick={(e) => e.stopPropagation()}>
         <h2>Edit Booking</h2>
         <div className="wadah-ini">
@@ -425,15 +493,19 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
                 
                 {/* Form Fields */}
                 <div className="form-group-edit">
-                <label>Pilih Pasien *</label>
-                <Select
-                    styles={customSelectStyles}
-                    options={pasienOptions}
-                    placeholder="Pilih Pasien"
-                    onChange={setSelectedPasien}
-                    value={selectedPasien}
-                    isDisabled={isSubmitting} // Disable during submission
-                />
+                <label>Pasien *</label>
+                {/* Changed from Select to a simple display since we're using the name directly */}
+                <div className="input-field-edit disabled-field" style={{ 
+                  backgroundColor: "#ecfcf7", 
+                  border: "1px solid #333",
+                  borderRadius: "7px",
+                  padding: "8px 12px",
+                  color: "#3F4254",
+                  fontSize: "0.95rem",
+                  pointerEvents: "none"
+                }}>
+                  {selectedPasien?.label || "Loading..."}
+                </div>
                 </div>
                 
                 <div className="form-group-edit">
@@ -444,7 +516,7 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
                     placeholder="Pilih Layanan"
                     onChange={setSelectedLayanan}
                     value={selectedLayanan}
-                    isDisabled={isSubmitting} // Disable during submission
+                    isDisabled={isSubmitting}
                 />
                 </div>
 
@@ -462,7 +534,7 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
                     dateFormat="yyyy-MM-dd"
                     placeholderText="Pilih tanggal"
                     className="datepicker-custom-edit"
-                    disabled={isSubmitting} // Disable during submission
+                    disabled={isSubmitting}
                     renderCustomHeader={({
                     date, changeYear, changeMonth,
                     decreaseMonth, increaseMonth,
@@ -473,7 +545,7 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
                         <select 
                           value={date.getFullYear()} 
                           onChange={({ target: { value } }) => changeYear(Number(value))}
-                          disabled={isSubmitting} // Disable during submission
+                          disabled={isSubmitting}
                         >
                         {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i).map((year) => (
                             <option key={year} value={year}>{year}</option>
@@ -482,7 +554,7 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
                         <select 
                           value={date.getMonth()} 
                           onChange={({ target: { value } }) => changeMonth(Number(value))}
-                          disabled={isSubmitting} // Disable during submission
+                          disabled={isSubmitting}
                         >
                         {[
                             "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -516,7 +588,7 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
                     }
                     }}
                     placeholder="Masukkan keluhan (maks. 250 karakter)"
-                    disabled={isSubmitting} // Disable during submission
+                    disabled={isSubmitting}
                 />
                 <div style={{ textAlign: "right", fontSize: "0.85rem", color: complaint.length > 240 ? "#c00" : "#666" }}>
                     {complaint.length}/250
@@ -531,13 +603,29 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
                     placeholder="Pilih Jenis Layanan"
                     onChange={setSelectedJenisLayanan}
                     value={selectedJenisLayanan}
-                    isDisabled={isSubmitting} // Disable during submission
+                    isDisabled={isSubmitting}
                 />
                 </div>
 
                 <div className="form-group-edit">
-                <label className="warna">Pilih Lokasi Pemeriksaan *</label>
-                <input className="warna" type="text" value={lokasiPemeriksaan} readOnly disabled={isSubmitting} />
+                  <label>Lokasi Pemeriksaan *</label>
+                  {selectedJenisLayanan?.value === "house call" ? (
+                    <input
+                      type="text"
+                      placeholder="Masukkan alamat pemeriksaan"
+                      value={lokasiPemeriksaan}
+                      onChange={(e) => setLokasiPemeriksaan(e.target.value)}
+                      disabled={isSubmitting}
+                      className="input-field-edit"
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value="Klinik KHJ"
+                      disabled
+                      className="input-field-edit"
+                    />
+                  )}
                 </div>
             </div>
             )}
@@ -555,7 +643,7 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
                   type="button" 
                   className="popup-button cancel" 
                   onClick={onClose}
-                  disabled={isSubmitting || loading} // Disable during loading or submission
+                  disabled={isSubmitting || loading}
                 >
                   Batal
                 </button>
@@ -563,7 +651,7 @@ const PopupEditBooking = ({ isOpen, onClose, bookingData }) => {
                   type="button" 
                   className="popup-button confirm" 
                   onClick={handleUpdate}
-                  disabled={isSubmitting || loading} // Disable during loading or submission
+                  disabled={isSubmitting || loading}
                 >
                   {isSubmitting ? "Memproses..." : "Perbarui"}
                 </button>

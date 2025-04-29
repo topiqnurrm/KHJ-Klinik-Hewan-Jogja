@@ -47,6 +47,11 @@ const Dashboard = ({ setActiveMenu }) => {
     kesayangan: 0,
     unggas: 0
   });
+  // Add new state for booking types
+  const [bookingTypes, setBookingTypes] = useState({
+    onsite: 0,
+    houseCall: 0
+  });
 
   // States for popups
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
@@ -102,6 +107,15 @@ const Dashboard = ({ setActiveMenu }) => {
       default:
         return "";
     }
+  };
+
+  // Format kategori with proper capitalization
+  const formatKategori = (kategori) => {
+    if (!kategori) return "-";
+    if (kategori === "kesayangan / satwa liar") {
+      return "Kesayangan / Satwa Liar";
+    }
+    return kategori.charAt(0).toUpperCase() + kategori.slice(1);
   };
 
   // Access control functions
@@ -203,6 +217,10 @@ const Dashboard = ({ setActiveMenu }) => {
     const bookingStatuses = ['menunggu respon administrasi', 'disetujui administrasi', 'ditolak administrasi', 'dibatalkan administrasi'];
     const bookingCount = filteredData.filter(booking => bookingStatuses.includes(booking.status_booking)).length;
     
+    // Calculate booking types counts
+    const onsiteCount = filteredData.filter(booking => booking.jenis_layanan === 'onsite').length;
+    const houseCallCount = filteredData.filter(booking => booking.jenis_layanan === 'house call').length;
+    
     // Calculate category distribution for pie chart
     const categoryDistribution = {
       ternak: 0,
@@ -226,6 +244,10 @@ const Dashboard = ({ setActiveMenu }) => {
     setVisitsCount(visitCount);
     setBookingsCount(bookingCount);
     setCategoryData(categoryDistribution);
+    setBookingTypes({
+      onsite: onsiteCount,
+      houseCall: houseCallCount
+    });
     
   }, [bookings, selectedDate, startDate, endDate]);
 
@@ -304,6 +326,7 @@ const Dashboard = ({ setActiveMenu }) => {
           .filter(Boolean)
           .join(", ");
         const userName = booking.administrasis1?.[0]?.user_name || "Tidak diketahui";
+        const kategoriStr = booking.kategori || "";
         
         const allFields = `
           ${booking.nama || booking.id_pasien?.nama || ""}
@@ -316,6 +339,9 @@ const Dashboard = ({ setActiveMenu }) => {
           ${biayaStr}
           ${layananStr}
           ${new Date(booking.pilih_tanggal).toLocaleDateString("id-ID")}
+          ${booking.alamat || ""}
+          ${booking.jenis_layanan || ""}
+          ${kategoriStr}
         `.toLowerCase();
 
         return allFields.includes(lower);
@@ -340,6 +366,15 @@ const Dashboard = ({ setActiveMenu }) => {
           const bVal = b.biaya?.$numberDecimal ?? b.biaya ?? 0;
           valueA = parseFloat(aVal);
           valueB = parseFloat(bVal);
+        } else if (sortBy === "alamat") {
+          valueA = (a.alamat || "").toLowerCase();
+          valueB = (b.alamat || "").toLowerCase();
+        } else if (sortBy === "jenis_layanan") {
+          valueA = (a.jenis_layanan || "").toLowerCase();
+          valueB = (b.jenis_layanan || "").toLowerCase();
+        } else if (sortBy === "kategori") {
+          valueA = (a.kategori || "").toLowerCase();
+          valueB = (b.kategori || "").toLowerCase();
         }
 
         if (sortOrder === "asc") return valueA > valueB ? 1 : -1;
@@ -422,7 +457,7 @@ const Dashboard = ({ setActiveMenu }) => {
   return (
     <div className="dashboard-container">
         <div className="dashboard-header">
-            <h1>Manajemen</h1>
+            <h1>Dashboard</h1>
         </div>
         <div className="wadah">
             {/* Search and Date Filter */}
@@ -467,22 +502,30 @@ const Dashboard = ({ setActiveMenu }) => {
 
             <div className="dashboard-content">
                 <div className="cards-section1">
-                <div className="card">
-                    <h2>{visitsCount}</h2>
-                    <p>Kunjungan {selectedDate ? " Tanggal Ini" : startDate && endDate ? " Pada Rentang Ini" : " (All)"}</p>
-                    <button onClick={handleReportClick}>Laporan {'>'}</button>
+                  <div className="card1">
+                      <h2>{visitsCount}</h2>
+                      <p>Kunjungan <br/>{selectedDate ? "(Tanggal Ini)" : startDate && endDate ? "(Pada Rentang Ini)" : " (All)"}</p>
+                  </div>
+                  <div className="card2">
+                      <h2>{bookingsCount}</h2>
+                      <p>Booking <br/>{selectedDate ? "(Tanggal Ini)" : startDate && endDate ? "(Pada Rentang Ini)" : " (All)"}</p>
+                  </div>
                 </div>
-                <div className="card">
-                    <h2>{bookingsCount}</h2>
-                    <p>Booking{selectedDate ? " Tanggal Ini" : startDate && endDate ? " Pada Rentang Ini" : " (All)"}</p>
-                    <button onClick={handleDataClick}>Data {'>'}</button>
-                </div>
+                <div className="cards-section1">
+                  <div className="card3">
+                      <h2>{bookingTypes.onsite}</h2>
+                      <p>~ Onsite <br/>Booking & kunjungan <br/>{selectedDate ? "(Tanggal Ini)" : startDate && endDate ? "(Pada Rentang Ini)" : " (All)"}</p>
+                  </div>
+                  <div className="card4">
+                      <h2>{bookingTypes.houseCall}</h2>
+                      <p>~ House Call <br/>Booking & kunjungan <br/>{selectedDate ? "(Tanggal Ini)" : startDate && endDate ? "(Pada Rentang Ini)" : " (All)"}</p>
+                  </div>
                 </div>
                 <div className="chart-section2">
-                <h3>Presentase Kunjungan Pasien{selectedDate ? " Tanggal Ini" : startDate && endDate ? " Pada Rentang Ini" : ""}</h3>
-                <div className="chart-wrapper">
-                    <Pie data={pieData} options={pieOptions} />
-                </div>
+                  <h3>Presentase Kunjungan Pasien{selectedDate ? " Tanggal Ini" : startDate && endDate ? " Pada Rentang Ini" : ""}</h3>
+                  <div className="chart-wrapper">
+                      <Pie data={pieData} options={pieOptions} />
+                  </div>
                 </div>
             </div>
 
@@ -522,6 +565,9 @@ const Dashboard = ({ setActiveMenu }) => {
                     <option value="nama_hewan">Nama Hewan</option>
                     <option value="user_name">Nama Pemilik</option>
                     <option value="biaya">Biaya</option>
+                    <option value="alamat">Alamat</option>
+                    <option value="jenis_layanan">Jenis Layanan</option>
+                    <option value="kategori">Kategori</option>
                     </select>
 
                     <select
@@ -549,13 +595,16 @@ const Dashboard = ({ setActiveMenu }) => {
                         <th>No</th>
                         <th>Tgl Buat</th>
                         <th>Tgl Booking</th>
-                        <th>Nama Hewan</th>
                         <th>Nama Pemilik</th>
+                        <th>Nama Hewan</th>
+                        <th>Kategori</th>
                         <th>Keluhan</th>
-                        <th>Biaya</th>
-                        <th>Catatan</th>
+                        <th>Jenis Layanan</th>
+                        <th>Lokasi</th>
                         <th>Layanan</th>
+                        <th>Catatan</th>
                         <th>Status</th>
+                        <th>Biaya</th>
                         <th>Tgl Update</th>
                         <th>Aksi</th>
                         </tr>
@@ -566,22 +615,25 @@ const Dashboard = ({ setActiveMenu }) => {
                             <td>{index + 1}</td>
                             <td>{new Date(booking.createdAt).toLocaleString()}</td>
                             <td>{new Date(booking.pilih_tanggal).toLocaleDateString("id-ID")}</td>
-                            <td>{booking.nama || booking.id_pasien?.nama || "Tidak diketahui"}</td>
                             <td>{booking.id_pasien?.id_user?.nama || booking.administrasis1?.[0]?.user_name || "Tidak diketahui"}</td>
+                            <td>{booking.nama || booking.id_pasien?.nama || "Tidak diketahui"}</td>
+                            <td>{formatKategori(booking.kategori)}</td>
                             <td>{booking.keluhan}</td>
-                            <td>{formatRupiah(booking.biaya)}</td>
-                            <td>{booking.administrasis1?.[0]?.catatan || "-"}</td>
+                            <td>{booking.jenis_layanan || "-"}</td>
+                            <td>{booking.alamat || "-"}</td>
                             <td>
                                 {(booking.pelayanans1 || [])
                                 .map((p) => p.nama || p.id_pelayanan?.nama)
                                 .filter(Boolean)
                                 .join(", ") || "-"}
                             </td>
+                            <td>{booking.administrasis1?.[0]?.catatan || "-"}</td>
                             <td>
                                 <span className={`status-label ${getStatusClass(booking.status_booking)}`}>
                                 {booking.status_booking}
                                 </span>
                             </td>
+                            <td>{formatRupiah(booking.biaya)}</td>
                             <td>{new Date(booking.updatedAt).toLocaleString()}</td>
                             <td className="table-actions">
                                 {[

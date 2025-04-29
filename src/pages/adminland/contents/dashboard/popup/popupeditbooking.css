@@ -7,7 +7,7 @@
 }
 
 /* Popup Overlay and Base Styles */
-.popup-overlay-edit {
+.popup-overlay-edit-admin {
     position: fixed;
     top: 0;
     left: 0;
@@ -21,7 +21,7 @@
     z-index: 9999;
 }
 
-.popup-content-edit {
+.popup-overlay-edit-admin .popup-content-edit {
     background: #d9d9d9;
     border-radius: 10px;
     /* width: 90%; */
@@ -35,7 +35,7 @@
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
 }
 
-.popup-content-edit h2 {
+.popup-overlay-edit-admin .popup-content-edit h2 {
     font-family: "SansSerifFLF";
     font-weight: normal;
     font-style: normal;
@@ -52,7 +52,7 @@
 }
 
 /* Form Layout */
-.edit-booking-form {
+.popup-overlay-edit-admin .edit-booking-form {
     padding: 20px 30px;
     display: flex;
     flex-direction: column;
@@ -60,13 +60,13 @@
     background: #d9d9d9;
 }
 
-.form-group-edit {
+.popup-overlay-edit-admin .form-group-edit {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
 
-.form-group-edit label {
+.popup-overlay-edit-admin .form-group-edit label {
     font-family: "SansSerifBldFLF";
     font-weight: normal;
     font-style: normal;
@@ -75,8 +75,8 @@
 }
 
 /* Input Styles */
-.form-group-edit input[type="text"],
-.form-group-edit textarea {
+.popup-overlay-edit-admin .form-group-edit input[type="text"],
+.popup-overlay-edit-admin .form-group-edit textarea {
     padding: 10px;
     border: 1px solid #333;
     border-radius: 7px;
@@ -85,12 +85,12 @@
     background-color: #fff;
 }
 
-.form-group-edit input.warna {
+.popup-overlay-edit-admin .form-group-edit input.warna {
     background-color: #d9d9d9;
     color: #666;
 }
 
-.keluhan-edit {
+.popup-overlay-edit-admin .keluhan-edit {
     width: 503;
     resize: vertical;
     min-height: 80px;
@@ -99,7 +99,7 @@
 }
 
 /* DatePicker Custom Styles */
-.datepicker-custom-edit {
+.popup-overlay-edit-admin .datepicker-custom-edit {
     width: 100%;
     max-width: 533px;
     padding: 10px;
@@ -112,41 +112,41 @@
 }
 
 /* Calendar Day Styles */
-.red-day {
+.popup-overlay-edit-admin .red-day {
     background-color: #ffdddd !important;
     color: #999 !important;
     text-decoration: line-through;
 }
 
-.green-day {
+.popup-overlay-edit-admin .green-day {
     background-color: #ddffdd !important;
 }
 
-.highlighted-day {
+.popup-overlay-edit-admin .highlighted-day {
     background-color: #3baafe !important;
     color: white !important;
 }
 
 /* Kuota Info Styles */
-.kuota-info-edit {
+.popup-overlay-edit-admin .kuota-info-edit {
     margin-top: 5px;
     padding: 8px;
     border-radius: 5px;
     font-size: 0.85rem;
 }
 
-.kuota-info-edit.full {
+.popup-overlay-edit-admin .kuota-info-edit.full {
     background-color: #ffeeee;
     color: #cc0000;
 }
 
-.kuota-info-edit.available {
+.popup-overlay-edit-admin .kuota-info-edit.available {
     background-color: #eeffee;
     color: #00aa00;
 }
 
 /* Button Styles */
-.form-buttons-edit {
+.popup-overlay-edit-admin .form-buttons-edit {
     display: flex;
     justify-content: center;
     gap: 40px;
@@ -154,7 +154,7 @@
     border-radius: 0 0 10px 10px;
 }
 
-.form-buttons-edit-wadah {
+.popup-overlay-edit-admin .form-buttons-edit-wadah {
     /* display: flex; */
     justify-content: center;
     /* gap: 40px; */
@@ -168,7 +168,7 @@
     border-radius: 10px;
 }
 
-.popup-button {
+.popup-overlay-edit-admin .popup-button {
     width: 120px;
     padding: 12px 0;
     font-size: 18px;
@@ -179,30 +179,30 @@
     transition: 0.3s ease;
 }
 
-.popup-button.cancel {
+.popup-overlay-edit-admin .popup-button.cancel {
     border-color: #B4374B;
     color: #B4374B;
-    background: white;
+    background: #d9d9d9;
 }
 
-.popup-button.cancel:hover {
+.popup-overlay-edit-admin .popup-button.cancel:hover {
     background: #B4374B;
     color: white;
 }
 
-.popup-button.confirm {
+.popup-overlay-edit-admin .popup-button.confirm {
     border-color: #38AB97;
     color: #38AB97;
-    background: white;
+    background: #d9d9d9;
 }
 
-.popup-button.confirm:hover {
+.popup-overlay-edit-admin .popup-button.confirm:hover {
     background: #38AB97;
     color: white;
 }
 
 /* Validation Message Styles */
-.validation-message-edit {
+.popup-overlay-edit-admin .validation-message-edit {
     text-align: center;
     padding: 8px;
     margin: 0 30px;
@@ -210,23 +210,23 @@
     font-weight: bold;
 }
 
-.validation-message-edit.error {
+.popup-overlay-edit-admin .validation-message-edit.error {
     background-color: #ffeeee;
     color: #cc0000;
 }
 
-.validation-message-edit.success {
+.popup-overlay-edit-admin .validation-message-edit.success {
     background-color: #eeffee;
     color: #00aa00;
 }
 
-.validation-message-edit.warning {
+.popup-overlay-edit-admin .validation-message-edit.warning {
     background-color: #ffffee;
     color: #aaaa00;
 }
 
 /* Loading State */
-.loading-state {
+.popup-overlay-edit-admin .loading-state {
     padding: 30px;
     text-align: center;
     color: #666;
@@ -234,12 +234,12 @@
 }
 
 
-.wadah-ini {
+.popup-overlay-edit-admin .wadah-ini {
     overflow-y: auto;
     border-radius: 10px;
 }
 
-.css-1akhonj-control {
+.popup-overlay-edit-admin .css-1akhonj-control {
     background-color: #d9d9d9 !important;
     border-radius: 7px !important;
     border: 1px solid #333 !important;
@@ -247,10 +247,31 @@
     font-family: inherit !important;
 }
 
-.css-1gt6gh-control {
+.popup-overlay-edit-admin .css-1gt6gh-control {
     background-color: #d9d9d9 !important;
     border-radius: 7px !important;
     border: 1px solid #333 !important;
     color: #3F4254 !important;
     font-family: inherit !important;
+}
+
+.popup-overlay-edit-admin .css-3iigni-container {
+    background-color: #d9d9d9 !important;
+    border-radius: 7px !important;
+    border: 1px solid #333 !important;
+    color: #3F4254 !important;
+    font-family: inherit !important;
+}
+
+.popup-overlay-edit-admin .input-field-edit {
+    background-color: #d9d9d9 !important;
+    border-radius: 7px !important;
+    border: 1px solid #333 !important;
+    color: #3F4254 !important;
+    font-family: inherit !important;
+}
+
+.popup-button cancel {
+    background-color: #B4374B !important;
+    color: white !important;
 }
