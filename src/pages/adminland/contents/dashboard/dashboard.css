@@ -114,11 +114,22 @@
   flex-wrap: wrap;
 }
 
-.dashboard-container .cards-section1 {
+.dashboard-container .cards-section11 {
   display: flex;
   flex-direction: column;
   gap: 20px;
   flex-shrink: 0;
+  background-color: #b8b8b8;
+  border-radius: 15px; /* Added to make the corners rounded */
+}
+
+.dashboard-container .cards-section12 {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex-shrink: 0;
+  background-color: #b8b8b8;
+  border-radius: 15px; /* Added to make the corners rounded */
 }
 
 .dashboard-container .card1 {

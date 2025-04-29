@@ -501,7 +501,7 @@ const Dashboard = ({ setActiveMenu }) => {
             </div>
 
             <div className="dashboard-content">
-                <div className="cards-section1">
+                <div className="cards-section11">
                   <div className="card1">
                       <h2>{visitsCount}</h2>
                       <p>Kunjungan <br/>{selectedDate ? "(Tanggal Ini)" : startDate && endDate ? "(Pada Rentang Ini)" : " (All)"}</p>
@@ -511,7 +511,7 @@ const Dashboard = ({ setActiveMenu }) => {
                       <p>Booking <br/>{selectedDate ? "(Tanggal Ini)" : startDate && endDate ? "(Pada Rentang Ini)" : " (All)"}</p>
                   </div>
                 </div>
-                <div className="cards-section1">
+                <div className="cards-section12">
                   <div className="card3">
                       <h2>{bookingTypes.onsite}</h2>
                       <p>~ Onsite <br/>Booking & kunjungan <br/>{selectedDate ? "(Tanggal Ini)" : startDate && endDate ? "(Pada Rentang Ini)" : " (All)"}</p>

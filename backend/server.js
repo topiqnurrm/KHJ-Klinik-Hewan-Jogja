@@ -23,6 +23,8 @@ import routeKunjungan from './routes/rout-kunjungan.js';
 
 import bookingWithRetribusi from './routes/bookingWithRetribusi.js';
 
+import routeUser from './routes/rout-user.js';
+
 dotenv.config();
 
 const app = express();
@@ -95,6 +97,9 @@ app.use('/api/retribusi', routeRetribusi);
 app.use('/api/kunjungan', routeKunjungan); 
 
 app.use('/api/bookings-retribusi', bookingWithRetribusi);
+
+app.use('/api/users', routeUser);
+
 
 // Route ambil data klien
 app.get('/api/users/klien', async (req, res) => {
