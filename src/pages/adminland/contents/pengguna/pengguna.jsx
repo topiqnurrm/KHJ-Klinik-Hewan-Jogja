@@ -3,16 +3,23 @@ import './pengguna.css';
 import { getAllUsers, deleteUser } from '../../../../api/api-user'; // Sesuaikan path ke api-user.js
 import editIcon from "../../../../components/riwayat/gambar/edit.png";
 import hapusIcon from "../../../../components/riwayat/gambar/hapus.png"; 
+import EditUser from './EditUser'; // Import the EditUser component
+import AddUser from './AddUser'; // Import the new AddUser component
 
 const Pengguna = () => {
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [sortBy, setSortBy] = useState("");
-    const [sortOrder, setSortOrder] = useState("asc");
+    const [sortBy, setSortBy] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState("desc");
     const [isLoading, setIsLoading] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
+    // State for edit functionality
+    const [showEditPopup, setShowEditPopup] = useState(false);
+    const [userIdToEdit, setUserIdToEdit] = useState(null);
+    // New state for add user functionality
+    const [showAddPopup, setShowAddPopup] = useState(false);
 
     const fetchUsers = async () => {
         setIsLoading(true);
@@ -68,8 +75,29 @@ const Pengguna = () => {
     };
 
     const handleEdit = (userId) => {
-        // Function to handle edit
-        alert(`Edit user with ID: ${userId}`);
+        setUserIdToEdit(userId);
+        setShowEditPopup(true);
+    };
+
+    // New handler for add user button
+    const handleAddUser = () => {
+        setShowAddPopup(true);
+    };
+
+    // Handle user update (for both edit and add)
+    const handleUserUpdate = (updatedUser) => {
+        // For edit: update the users array with the updated user data
+        setUsers(prevUsers => 
+            prevUsers.map(user => 
+                user._id === updatedUser._id ? updatedUser : user
+            )
+        );
+    };
+
+    // Handle new user creation
+    const handleUserCreate = (newUser) => {
+        // Add the new user to the users array
+        setUsers(prevUsers => [...prevUsers, newUser]);
     };
 
     const confirmDeleteUser = async () => {
@@ -82,7 +110,7 @@ const Pengguna = () => {
             const updatedUsers = users.filter(u => u._id !== userToDelete._id);
             setUsers(updatedUsers);
             setFilteredUsers(updatedUsers);
-            alert('User berhasil dihapus');
+            // alert('User berhasil dihapus');
         } catch (error) {
             console.error("Gagal menghapus user:", error);
             alert("Gagal menghapus user: " + (error.response?.data?.message || error.message));
@@ -119,46 +147,49 @@ const Pengguna = () => {
             <div className="dashboard-header">
                 <h1>Pengguna</h1>
             </div>
-            <div className="dashboard-content">
-                <div className="riwayat-filter-container">
-                    <div className="riwayat-search-wrapper">
-                        <label className="riwayat-search-label">Filter Pencarian</label>
-                        <input
-                            type="text"
-                            className="riwayat-search-input"
-                            placeholder="Cari data..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                        {searchTerm && (
-                            <button className="riwayat-clear-button" onClick={() => setSearchTerm("")}>X</button>
-                        )}
-                    </div>
-
-                    <div className="riwayat-sort-wrapper">
-                        <select
-                            className="riwayat-sort-select"
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                        >
-                            <option value="">Urutkan...</option>
-                            <option value="createdAt">Tanggal Buat</option>
-                            <option value="updatedAt">Terakhir Update</option>
-                            <option value="nama">Nama</option>
-                            <option value="email">Email</option>
-                            <option value="aktor">Hak Akses</option>
-                        </select>
-
-                        <select
-                            className="riwayat-sort-order"
-                            value={sortOrder}
-                            onChange={(e) => setSortOrder(e.target.value)}
-                        >
-                            <option value="asc">Ascending</option>
-                            <option value="desc">Descending</option>
-                        </select>
-                    </div>
+            <div className="riwayat-filter-container">
+                <button className="tambah-user-button" onClick={handleAddUser}>
+                    + Tambah Pengguna
+                </button>
+                <div className="riwayat-search-wrapper">
+                    <label className="riwayat-search-label">Filter Pencarian</label>
+                    <input
+                        type="text"
+                        className="riwayat-search-input"
+                        placeholder="Cari data..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    {searchTerm && (
+                        <button className="riwayat-clear-button" onClick={() => setSearchTerm("")}>X</button>
+                    )}
                 </div>
+
+                <div className="riwayat-sort-wrapper">
+                    <select
+                        className="riwayat-sort-select"
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                    >
+                        <option value="">Urutkan...</option>
+                        <option value="createdAt">Tanggal Buat</option>
+                        <option value="updatedAt">Terakhir Update</option>
+                        <option value="nama">Nama</option>
+                        <option value="email">Email</option>
+                        <option value="aktor">Hak Akses</option>
+                    </select>
+
+                    <select
+                        className="riwayat-sort-order"
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value)}
+                    >
+                        <option value="asc">Ascending</option>
+                        <option value="desc">Descending</option>
+                    </select>
+                </div>
+            </div>
+            <div className="dashboard-content">
 
                 {isLoading ? (
                     <div className="loading-indicator">Memuat data...</div>
@@ -223,6 +254,26 @@ const Pengguna = () => {
                             </div>
                         </div>
                     </div>
+                )}
+
+                {/* Render the EditUser component when showEditPopup is true */}
+                {showEditPopup && (
+                    <EditUser 
+                        userId={userIdToEdit}
+                        onClose={() => {
+                            setShowEditPopup(false);
+                            setUserIdToEdit(null);
+                        }}
+                        onUpdate={handleUserUpdate}
+                    />
+                )}
+
+                {/* Render the AddUser component when showAddPopup is true */}
+                {showAddPopup && (
+                    <AddUser 
+                        onClose={() => setShowAddPopup(false)}
+                        onUpdate={handleUserCreate}
+                    />
                 )}
             </div>
         </div>

@@ -5,7 +5,8 @@ const PelayananSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        maxlength: 250
+        maxlength: 250,
+        unique: true // Menambahkan unique agar tidak boleh sama
     },
     kategori: {
         type: String,

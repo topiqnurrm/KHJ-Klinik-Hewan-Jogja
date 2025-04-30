@@ -1,8 +1,10 @@
 import axios from 'axios';
 
+const API_URL = 'http://localhost:5000/api'; // Simplified base URL
+
 export const getAllUsers = async () => {
   try {
-    const response = await axios.get('http://localhost:5000/api/users');
+    const response = await axios.get(`${API_URL}/users`);
     return response.data;
   } catch (error) {
     console.error('Gagal fetch data users:', error);
@@ -12,7 +14,7 @@ export const getAllUsers = async () => {
 
 export const getKlienUser = async () => {
   try {
-    const response = await axios.get('http://localhost:5000/api/users/klien');
+    const response = await axios.get(`${API_URL}/users/klien`);
     return response.data;
   } catch (error) {
     console.error('Gagal fetch data klien:', error);
@@ -22,7 +24,7 @@ export const getKlienUser = async () => {
 
 export const getUserById = async (_id) => {
   try {
-    const response = await axios.get(`http://localhost:5000/api/users/${_id}`);
+    const response = await axios.get(`${API_URL}/users/${_id}`);
     return response.data;
   } catch (error) {
     console.error('Gagal fetch user by ID:', error);
@@ -32,7 +34,7 @@ export const getUserById = async (_id) => {
 
 export const deleteUser = async (_id) => {
   try {
-    const response = await axios.delete(`http://localhost:5000/api/users/${_id}`);
+    const response = await axios.delete(`${API_URL}/users/${_id}`);
     return response.data;
   } catch (error) {
     console.error('Gagal hapus user:', error);
@@ -40,19 +42,9 @@ export const deleteUser = async (_id) => {
   }
 };
 
-export const createUser = async (userData) => {
-  try {
-    const response = await axios.post('http://localhost:5000/api/users', userData);
-    return response.data;
-  } catch (error) {
-    console.error('Gagal membuat user baru:', error);
-    throw error;
-  }
-};
-
 export const updateUser = async (_id, userData) => {
   try {
-    const response = await axios.put(`http://localhost:5000/api/users/${_id}`, userData);
+    const response = await axios.put(`${API_URL}/users/${_id}`, userData);
     return response.data;
   } catch (error) {
     console.error('Gagal update user:', error);
@@ -65,7 +57,7 @@ export const uploadImage = async (file) => {
   formData.append('image', file);
 
   try {
-    const res = await axios.post('http://localhost:5000/api/upload-image', formData, {
+    const res = await axios.post(`${API_URL}/upload-image`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -74,5 +66,20 @@ export const uploadImage = async (file) => {
   } catch (err) {
     console.error('Upload gagal:', err);
     return null;
+  }
+};
+
+/**
+ * Create a new user
+ * @param {Object} userData - User data to create
+ * @returns {Promise<Object>} - Created user
+ */
+export const createUser = async (userData) => {
+  try {
+    const response = await axios.post(`${API_URL}/users`, userData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating user:', error);
+    throw error;
   }
 };

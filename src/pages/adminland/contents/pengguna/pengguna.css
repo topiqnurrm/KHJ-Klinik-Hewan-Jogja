@@ -39,7 +39,7 @@
 .pengguna-container .dashboard-content {
  padding-left: 20px;
  padding-right: 20px;
- padding-top: 20px;
+ /* padding-top: 20px; */
  padding-bottom: 20px;
  font-family: "SansSerifFLF";
  font-weight: normal;
@@ -50,40 +50,42 @@
  text-align: left;
  color: #3F4254;
  overflow-y: auto;
+ max-height: 400px;
 }
 
 /* Filter styling */
-.riwayat-filter-container {
+.pengguna-container .riwayat-filter-container {
  display: flex;
- justify-content: space-between;
+ justify-content: center;
  align-items: center;
- margin-bottom: 15px;
+ margin: 0 20px;
  background-color: #f2f2f2;
- padding: 10px;
+ padding: 5px;
  border-radius: 4px;
 }
 
-.riwayat-search-wrapper {
+.pengguna-container .riwayat-search-wrapper {
  display: flex;
  align-items: center;
  position: relative;
- width: 50%;
+ max-width: 320px;
+ gap: 0px;
 }
 
-.riwayat-search-label {
+.pengguna-container .riwayat-search-label {
  margin-right: 10px;
  font-weight: bold;
  white-space: nowrap;
 }
 
-.riwayat-search-input {
+.pengguna-container .riwayat-search-input {
  padding: 8px 30px 8px 10px;
  border: 1px solid #ccc;
  border-radius: 4px;
- width: 100%;
+ width: 150px;
 }
 
-.riwayat-clear-button {
+.pengguna-container .riwayat-clear-button {
  position: absolute;
  right: 10px;
  background: none;
@@ -93,45 +95,45 @@
  color: #666;
 }
 
-.riwayat-sort-wrapper {
+.pengguna-container .riwayat-sort-wrapper {
  display: flex;
  gap: 10px;
 }
 
-.riwayat-sort-select,
-.riwayat-sort-order {
+.pengguna-container .riwayat-sort-select,
+.pengguna-container .riwayat-sort-order {
  padding: 8px;
  border: 1px solid #ccc;
  border-radius: 4px;
 }
 
 /* Table styling */
-.riwayat-table {
+.pengguna-container .riwayat-table {
  width: 100%;
  border-collapse: collapse;
 }
 
-.riwayat-table th,
-.riwayat-table td {
+.pengguna-container .riwayat-table th,
+.pengguna-container .riwayat-table td {
  padding: 10px;
  border: 1px solid #ccc;
  text-align: left;
 }
 
-.riwayat-table th {
- background-color: #f2f2f2;
+.pengguna-container .riwayat-table th {
+ background-color: #b2d5af;
  font-weight: bold;
 }
 
-.riwayat-table tr:nth-child(even) {
+.pengguna-container .riwayat-table tr:nth-child(even) {
  background-color: #f9f9f9;
 }
 
-.riwayat-table tr:hover {
+.pengguna-container .riwayat-table tr:hover {
  background-color: #e9e9e9;
 }
 
-.no-data {
+.pengguna-container .no-data {
  text-align: center;
  padding: 20px;
  font-style: italic;
@@ -139,7 +141,7 @@
 }
 
 /* Status labels */
-.status-label {
+.pengguna-container .status-label {
  padding: 4px 8px;
  border-radius: 4px;
  font-size: 12px;
@@ -149,36 +151,36 @@
  text-align: center;
 }
 
-.status-hijau {
+.pengguna-container .status-hijau {
  background-color: #d1fae5;
  color: #065f46;
 }
 
-.status-kuning {
+.pengguna-container .status-kuning {
  background-color: #fef3c7;
  color: #92400e;
 }
 
-.status-merah {
+.pengguna-container .status-merah {
  background-color: #fee2e2;
  color: #b91c1c;
 }
 
-.status-biru {
+.pengguna-container .status-biru {
  background-color: #dbeafe;
  color: #1e40af;
 }
 
 /* Action buttons */
-.riwayat-actions {
+.pengguna-container .riwayat-actions {
  display: flex;
  gap: 5px;
  justify-content: center;
 }
 
-.btn-green,
-.btn-red,
-.btn-blue {
+.pengguna-container .btn-green,
+.pengguna-container .btn-red,
+.pengguna-container .btn-blue {
  border: none;
  width: 28px;
  height: 28px;
@@ -190,33 +192,33 @@
  transition: opacity 0.2s;
 }
 
-.btn-green:hover,
-.btn-red:hover,
-.btn-blue:hover {
+.pengguna-container .btn-green:hover,
+.pengguna-container .btn-red:hover,
+.pengguna-container .btn-blue:hover {
  opacity: 0.8;
 }
 
-.btn-green {
+.pengguna-container .btn-green {
  background-color: #34d399;
 }
 
-.btn-red {
+.pengguna-container .btn-red {
  background-color: #f87171;
 }
 
-.btn-blue {
+.pengguna-container .btn-blue {
  background-color: #60a5fa;
 }
 
-.btn-green img,
-.btn-red img,
-.btn-blue img {
+.pengguna-container .btn-green img,
+.pengguna-container .btn-red img,
+.pengguna-container .btn-blue img {
  width: 16px;
  height: 16px;
 }
 
 /* Loading indicator */
-.loading-indicator {
+.pengguna-container .loading-indicator {
  text-align: center;
  padding: 20px;
  font-style: italic;
@@ -224,7 +226,7 @@
 }
 
 /* Delete confirmation popup */
-.confirm-popup-overlay {
+.pengguna-container .confirm-popup-overlay {
  position: fixed;
  top: 0;
  left: 0;
@@ -237,7 +239,7 @@
  z-index: 1000;
 }
 
-.confirm-popup {
+.pengguna-container .confirm-popup {
  background-color: white;
  padding: 20px;
  border-radius: 8px;
@@ -245,20 +247,20 @@
  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.confirm-popup h3 {
+.pengguna-container .confirm-popup h3 {
  margin-top: 0;
  color: #3F4254;
 }
 
-.confirm-buttons {
+.pengguna-container .confirm-buttons {
  display: flex;
  justify-content: flex-end;
  gap: 10px;
  margin-top: 20px;
 }
 
-.confirm-cancel,
-.confirm-delete {
+.pengguna-container .confirm-cancel,
+.pengguna-container .confirm-delete {
  padding: 8px 16px;
  border: none;
  border-radius: 4px;
@@ -266,12 +268,50 @@
  font-weight: bold;
 }
 
-.confirm-cancel {
+.pengguna-container .confirm-cancel {
  background-color: #e5e7eb;
  color: #4b5563;
 }
 
-.confirm-delete {
+.pengguna-container .confirm-delete {
  background-color: #ef4444;
  color: white;
 }
+
+
+
+
+/* Add these new styles to your existing pengguna.css file */
+
+.pengguna-container .dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.pengguna-container .dashboard-header h1 {
+  margin: 0;
+}
+
+.pengguna-container .tambah-user-button {
+  background-color: #175451;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-family: "SansSerifFLF", sans-serif;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  margin-right: 100px;
+}
+
+.pengguna-container .tambah-user-button:hover {
+  background-color: #0e3d3b;
+}
+
+/* If you already have a dashboard-header class, you might need to merge these styles */
