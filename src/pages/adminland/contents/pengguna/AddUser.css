@@ -1,4 +1,12 @@
-.edit-popup-overlay {
+@font-face {
+    font-family: "SansSerifBldFLF";
+    src: url("/src/components/fonts/SansSerifBldFLF.ttf") format("truetype"),
+         url("/src/components/fonts/SansSerifFLF.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+    
+    .edit-popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -9,6 +17,9 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
+
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
 }
 
 .edit-popup {
@@ -58,6 +69,9 @@
     font-weight: bold;
     margin-bottom: 5px;
     color: #3F4254;
+    font-family: "SansSerifFLF";
+    font-weight: normal;
+    font-style: normal;
 }
 
 .edit-form-group input,

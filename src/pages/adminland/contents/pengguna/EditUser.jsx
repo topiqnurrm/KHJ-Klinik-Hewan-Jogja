@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import './EditUser.css';
 import { getUserById, updateUser } from '../../../../api/api-user';
 
@@ -255,7 +256,8 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
         }
     };
 
-    return (
+    // Content yang akan dirender menggunakan portal
+    const content = (
         <div className="edit-popup-overlay">
             <div className="edit-popup">
                 <div className="edit-header">
@@ -418,6 +420,12 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                 </div>
             </div>
         </div>
+    );
+    
+    // Menggunakan createPortal untuk merender konten di DOM root
+    return ReactDOM.createPortal(
+        content,
+        document.body // Tempatkan modal langsung di body
     );
 };
 

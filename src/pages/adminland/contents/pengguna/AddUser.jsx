@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import './AddUser.css'; // We'll reuse the same styles as EditUser
-import { createUser } from '../../../../api/api-user'; // Assuming you have a createUser API function
+import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
+import './AddUser.css';
+import { createUser } from '../../../../api/api-user';
 
 const AddUser = ({ onClose, onUpdate }) => {
     const [userData, setUserData] = useState({
@@ -12,7 +13,7 @@ const AddUser = ({ onClose, onUpdate }) => {
         aktor: '',
         gender: '',
         tanggal_lahir: '',
-        gambar: '/images/default.png' // Added default value from schema
+        gambar: '/images/default.png'
     });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
@@ -26,6 +27,31 @@ const AddUser = ({ onClose, onUpdate }) => {
         gender: '',
         tanggal_lahir: ''
     });
+    
+    // State untuk melacak ketersediaan portal
+    const [portalElement, setPortalElement] = useState(null);
+    
+    // Cek ketersediaan portal dan buat jika belum ada
+    useEffect(() => {
+        let element = document.getElementById('portal-root');
+        
+        // Jika portal-root tidak ada, buat element baru
+        if (!element) {
+            element = document.createElement('div');
+            element.id = 'portal-root';
+            document.body.appendChild(element);
+        }
+        
+        setPortalElement(element);
+        
+        // Cleanup saat komponen unmount
+        return () => {
+            // Jika portal dibuat oleh komponen ini dan sudah tidak digunakan, hapus
+            if (element && element.parentNode && !element.hasChildNodes()) {
+                element.parentNode.removeChild(element);
+            }
+        };
+    }, []);
 
     const validateField = (name, value) => {
         let errorMessage = '';
@@ -199,7 +225,13 @@ const AddUser = ({ onClose, onUpdate }) => {
         return hasAllFields && hasNoErrors;
     };
 
-    return (
+    // Jika portal belum tersedia, jangan render apapun
+    if (!portalElement) {
+        return null;
+    }
+
+    // Konten modal yang akan di-render ke portal
+    const modalContent = (
         <div className="edit-popup-overlay">
             <div className="edit-popup">
                 <div className="edit-header">
@@ -361,6 +393,9 @@ const AddUser = ({ onClose, onUpdate }) => {
             </div>
         </div>
     );
+    
+    // Gunakan ReactDOM.createPortal untuk me-render modal ke elemen portal
+    return ReactDOM.createPortal(modalContent, portalElement);
 };
 
 export default AddUser;
