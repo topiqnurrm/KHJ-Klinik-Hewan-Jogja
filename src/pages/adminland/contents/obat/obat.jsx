@@ -4,7 +4,8 @@ import editIcon from "../../../../components/riwayat/gambar/edit.png";
 import hapusIcon from "../../../../components/riwayat/gambar/hapus.png";
 // Import the components
 import EditProduk from './EditProduk';
-import TambahProduk from './TambahProduk'; // Add the import for TambahProduk component
+import TambahProduk from './TambahProduk';
+import Popup from '../../admin_nav/popup_nav/popup2'; // Import the Popup component
 
 const Obat = () => {
     const [produk, setProduk] = useState([]);
@@ -13,8 +14,8 @@ const Obat = () => {
     const [sortBy, setSortBy] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState("desc");
     const [isLoading, setIsLoading] = useState(false);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [produkToDelete, setProdukToDelete] = useState(null);
+    const [showDeletePopup, setShowDeletePopup] = useState(false); // Changed from showDeleteConfirm
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [produkToEdit, setProdukToEdit] = useState(null);
     const [showAddPopup, setShowAddPopup] = useState(false);
@@ -111,13 +112,13 @@ const Obat = () => {
 
     const handleDelete = (produk) => {
         setProdukToDelete(produk);
-        setShowDeleteConfirm(true);
+        setShowDeletePopup(true); // Show the popup2 component
     };
 
     const confirmDeleteProduk = async () => {
         if (!produkToDelete) return;
         setIsLoading(true);
-        setShowDeleteConfirm(false);
+        setShowDeletePopup(false);
 
         try {
             await fetch(`http://localhost:5000/api/produk/${produkToDelete._id}`, {
@@ -137,7 +138,7 @@ const Obat = () => {
     };
 
     const cancelDelete = () => {
-        setShowDeleteConfirm(false);
+        setShowDeletePopup(false);
         setProdukToDelete(null);
     };
 
@@ -389,20 +390,18 @@ const Obat = () => {
                     </table>
                 )}
 
-                {showDeleteConfirm && (
-                    <div className="confirm-popup-overlay">
-                        <div className="confirm-popup">
-                            <h3>Konfirmasi Hapus</h3>
-                            <p>
-                                Apakah Anda yakin ingin menghapus obat <strong>{produkToDelete?.nama || 'ini'}</strong>?
-                            </p>
-                            <div className="confirm-buttons">
-                                <button className="confirm-cancel" onClick={cancelDelete}>Batal</button>
-                                <button className="confirm-delete" onClick={confirmDeleteProduk}>Hapus</button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                {/* Replace the custom confirmation dialog with the Popup2 component */}
+                <Popup 
+                    isOpen={showDeletePopup}
+                    onClose={cancelDelete}
+                    title="Konfirmasi Hapus"
+                    description={
+                        <p>
+                            Apakah Anda yakin ingin menghapus obat <strong>{produkToDelete?.nama || 'ini'}</strong>?
+                        </p>
+                    }
+                    onConfirm={confirmDeleteProduk}
+                />
 
                 {/* Render the EditProduk component when showEditPopup is true */}
                 {showEditPopup && produkToEdit && (

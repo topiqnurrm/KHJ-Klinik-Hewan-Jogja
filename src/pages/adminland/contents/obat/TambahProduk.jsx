@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import './TambahProduk.css';
 
-const TambahProduk = ({ onClose, onAdd }) => {
+const TambahProdukPortal = ({ onClose, onAdd }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         nama: '',
@@ -248,12 +249,13 @@ const TambahProduk = ({ onClose, onAdd }) => {
         return allFieldsFilled && noValidationErrors && formData.id_user && !generalError;
     };
 
-    return (
-        <div className="tambah-popup-overlay">
+    // Component untuk konten popup
+    const PopupContent = (
+        <div className="tambah-popup-overlay-produk">
             <div className="tambah-popup">
                 <div className="tambah-header">
                     <h2>Tambah Obat</h2>
-                    <button className="close-button" onClick={onClose}>×</button>
+                    {/* <button className="close-button" onClick={onClose}>×</button> */}
                 </div>
                 <div className="tambah-content">
                     {isLoading && <div className="loading-text">Memuat data...</div>}
@@ -375,6 +377,16 @@ const TambahProduk = ({ onClose, onAdd }) => {
             </div>
         </div>
     );
+
+    // Gunakan ReactDOM.createPortal untuk me-render komponen ke elemen root
+    return ReactDOM.createPortal(
+        PopupContent,
+        document.getElementById('portal-root') || document.body
+    );
+};
+
+const TambahProduk = (props) => {
+    return <TambahProdukPortal {...props} />;
 };
 
 export default TambahProduk;

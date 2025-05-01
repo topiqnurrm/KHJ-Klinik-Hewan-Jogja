@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import './EditProduk.css';
 
 const EditProduk = ({ produk, onClose, onUpdate }) => {
@@ -245,7 +246,8 @@ const EditProduk = ({ produk, onClose, onUpdate }) => {
         }
     };
 
-    return (
+    // Konten modal yang akan dirender ke portal
+    const modalContent = (
         <div className="edit-popup-overlay">
             <div className="edit-popup">
                 <div className="edit-header">
@@ -368,6 +370,12 @@ const EditProduk = ({ produk, onClose, onUpdate }) => {
                 </div>
             </div>
         </div>
+    );
+
+    // Menggunakan Portal untuk merender di luar hierarki komponen
+    return ReactDOM.createPortal(
+        modalContent,
+        document.body // Render ke document.body untuk memastikan posisi di depan
     );
 };
 

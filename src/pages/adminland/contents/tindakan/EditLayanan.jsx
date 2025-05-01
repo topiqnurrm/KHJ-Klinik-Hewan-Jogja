@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import './EditLayanan.css';
 
 const EditLayanan = ({ layanan, onClose, onUpdate }) => {
@@ -252,7 +253,8 @@ const EditLayanan = ({ layanan, onClose, onUpdate }) => {
         }
     };
 
-    return (
+    // Buat konten popup
+    const popupContent = (
         <div className="edit-popup-overlay">
             <div className="edit-popup">
                 <div className="edit-header">
@@ -372,6 +374,12 @@ const EditLayanan = ({ layanan, onClose, onUpdate }) => {
                 </div>
             </div>
         </div>
+    );
+
+    // Gunakan ReactDOM.createPortal untuk merender komponen ke root level DOM
+    return ReactDOM.createPortal(
+        popupContent,
+        document.body // Render popup langsung ke body untuk menghindari masalah z-index
     );
 };
 

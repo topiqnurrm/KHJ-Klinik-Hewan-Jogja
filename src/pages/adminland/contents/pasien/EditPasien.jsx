@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import './EditPasien.css';
 
 const EditPasien = ({ pasien, onClose, onUpdate }) => {
@@ -41,6 +42,25 @@ const EditPasien = ({ pasien, onClose, onUpdate }) => {
             setOriginalData({...formattedData});
         }
     }, [pasien]);
+
+    // Handle closing on escape key press
+    useEffect(() => {
+        const handleEscapeKey = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        document.addEventListener('keydown', handleEscapeKey);
+        
+        // Prevent scrolling on body when modal is open
+        document.body.style.overflow = 'hidden';
+        
+        return () => {
+            document.removeEventListener('keydown', handleEscapeKey);
+            document.body.style.overflow = 'auto';
+        };
+    }, [onClose]);
 
     const validateField = (name, value) => {
         let errorMessage = '';
@@ -159,6 +179,13 @@ const EditPasien = ({ pasien, onClose, onUpdate }) => {
         }
     };
 
+    const handleBackdropClick = (e) => {
+        // Close modal only if the backdrop itself is clicked
+        if (e.target === e.currentTarget) {
+            onClose();
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -208,11 +235,19 @@ const EditPasien = ({ pasien, onClose, onUpdate }) => {
         }
     };
 
-    return (
-        <div className="edit-popup-overlay">
-            <div className="edit-popup">
+    // Create the modal content
+    const modalContent = (
+        <div className="edit-popup-overlay" onClick={handleBackdropClick}>
+            <div className="edit-popup" aria-modal="true" role="dialog">
                 <div className="edit-header">
                     <h2>Edit Pasien</h2>
+                    {/* <button 
+                        className="close-button" 
+                        onClick={onClose}
+                        aria-label="Tutup"
+                    >
+                        &times;
+                    </button> */}
                 </div>
                 <div className="edit-content">
                     {isLoading && <div className="loading-text">Memuat data...</div>}
@@ -340,6 +375,12 @@ const EditPasien = ({ pasien, onClose, onUpdate }) => {
                 </div>
             </div>
         </div>
+    );
+
+    // Using Portal to render the modal at the root level of the DOM
+    return ReactDOM.createPortal(
+        modalContent,
+        document.body
     );
 };
 

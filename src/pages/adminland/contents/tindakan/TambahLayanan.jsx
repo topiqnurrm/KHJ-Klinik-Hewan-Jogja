@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import './TambahLayanan.css'; // We'll create this file next
+import ReactDOM from 'react-dom';
+import './TambahLayanan.css'; // Make sure this CSS file exists
 
 const TambahLayanan = ({ onClose, onAdd }) => {
     const [layananData, setLayananData] = useState({
@@ -268,7 +269,8 @@ const TambahLayanan = ({ onClose, onAdd }) => {
         return allFieldsFilled && noValidationErrors && layananData.id_user;
     };
 
-    return (
+    // Create modal content
+    const modalContent = (
         <div className="tambah-popup-overlay">
             <div className="tambah-popup">
                 <div className="tambah-header">
@@ -402,6 +404,12 @@ const TambahLayanan = ({ onClose, onAdd }) => {
                 </div>
             </div>
         </div>
+    );
+
+    // Use React Portal to render the modal at the document body level
+    return ReactDOM.createPortal(
+        modalContent,
+        document.body
     );
 };
 

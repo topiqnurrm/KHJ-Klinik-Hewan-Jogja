@@ -29,12 +29,14 @@
     padding: 15px 20px;
     text-align: center;
     font-family: "SansSerifBldFLF", "SansSerifFLF", sans-serif;
+    display: flex;
 }
 
 .edit-header h2 {
     margin: 0;
     font-size: 20px;
     font-weight: bold;
+    width: 750px;
 }
 
 .edit-content {

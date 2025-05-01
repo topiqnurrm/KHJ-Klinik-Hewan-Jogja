@@ -5,6 +5,7 @@ import editIcon from "../../../../components/riwayat/gambar/edit.png";
 import hapusIcon from "../../../../components/riwayat/gambar/hapus.png"; 
 import EditUser from './EditUser'; // Import the EditUser component
 import AddUser from './AddUser'; // Import the new AddUser component
+import Popup from '../../admin_nav/popup_nav/popup2'; // Import the Popup component
 
 const Pengguna = () => {
     const [users, setUsers] = useState([]);
@@ -241,20 +242,14 @@ const Pengguna = () => {
                     </table>
                 )}
 
-                {showDeleteConfirm && (
-                    <div className="confirm-popup-overlay">
-                        <div className="confirm-popup">
-                            <h3>Konfirmasi Hapus</h3>
-                            <p>
-                                Apakah Anda yakin ingin menghapus pengguna <strong>{userToDelete?.nama || 'ini'}</strong>?
-                            </p>
-                            <div className="confirm-buttons">
-                                <button className="confirm-cancel" onClick={cancelDelete}>Batal</button>
-                                <button className="confirm-delete" onClick={confirmDeleteUser}>Hapus</button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                {/* Replace the custom delete confirmation with Popup2 component */}
+                <Popup
+                    isOpen={showDeleteConfirm}
+                    onClose={cancelDelete}
+                    title="Konfirmasi Hapus"
+                    description={`Apakah Anda yakin ingin menghapus pengguna ${userToDelete?.nama || 'ini'}?`}
+                    onConfirm={confirmDeleteUser}
+                />
 
                 {/* Render the EditUser component when showEditPopup is true */}
                 {showEditPopup && (

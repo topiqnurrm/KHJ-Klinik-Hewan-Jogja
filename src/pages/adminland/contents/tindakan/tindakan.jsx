@@ -5,6 +5,7 @@ import editIcon from "../../../../components/riwayat/gambar/edit.png";
 import hapusIcon from "../../../../components/riwayat/gambar/hapus.png";
 import EditLayanan from './EditLayanan'; // Import the EditLayanan component
 import TambahLayanan from './TambahLayanan'; // Import the TambahLayanan component
+import Popup from '../../admin_nav/popup_nav/popup2'; // Import the Popup component
 
 const Tindakan = () => {
     const [layanan, setLayanan] = useState([]);
@@ -13,15 +14,14 @@ const Tindakan = () => {
     const [sortBy, setSortBy] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState("desc");
     const [isLoading, setIsLoading] = useState(false);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    // Replace showDeleteConfirm with popup state
+    const [showDeletePopup, setShowDeletePopup] = useState(false);
     const [layananToDelete, setLayananToDelete] = useState(null);
-    // New state for edit functionality
+    // States for edit and add functionality
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [layananToEdit, setLayananToEdit] = useState(null);
-    // New state for add functionality
     const [showAddPopup, setShowAddPopup] = useState(false);
 
-    // Tambahkan di fetchAllLayanan untuk melihat struktur respons
     const fetchAllLayanan = async () => {
         setIsLoading(true);
         try {
@@ -79,13 +79,13 @@ const Tindakan = () => {
 
     const handleDelete = (layanan) => {
         setLayananToDelete(layanan);
-        setShowDeleteConfirm(true);
+        setShowDeletePopup(true); // Open the popup2 component
     };
 
     const confirmDeleteLayanan = async () => {
         if (!layananToDelete) return;
         setIsLoading(true);
-        setShowDeleteConfirm(false);
+        setShowDeletePopup(false); // Close the popup
 
         try {
             // Implement your delete API call here
@@ -106,11 +106,10 @@ const Tindakan = () => {
     };
 
     const cancelDelete = () => {
-        setShowDeleteConfirm(false);
+        setShowDeletePopup(false);
         setLayananToDelete(null);
     };
 
-    // Perbaikan fungsi formatCurrency di frontend
     const formatCurrency = (value) => {
         // Pastikan nilai tidak undefined atau null
         if (value === undefined || value === null) {
@@ -189,27 +188,20 @@ const Tindakan = () => {
         }
     };
 
-    // Updated handleAddLayanan function to show the add popup
     const handleAddLayanan = () => {
         setShowAddPopup(true);
     };
 
-    // Handle new layanan added from TambahLayanan component
     const handleLayananAdded = (newLayanan) => {
-        // Add the new layanan to our arrays
         const updatedLayanan = [...layanan, newLayanan];
         setLayanan(updatedLayanan);
-        // Filter will be reapplied automatically through useEffect
     };
 
-    // Close add popup
     const handleCloseAddPopup = () => {
         setShowAddPopup(false);
     };
 
-    // Updated handleEdit function to show the edit popup
     const handleEdit = (layananItem) => {
-        // Find the layanan by ID in our data
         const layananToEdit = layanan.find(l => l._id === layananItem._id);
         if (layananToEdit) {
             setLayananToEdit(layananToEdit);
@@ -219,21 +211,15 @@ const Tindakan = () => {
         }
     };
 
-    // Handle successful update from EditLayanan component
     const handleUpdateLayanan = (updatedLayanan) => {
-        // Update both layanan arrays with the new data
         const updatedArray = layanan.map(item => 
             item._id === updatedLayanan._id ? updatedLayanan : item
         );
         
         setLayanan(updatedArray);
-        
-        // Filter will be reapplied automatically through useEffect
-        // but we need to set the base array first
         setFilteredLayanan(updatedArray);
     };
 
-    // Close edit popup
     const handleCloseEditPopup = () => {
         setShowEditPopup(false);
         setLayananToEdit(null);
@@ -341,22 +327,18 @@ const Tindakan = () => {
                     </table>
                 )}
 
-                {showDeleteConfirm && (
-                    <div className="confirm-popup-overlay">
-                        <div className="confirm-popup">
-                            <h3>Konfirmasi Hapus</h3>
-                            <p>
-                                Apakah Anda yakin ingin menghapus layanan <strong>{layananToDelete?.nama || 'ini'}</strong>?
-                            </p>
-                            <div className="confirm-buttons">
-                                <button className="confirm-cancel" onClick={cancelDelete}>Batal</button>
-                                <button className="confirm-delete" onClick={confirmDeleteLayanan}>Hapus</button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                {/* Using Popup2 component for delete confirmation */}
+                <Popup 
+                    isOpen={showDeletePopup}
+                    onClose={cancelDelete}
+                    title="Konfirmasi Hapus"
+                    description={
+                        <p>Apakah Anda yakin ingin menghapus layanan <strong>{layananToDelete?.nama || 'ini'}</strong>?</p>
+                    }
+                    onConfirm={confirmDeleteLayanan}
+                />
 
-                {/* Render the EditLayanan component when showEditPopup is true */}
+                {/* Edit popup */}
                 {showEditPopup && layananToEdit && (
                     <EditLayanan 
                         layanan={layananToEdit}
@@ -365,7 +347,7 @@ const Tindakan = () => {
                     />
                 )}
 
-                {/* Render the TambahLayanan component when showAddPopup is true */}
+                {/* Add popup */}
                 {showAddPopup && (
                     <TambahLayanan 
                         onClose={handleCloseAddPopup}

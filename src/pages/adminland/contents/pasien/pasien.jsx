@@ -6,6 +6,7 @@ import lihatIcon from "../../../../components/riwayat/gambar/lihat.png";
 import { getPasienByUserId, deletePasienById, updatePasien, getAllPasien } from '../../../../api/api-pasien';
 import EditPasien from './EditPasien'; // Import the EditPasien component
 import LihatPasien from './LihatPasien'; // Import the LihatPasien component
+import Popup from '../../admin_nav/popup_nav/popup2'; // Import the Popup component
 
 const Pasien = () => {
     const [pasien, setPasien] = useState([]);
@@ -321,21 +322,14 @@ const Pasien = () => {
                     />
                 )}
 
-                {/* Delete Confirmation Modal */}
-                {showDeleteConfirm && (
-                    <div className="confirm-popup-overlay">
-                        <div className="confirm-popup">
-                            <h3>Konfirmasi Hapus</h3>
-                            <p>
-                                Apakah Anda yakin ingin menghapus pasien <strong>{pasienToDelete?.nama || 'ini'}</strong>?
-                            </p>
-                            <div className="confirm-buttons">
-                                <button className="confirm-cancel" onClick={cancelDelete}>Batal</button>
-                                <button className="confirm-delete" onClick={confirmDeletePasien}>Hapus</button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                {/* Delete Confirmation using Popup Component */}
+                <Popup
+                    isOpen={showDeleteConfirm}
+                    onClose={cancelDelete}
+                    title="Konfirmasi Hapus"
+                    description={`Apakah Anda yakin ingin menghapus pasien ${pasienToDelete?.nama || 'ini'}?`}
+                    onConfirm={confirmDeletePasien}
+                />
             </div>
         </div>
     );
