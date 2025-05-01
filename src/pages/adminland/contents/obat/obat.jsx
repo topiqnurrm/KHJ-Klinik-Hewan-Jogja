@@ -19,6 +19,9 @@ const Obat = () => {
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [produkToEdit, setProdukToEdit] = useState(null);
     const [showAddPopup, setShowAddPopup] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [showError, setShowError] = useState(false);
 
     const fetchAllProduk = async () => {
         setIsLoading(true);
@@ -38,10 +41,41 @@ const Obat = () => {
             setFilteredProduk(processedData);
         } catch (error) {
             console.error('Gagal fetch data produk:', error);
+            showErrorMessage('Gagal memuat data produk');
         } finally {
             setIsLoading(false);
         }
     };
+
+    // Get current user from localStorage or API on component mount
+    useEffect(() => {
+        const getCurrentUser = async () => {
+            try {
+                // Get user from localStorage or fetch from API
+                const user = JSON.parse(localStorage.getItem('user'));
+                setCurrentUser(user);
+            } catch (error) {
+                console.error('Error getting current user:', error);
+            }
+        };
+        
+        getCurrentUser();
+    }, []);
+
+    // Function to show error message and hide it after 2 seconds
+    const showErrorMessage = (message) => {
+        setErrorMessage(message);
+        setShowError(true);
+        
+        // Hide error after 2 seconds
+        setTimeout(() => {
+            setShowError(false);
+            setErrorMessage("");
+        }, 2000);
+    };
+
+    // Check if user has superadmin role
+    const isSuperAdmin = currentUser?.aktor === 'superadmin';
 
     // Helper function to parse Decimal128 values
     const parseDecimal128 = (value) => {
@@ -111,6 +145,11 @@ const Obat = () => {
     }, [searchTerm, produk, sortBy, sortOrder]);
 
     const handleDelete = (produk) => {
+        if (!isSuperAdmin) {
+            showErrorMessage('Hanya superadmin yang dapat menghapus obat');
+            return;
+        }
+        
         setProdukToDelete(produk);
         setShowDeletePopup(true); // Show the popup2 component
     };
@@ -121,16 +160,25 @@ const Obat = () => {
         setShowDeletePopup(false);
 
         try {
-            await fetch(`http://localhost:5000/api/produk/${produkToDelete._id}`, {
-                method: 'DELETE'
+            const response = await fetch(`http://localhost:5000/api/produk/${produkToDelete._id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
+            
+            const result = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(result.message || 'Gagal menghapus produk');
+            }
             
             const updatedProduk = produk.filter(p => p._id !== produkToDelete._id);
             setProduk(updatedProduk);
             setFilteredProduk(updatedProduk);
         } catch (error) {
             console.error("Gagal menghapus produk:", error);
-            alert("Gagal menghapus produk: " + (error.response?.data?.message || error.message));
+            showErrorMessage(error.message || "Gagal menghapus produk");
         } finally {
             setIsLoading(false);
             setProdukToDelete(null);
@@ -237,6 +285,11 @@ const Obat = () => {
     };
 
     const handleAddProduk = () => {
+        if (!isSuperAdmin) {
+            showErrorMessage('Hanya superadmin yang dapat menambahkan obat');
+            return;
+        }
+        
         setShowAddPopup(true);
     };
 
@@ -258,12 +311,18 @@ const Obat = () => {
     };
 
     const handleEdit = (produkItem) => {
+        if (!isSuperAdmin) {
+            showErrorMessage('Hanya superadmin yang dapat mengedit obat');
+            return;
+        }
+        
         const produkToEdit = produk.find(p => p._id === produkItem._id);
         if (produkToEdit) {
             setProdukToEdit(produkToEdit);
             setShowEditPopup(true);
         } else {
             console.error("Produk tidak ditemukan:", produkItem._id);
+            showErrorMessage("Produk tidak ditemukan");
         }
     };
 
@@ -290,11 +349,22 @@ const Obat = () => {
 
     return (
         <div className='obat-container'>
+            {/* Error message popup */}
+            {showError && (
+                <div className="error-message-popup">
+                    {errorMessage}
+                </div>
+            )}
+            
             <div className="dashboard-header">
-                <h1>Obat</h1>
+                <h1>Manajemen &gt; Obat</h1>
             </div>
             <div className="riwayat-filter-container">
-                <button className="tambah-user-button" onClick={handleAddProduk}>
+                <button 
+                    className={`tambah-user-button ${!isSuperAdmin ? 'disabled-button' : ''}`} 
+                    onClick={handleAddProduk}
+                    disabled={!isSuperAdmin}
+                >
                     + Tambah Obat
                 </button>
                 <div className="riwayat-search-wrapper">
@@ -376,10 +446,20 @@ const Obat = () => {
                                         <td>{formatCurrency(item.harga)}</td>
                                         <td>{item.stok}</td>
                                         <td className="riwayat-actions">
-                                            <button className="btn-green" title="Edit" onClick={() => handleEdit(item)}>
+                                            <button 
+                                                className={`btn-green ${!isSuperAdmin ? 'disabled-button' : ''}`} 
+                                                title="Edit" 
+                                                onClick={() => handleEdit(item)}
+                                                disabled={!isSuperAdmin}
+                                            >
                                                 <img src={editIcon} alt="edit" />
                                             </button>
-                                            <button className="btn-red" title="Hapus" onClick={() => handleDelete(item)} disabled={isLoading}>
+                                            <button 
+                                                className={`btn-red ${!isSuperAdmin ? 'disabled-button' : ''}`} 
+                                                title="Hapus" 
+                                                onClick={() => handleDelete(item)} 
+                                                disabled={!isSuperAdmin || isLoading}
+                                            >
                                                 <img src={hapusIcon} alt="hapus" />
                                             </button>
                                         </td>

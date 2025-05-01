@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import './AddUser.css';
-import { createUser } from '../../../../api/api-user';
+import { createUser, sendVerificationEmail } from '../../../../api/api-user';
 
 const AddUser = ({ onClose, onUpdate }) => {
     const [userData, setUserData] = useState({
@@ -193,10 +193,21 @@ const AddUser = ({ onClose, onUpdate }) => {
                 tanggal_lahir: new Date(userData.tanggal_lahir)
             };
             
+            // Simpan password yang belum dihash untuk dikirim ke email
+            const plainPassword = userData.password;
+            
             // Send data to API
             const result = await createUser(formattedData);
             
             if (result && result.user) {
+                // Kirim email verifikasi
+                try {
+                    // await sendVerificationEmail(userData.email, plainPassword);
+                } catch (emailError) {
+                    console.error('Gagal mengirim email verifikasi:', emailError);
+                    // Tetap lanjutkan meskipun email gagal
+                }
+                
                 onUpdate(result.user); // Pass new user data back to parent
                 onClose(); // Close the popup
             } else {

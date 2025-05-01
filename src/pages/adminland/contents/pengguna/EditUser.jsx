@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import './EditUser.css';
-import { getUserById, updateUser } from '../../../../api/api-user';
+import { getUserById, updateUser, sendVerificationEmail } from '../../../../api/api-user';
+import Popup from '../../admin_nav/popup_nav/popup2'; // Import komponen Popup yang sudah ada
 
 const EditUser = ({ userId, onClose, onUpdate }) => {
     const [userData, setUserData] = useState({
@@ -13,21 +14,16 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
         aktor: '',
         gender: '',
         tanggal_lahir: '',
-        gambar: '/images/default.png' // Default value from schema
+        gambar: null
     });
+    const [originalEmail, setOriginalEmail] = useState("");
     const [originalData, setOriginalData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [validation, setValidation] = useState({
-        nama: '',
-        email: '',
-        telepon: '',
-        password: '',
-        alamat: '',
-        aktor: '',
-        gender: '',
-        tanggal_lahir: ''
-    });
+    const [fileName, setFileName] = useState("");
+    const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+    const [formIsValid, setFormIsValid] = useState(false);
+    const [dataChanged, setDataChanged] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -46,10 +42,11 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                     setUserData(formattedData);
                     // Simpan data original untuk deteksi perubahan
                     setOriginalData({...formattedData});
+                    setOriginalEmail(data.email || "");
                 }
             } catch (error) {
                 console.error('Gagal mengambil data user:', error);
-                setError('Gagal mengambil data pengguna');
+                showError('Gagal mengambil data pengguna');
             } finally {
                 setIsLoading(false);
             }
@@ -58,169 +55,166 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
         fetchUserData();
     }, [userId]);
 
-    const validateField = (name, value) => {
-        let errorMessage = '';
-        
-        switch (name) {
-            case 'nama':
-                if (!value.trim()) {
-                    errorMessage = 'Nama tidak boleh kosong';
-                } else if (value.trim().length > 100) {
-                    errorMessage = 'Nama maksimal 100 karakter';
-                }
-                break;
+    // Validasi form setiap kali data berubah
+    useEffect(() => {
+        if (originalData) {
+            // Check if data has changed first
+            const changedStatus = hasDataChanged();
+            setDataChanged(changedStatus);
             
-            case 'email':
-                if (!value.trim()) {
-                    errorMessage = 'Email tidak boleh kosong';
-                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-                    errorMessage = 'Format email tidak valid';
-                } else if (value.length > 100) {
-                    errorMessage = 'Email maksimal 100 karakter';
-                }
-                break;
+            // Check form validity
+            const isValid = checkFormValidity();
             
-            case 'telepon':
-                if (!value.trim()) {
-                    errorMessage = 'Nomor telepon tidak boleh kosong';
-                } else if (value.length > 20) {
-                    errorMessage = 'Nomor telepon maksimal 20 karakter';
-                }
-                break;
-            
-            case 'password':
-                // Validasi password hanya jika diisi (opsional saat update)
-                if (value && value.length < 6) {
-                    errorMessage = 'Password minimal 6 karakter';
-                } else if (value && value.length > 100) {
-                    errorMessage = 'Password maksimal 100 karakter';
-                }
-                break;
-            
-            case 'alamat':
-                if (!value.trim()) {
-                    errorMessage = 'Alamat tidak boleh kosong';
-                }
-                break;
-            
-            case 'aktor':
-                if (!value) {
-                    errorMessage = 'Peran harus dipilih';
-                } else if (!['superadmin', 'administrasi', 'pembayaran', 'dokter', 'paramedis', 'klien'].includes(value)) {
-                    errorMessage = 'Peran tidak valid';
-                }
-                break;
-            
-            case 'gender':
-                if (!value) {
-                    errorMessage = 'Gender harus dipilih';
-                } else if (!['Laki-laki', 'Perempuan'].includes(value)) {
-                    errorMessage = 'Gender tidak valid';
-                }
-                break;
-            
-            case 'tanggal_lahir':
-                if (!value) {
-                    errorMessage = 'Tanggal lahir harus diisi';
-                } else {
-                    const birthDate = new Date(value);
-                    const today = new Date();
-                    if (isNaN(birthDate.getTime())) {
-                        errorMessage = 'Format tanggal lahir tidak valid';
-                    } else if (birthDate > today) {
-                        errorMessage = 'Tanggal lahir tidak boleh di masa depan';
-                    }
-                }
-                break;
-            
-            default:
-                break;
+            // Button should be enabled only if both: form is valid AND data has changed
+            setFormIsValid(isValid && changedStatus);
         }
-        
-        return errorMessage;
+    }, [userData, originalData]);
+
+    const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        return !isNaN(date.getTime()) ? date.toISOString().split("T")[0] : "";
     };
+
+    const showError = (message) => {
+        setError(message);
+        setTimeout(() => setError(''), 3000);
+    };
+
+    const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const validatePhone = (phone) => /^[0-9+]+$/.test(phone);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        
-        // Update field value
         setUserData(prev => ({
             ...prev,
             [name]: value
         }));
-        
-        // Validate the field
-        const errorMessage = validateField(name, value);
-        setValidation(prev => ({
-            ...prev,
-            [name]: errorMessage
-        }));
     };
 
-    const validateAllFields = () => {
-        const newValidation = {};
-        let isValid = true;
-        
-        // Validasi semua field
-        Object.keys(userData).forEach(fieldName => {
-            // Skip password jika kosong (password opsional saat update)
-            if (fieldName === 'password' && !userData[fieldName]) {
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.type !== "image/png") {
+                showError("Hanya gambar PNG yang diperbolehkan.");
                 return;
             }
-            
-            // Skip gambar field karena tidak diedit langsung di form
-            if (fieldName === 'gambar') {
-                return;
-            }
-            
-            const errorMessage = validateField(fieldName, userData[fieldName]);
-            newValidation[fieldName] = errorMessage;
-            
-            if (errorMessage) {
-                isValid = false;
-            }
-        });
-        
-        setValidation(newValidation);
-        return isValid;
+            setUserData(prev => ({ ...prev, gambar: file }));
+            setFileName(file.name);
+        }
     };
 
-    // Fungsi untuk mengecek apakah data sudah berubah
+    const isEmailChanged = () => {
+        return userData.email !== originalEmail;
+    };
+
+    const handleSendVerificationEmail = async (email, password) => {
+        try {
+            await sendVerificationEmail(email, password);
+        } catch (err) {
+            console.error("Email verifikasi gagal:", err);
+            showError("Gagal mengirim email verifikasi.");
+        }
+    };
+
     const hasDataChanged = () => {
         if (!originalData) return false;
         
-        // Cek semua field kecuali password dan gambar
-        const fieldsToCheck = ['nama', 'email', 'telepon', 'alamat', 'aktor', 'gender', 'tanggal_lahir'];
-        
-        for (const field of fieldsToCheck) {
-            if (userData[field] !== originalData[field]) {
-                return true;
-            }
-        }
-        
-        // Cek password secara terpisah (jika diisi, berarti ada perubahan)
-        if (userData.password.trim()) {
-            return true;
-        }
-        
-        return false;
+        return (
+            userData.nama !== originalData.nama ||
+            userData.gender !== originalData.gender ||
+            userData.telepon !== originalData.telepon ||
+            userData.email !== originalData.email ||
+            userData.tanggal_lahir !== originalData.tanggal_lahir ||
+            userData.alamat !== originalData.alamat ||
+            userData.aktor !== originalData.aktor ||
+            userData.password.length > 0 ||
+            userData.gambar !== null
+        );
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const checkFormValidity = () => {
+        const { nama, email, password, telepon, alamat, aktor, gender, tanggal_lahir } = userData;
         
-        // Validasi semua field sebelum submit
-        if (!validateAllFields()) {
-            setError('Mohon perbaiki semua kesalahan pada form');
-            return;
+        // Validasi dasar
+        const isValidEmail = email && validateEmail(email) && email.length <= 100;
+        const isValidPassword = isEmailChanged() ? (password && password.length >= 6 && password.length <= 100) : (password === '' || (password.length >= 6 && password.length <= 100));
+        const isValidPhone = telepon && validatePhone(telepon) && telepon.length <= 20;
+        
+        // Cek validitas seluruh form
+        const isValid = 
+            nama && nama.length <= 100 &&
+            isValidEmail &&
+            isValidPassword &&
+            isValidPhone &&
+            alamat &&
+            aktor &&
+            gender && ["Laki-laki", "Perempuan"].includes(gender) &&
+            tanggal_lahir;
+            
+        return isValid;
+    };
+
+    const validateForm = () => {
+        const { nama, email, password, telepon, alamat, aktor, gender, tanggal_lahir } = userData;
+
+        if (!nama || nama.length > 100) {
+            showError("Nama wajib diisi dan maksimal 100 karakter.");
+            return false;
+        }
+        if (!email || !validateEmail(email) || email.length > 100) {
+            showError("Email wajib diisi, format harus valid, dan maksimal 100 karakter.");
+            return false;
         }
         
-        // Cek apakah ada perubahan data
-        if (!hasDataChanged()) {
-            setError('Data tidak berubah');
-            return;
+        if (isEmailChanged() && !password) {
+            showError("Password wajib diisi jika mengubah email.");
+            return false;
         }
         
+        if (password && (password.length < 6 || password.length > 100)) {
+            showError("Password minimal 6 karakter dan maksimal 100 karakter.");
+            return false;
+        }
+        if (!telepon || !validatePhone(telepon) || telepon.length > 20) {
+            showError("Telepon wajib diisi, hanya angka atau +, maksimal 20 karakter.");
+            return false;
+        }
+        if (!alamat) {
+            showError("Alamat wajib diisi.");
+            return false;
+        }
+        if (!aktor) {
+            showError("Peran harus dipilih.");
+            return false;
+        }
+        if (!gender || !["Laki-laki", "Perempuan"].includes(gender)) {
+            showError("Gender wajib dipilih.");
+            return false;
+        }
+        if (!tanggal_lahir) {
+            showError("Tanggal lahir wajib diisi.");
+            return false;
+        }
+
+        const tahun = parseInt(tanggal_lahir.split("-")[0], 10);
+        if (tahun < 1900 || tahun > 2099) {
+            showError("Tahun lahir harus antara 1900 dan 2099.");
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleSubmit = async () => {
+        if (!dataChanged) {
+            showError("Tidak ada perubahan.");
+            return;
+        }
+
+        if (!validateForm()) {
+            return;
+        }
+
         setIsLoading(true);
         setError('');
         
@@ -233,27 +227,45 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                 delete updatePayload.password;
             }
             
-            // Format tanggal lahir sebagai Date object untuk backend
-            if (updatePayload.tanggal_lahir) {
-                updatePayload.tanggal_lahir = new Date(updatePayload.tanggal_lahir);
-            }
-            
             const result = await updateUser(userId, updatePayload);
             
-            if (result) {
+            if (result && result.user) {
+                // Kirim email verifikasi jika email atau password diubah
+                if (
+                    (userData.email && userData.email !== originalEmail) ||
+                    (userData.password && userData.password.length > 0)
+                ) {
+                    await handleSendVerificationEmail(userData.email, userData.password);
+                }
+                
                 onUpdate(result.user); // Pass updated user data back to parent
                 onClose(); // Close the popup
+            } else {
+                showError(result?.message || "Gagal memperbarui data.");
             }
         } catch (error) {
             console.error('Gagal mengupdate user:', error);
             if (error.response?.status === 409) {
-                setError('Email sudah digunakan oleh pengguna lain');
+                showError('Email sudah digunakan oleh pengguna lain');
             } else {
-                setError(error.response?.data?.message || 'Gagal menyimpan perubahan');
+                showError(error.response?.data?.message || 'Gagal menyimpan perubahan');
             }
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleSaveClick = () => {
+        if (!dataChanged) {
+            showError("Tidak ada perubahan.");
+            return;
+        }
+
+        if (!validateForm()) {
+            return;
+        }
+
+        setShowConfirmPopup(true);
     };
 
     // Content yang akan dirender menggunakan portal
@@ -265,11 +277,9 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                 </div>
                 
                 <div className="edit-content">
-                    {isLoading && <div className="loading-text">Memuat data...</div>}
-                    
                     {error && <div className="error-message">{error}</div>}
                     
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={(e) => e.preventDefault()}>
                         <div className="edit-form-row">
                             <div className="edit-form-group">
                                 <label htmlFor="nama">Nama <span className="required">*</span></label>
@@ -279,10 +289,9 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                                     name="nama"
                                     value={userData.nama || ''}
                                     onChange={handleChange}
-                                    className={validation.nama ? 'input-error' : ''}
+                                    className={userData.nama !== originalData?.nama ? 'edited' : ''}
                                     maxLength={100}
                                 />
-                                {validation.nama && <span className="error-text">{validation.nama}</span>}
                             </div>
                             
                             <div className="edit-form-group">
@@ -293,10 +302,9 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                                     name="email"
                                     value={userData.email || ''}
                                     onChange={handleChange}
-                                    className={validation.email ? 'input-error' : ''}
+                                    className={userData.email !== originalData?.email ? 'edited' : ''}
                                     maxLength={100}
                                 />
-                                {validation.email && <span className="error-text">{validation.email}</span>}
                             </div>
                         </div>
                         
@@ -309,12 +317,30 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                                     name="telepon"
                                     value={userData.telepon || ''}
                                     onChange={handleChange}
-                                    className={validation.telepon ? 'input-error' : ''}
+                                    className={userData.telepon !== originalData?.telepon ? 'edited' : ''}
                                     maxLength={20}
                                 />
-                                {validation.telepon && <span className="error-text">{validation.telepon}</span>}
                             </div>
                             
+                            <div className="edit-form-group">
+                                <label htmlFor="password">{isEmailChanged() ? 'Password * (Wajib diisi jika email diubah)' : 'Password'}</label>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    value={userData.password || ''}
+                                    onChange={handleChange}
+                                    placeholder={isEmailChanged() ? "Password wajib diisi" : "Kosongkan jika tidak ingin mengubah"}
+                                    className={userData.password ? 'edited' : isEmailChanged() ? 'edited required' : ''}
+                                    required={isEmailChanged()}
+                                    minLength={6}
+                                    maxLength={100}
+                                />
+                                {!isEmailChanged() && <span className="helper-text">Kosongkan jika tidak ingin mengubah password</span>}
+                            </div>
+                        </div>
+                        
+                        <div className="edit-form-row">
                             <div className="edit-form-group">
                                 <label htmlFor="aktor">Peran <span className="required">*</span></label>
                                 <select
@@ -322,7 +348,7 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                                     name="aktor"
                                     value={userData.aktor || ''}
                                     onChange={handleChange}
-                                    className={validation.aktor ? 'input-error' : ''}
+                                    className={userData.aktor !== originalData?.aktor ? 'edited' : ''}
                                 >
                                     <option value="" disabled>Pilih Peran</option>
                                     <option value="superadmin">Superadmin</option>
@@ -332,26 +358,6 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                                     <option value="paramedis">Paramedis</option>
                                     <option value="klien">Klien</option>
                                 </select>
-                                {validation.aktor && <span className="error-text">{validation.aktor}</span>}
-                            </div>
-                        </div>
-                        
-                        <div className="edit-form-row">
-                            <div className="edit-form-group">
-                                <label htmlFor="password">Password</label>
-                                <input
-                                    type="password"
-                                    id="password"
-                                    name="password"
-                                    value={userData.password || ''}
-                                    onChange={handleChange}
-                                    placeholder="Kosongkan jika tidak ingin mengubah"
-                                    className={validation.password ? 'input-error' : ''}
-                                    minLength={6}
-                                    maxLength={100}
-                                />
-                                {validation.password && <span className="error-text">{validation.password}</span>}
-                                {!validation.password && <span className="helper-text">Kosongkan jika tidak ingin mengubah password</span>}
                             </div>
                             
                             <div className="edit-form-group">
@@ -362,9 +368,8 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                                     name="alamat"
                                     value={userData.alamat || ''}
                                     onChange={handleChange}
-                                    className={validation.alamat ? 'input-error' : ''}
+                                    className={userData.alamat !== originalData?.alamat ? 'edited' : ''}
                                 />
-                                {validation.alamat && <span className="error-text">{validation.alamat}</span>}
                             </div>
                         </div>
                         
@@ -376,13 +381,12 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                                     name="gender"
                                     value={userData.gender || ''}
                                     onChange={handleChange}
-                                    className={validation.gender ? 'input-error' : ''}
+                                    className={userData.gender !== originalData?.gender ? 'edited' : ''}
                                 >
                                     <option value="" disabled>Pilih Gender</option>
                                     <option value="Laki-laki">Laki-laki</option>
                                     <option value="Perempuan">Perempuan</option>
                                 </select>
-                                {validation.gender && <span className="error-text">{validation.gender}</span>}
                             </div>
                             
                             <div className="edit-form-group">
@@ -393,9 +397,28 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                                     name="tanggal_lahir"
                                     value={userData.tanggal_lahir || ''}
                                     onChange={handleChange}
-                                    className={validation.tanggal_lahir ? 'input-error' : ''}
+                                    className={userData.tanggal_lahir !== formatDate(originalData?.tanggal_lahir) ? 'edited' : ''}
+                                    min="1900-01-01" 
+                                    max="2099-12-31"
                                 />
-                                {validation.tanggal_lahir && <span className="error-text">{validation.tanggal_lahir}</span>}
+                            </div>
+                        </div>
+
+                        <div className="edit-form-row">
+                            <div className="edit-form-group">
+                                <label htmlFor="gambar">Gambar Profile</label>
+                                <div className="file-input-wrapper">
+                                    <label className="custom-file-upload-inside">
+                                        <span className="upload-button">Pilih Gambar</span>
+                                        <input 
+                                            type="file" 
+                                            accept="image/png" 
+                                            onChange={handleFileChange} 
+                                            id="gambar"
+                                        />
+                                        <span className="file-name-inside">{fileName ? `File: ${fileName}` : "Belum ada file"}</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         
@@ -409,9 +432,10 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                                 Batal
                             </button>
                             <button 
-                                type="submit" 
-                                className="simpan-button"
-                                disabled={isLoading || !hasDataChanged()}
+                                type="button" 
+                                className={`simpan-button ${!formIsValid ? 'disabled' : ''}`}
+                                onClick={handleSaveClick}
+                                disabled={isLoading || !formIsValid}
                             >
                                 {isLoading ? 'Menyimpan...' : 'Simpan'}
                             </button>
@@ -419,6 +443,15 @@ const EditUser = ({ userId, onClose, onUpdate }) => {
                     </form>
                 </div>
             </div>
+
+            {/* Menggunakan komponen Popup2 untuk konfirmasi */}
+            <Popup
+                isOpen={showConfirmPopup}
+                onClose={() => setShowConfirmPopup(false)}
+                title="Konfirmasi Perubahan"
+                description="Anda yakin ingin menyimpan perubahan data pengguna ini?"
+                onConfirm={handleSubmit}
+            />
         </div>
     );
     

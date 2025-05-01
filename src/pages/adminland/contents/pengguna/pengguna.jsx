@@ -21,6 +21,11 @@ const Pengguna = () => {
     const [userIdToEdit, setUserIdToEdit] = useState(null);
     // New state for add user functionality
     const [showAddPopup, setShowAddPopup] = useState(false);
+    // State to check if current user is superadmin
+    const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+    // State for error display
+    const [errorMessage, setErrorMessage] = useState('');
+    const [showError, setShowError] = useState(false);
 
     const fetchUsers = async () => {
         setIsLoading(true);
@@ -37,6 +42,14 @@ const Pengguna = () => {
 
     useEffect(() => {
         fetchUsers();
+        
+        // Check if the logged-in user is a superadmin
+        const checkUserRole = () => {
+            const currentUser = JSON.parse(localStorage.getItem("user")) || {};
+            setIsSuperAdmin(currentUser.aktor === "superadmin");
+        };
+        
+        checkUserRole();
     }, []);
 
     useEffect(() => {
@@ -70,18 +83,38 @@ const Pengguna = () => {
         setFilteredUsers(result);
     }, [searchTerm, users, sortBy, sortOrder]);
 
+    const showPermissionError = () => {
+        setErrorMessage('Anda tidak memiliki akses untuk melakukan tindakan ini. Hanya Superadmin yang diizinkan.');
+        setShowError(true);
+        setTimeout(() => {
+            setShowError(false);
+        }, 3000);
+    };
+
     const handleDelete = (user) => {
+        if (!isSuperAdmin) {
+            showPermissionError();
+            return;
+        }
         setUserToDelete(user);
         setShowDeleteConfirm(true);
     };
 
     const handleEdit = (userId) => {
+        if (!isSuperAdmin) {
+            showPermissionError();
+            return;
+        }
         setUserIdToEdit(userId);
         setShowEditPopup(true);
     };
 
     // New handler for add user button
     const handleAddUser = () => {
+        if (!isSuperAdmin) {
+            showPermissionError();
+            return;
+        }
         setShowAddPopup(true);
     };
 
@@ -114,7 +147,11 @@ const Pengguna = () => {
             // alert('User berhasil dihapus');
         } catch (error) {
             console.error("Gagal menghapus user:", error);
-            alert("Gagal menghapus user: " + (error.response?.data?.message || error.message));
+            if (error.response?.status === 403) {
+                showPermissionError();
+            } else {
+                alert("Gagal menghapus user: " + (error.response?.data?.message || error.message));
+            }
         } finally {
             setIsLoading(false);
             setUserToDelete(null);
@@ -146,10 +183,21 @@ const Pengguna = () => {
     return (
         <div className='pengguna-container'>
             <div className="dashboard-header">
-                <h1>Pengguna</h1>
+                <h1>Manajemen &gt; Pengguna</h1>
             </div>
+            
+            {/* Error notification */}
+            {showError && (
+                <div className="error-notification">
+                    {errorMessage}
+                </div>
+            )}
+            
             <div className="riwayat-filter-container">
-                <button className="tambah-user-button" onClick={handleAddUser}>
+                <button 
+                    className={`tambah-user-button ${!isSuperAdmin ? 'disabled-button' : ''}`} 
+                    onClick={handleAddUser}
+                >
                     + Tambah Pengguna
                 </button>
                 <div className="riwayat-search-wrapper">
@@ -228,10 +276,20 @@ const Pengguna = () => {
                                             </span>
                                         </td>
                                         <td className="riwayat-actions">
-                                            <button className="btn-green" title="Edit" onClick={() => handleEdit(user._id)}>
+                                            <button 
+                                                className={`btn-green ${!isSuperAdmin ? 'disabled-button' : ''}`} 
+                                                title="Edit" 
+                                                onClick={() => handleEdit(user._id)}
+                                                disabled={isLoading}
+                                            >
                                                 <img src={editIcon} alt="edit" />
                                             </button>
-                                            <button className="btn-red" title="Hapus" onClick={() => handleDelete(user)} disabled={isLoading}>
+                                            <button 
+                                                className={`btn-red ${!isSuperAdmin ? 'disabled-button' : ''}`} 
+                                                title="Hapus" 
+                                                onClick={() => handleDelete(user)} 
+                                                disabled={isLoading}
+                                            >
                                                 <img src={hapusIcon} alt="hapus" />
                                             </button>
                                         </td>
@@ -271,6 +329,24 @@ const Pengguna = () => {
                     />
                 )}
             </div>
+            
+            {/* CSS for disabled buttons and error notification */}
+            <style jsx>{`
+                .disabled-button {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+                
+                .error-notification {
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    padding: 10px 15px;
+                    margin-bottom: 15px;
+                    border: 1px solid #f5c6cb;
+                    border-radius: 4px;
+                    text-align: center;
+                }
+            `}</style>
         </div>
     );
 };

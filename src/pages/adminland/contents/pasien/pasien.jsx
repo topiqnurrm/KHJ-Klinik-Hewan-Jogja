@@ -30,6 +30,10 @@ const Pasien = () => {
     // State untuk error message
     const [errorMessage, setErrorMessage] = useState("");
     const [showError, setShowError] = useState(false);
+    
+    // State untuk user role
+    const [currentUserRole, setCurrentUserRole] = useState("");
+    const [showAddModal, setShowAddModal] = useState(false);
 
     const showErrorMessage = (message) => {
         setErrorMessage(message);
@@ -39,6 +43,21 @@ const Pasien = () => {
         setTimeout(() => {
             setShowError(false);
         }, 2000);
+    };
+
+    const fetchCurrentUserRole = async () => {
+        try {
+            // Dapatkan user ID dari localStorage atau sessionStorage
+            const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user'));
+            
+            if (currentUser && currentUser._id) {
+                const response = await fetch(`http://localhost:5000/api/users/${currentUser._id}`);
+                const userData = await response.json();
+                setCurrentUserRole(userData.aktor || "");
+            }
+        } catch (error) {
+            console.error('Gagal fetch data user:', error);
+        }
     };
 
     const fetchAllPasien = async () => {
@@ -79,6 +98,7 @@ const Pasien = () => {
     };
 
     useEffect(() => {
+        fetchCurrentUserRole();
         fetchAllPasien();
     }, []);
 
@@ -127,12 +147,16 @@ const Pasien = () => {
     };
 
     const handleDelete = (pasien) => {
+        if (currentUserRole !== "superadmin") {
+            showErrorMessage("Hanya superadmin yang dapat menghapus data pasien");
+            return;
+        }
         setPasienToDelete(pasien);
         setShowDeleteConfirm(true);
     };
 
     const confirmDeletePasien = async () => {
-        if (!pasienToDelete) return;
+        if (!pasienToDelete || currentUserRole !== "superadmin") return;
         setIsLoading(true);
         setShowDeleteConfirm(false);
 
@@ -170,8 +194,20 @@ const Pasien = () => {
     };
 
     const handleEdit = (pasienItem) => {
+        if (currentUserRole !== "superadmin") {
+            showErrorMessage("Hanya superadmin yang dapat mengubah data pasien");
+            return;
+        }
         setEditingPasien(pasienItem);
         setShowEditModal(true);
+    };
+
+    const handleAddPasien = () => {
+        if (currentUserRole !== "superadmin") {
+            showErrorMessage("Hanya superadmin yang dapat menambah data pasien");
+            return;
+        }
+        setShowAddModal(true);
     };
 
     const handleUpdatePasien = (updatedPasien) => {
@@ -194,10 +230,16 @@ const Pasien = () => {
         setDetailPasien(null);
     };
 
+    const closeAddModal = () => {
+        setShowAddModal(false);
+    };
+
+    const isSuperAdmin = currentUserRole === "superadmin";
+
     return (
         <div className='pasien-container'>
             <div className="dashboard-header">
-                <h1>Pasien</h1>
+                <h1>Manajemen &gt; Pasien</h1>
             </div>
             
             {/* Error Message */}
@@ -289,10 +331,20 @@ const Pasien = () => {
                                             <button className="btn-blue" title="Lihat" onClick={() => handleViewDetail(item)}>
                                                 <img src={lihatIcon} alt="lihat" />
                                             </button>
-                                            <button className="btn-green" title="Edit" onClick={() => handleEdit(item)}>
+                                            <button 
+                                                className={`btn-green ${!isSuperAdmin ? 'disabled' : ''}`} 
+                                                title="Edit" 
+                                                onClick={() => handleEdit(item)}
+                                                disabled={!isSuperAdmin}
+                                            >
                                                 <img src={editIcon} alt="edit" />
                                             </button>
-                                            <button className="btn-red" title="Hapus" onClick={() => handleDelete(item)} disabled={isLoading}>
+                                            <button 
+                                                className={`btn-red ${!isSuperAdmin ? 'disabled' : ''}`} 
+                                                title="Hapus" 
+                                                onClick={() => handleDelete(item)} 
+                                                disabled={!isSuperAdmin || isLoading}
+                                            >
                                                 <img src={hapusIcon} alt="hapus" />
                                             </button>
                                         </td>
@@ -330,6 +382,17 @@ const Pasien = () => {
                     description={`Apakah Anda yakin ingin menghapus pasien ${pasienToDelete?.nama || 'ini'}?`}
                     onConfirm={confirmDeletePasien}
                 />
+
+                {/* This would be the Add Component, which is not shown in your provided code */}
+                {/* {showAddModal && (
+                    <TambahPasien 
+                        onClose={closeAddModal} 
+                        onAdd={(newPasien) => {
+                            setPasien(prev => [...prev, newPasien]);
+                            fetchAllPasien();
+                        }} 
+                    />
+                )} */}
             </div>
         </div>
     );

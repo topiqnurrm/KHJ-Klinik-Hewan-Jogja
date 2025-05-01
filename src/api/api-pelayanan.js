@@ -1,5 +1,41 @@
 import axios from 'axios';
 
+// Helper function to check if user is superadmin
+const isSuperAdmin = () => {
+  try {
+    const userString = localStorage.getItem('user');
+    if (userString) {
+      const userData = JSON.parse(userString);
+      return userData.aktor === 'superadmin';
+    }
+    return false;
+  } catch (error) {
+    console.error('Error checking user role:', error);
+    return false;
+  }
+};
+
+// Function to create a temporary error message and return a rejected promise
+const createTemporaryError = (message) => {
+  const errorElement = document.createElement('div');
+  errorElement.className = 'error-message-floating';
+  errorElement.textContent = message;
+  document.body.appendChild(errorElement);
+  
+  // Remove after 2 seconds
+  setTimeout(() => {
+    document.body.removeChild(errorElement);
+  }, 2000);
+  
+  return Promise.reject(new Error(message));
+};
+
+// Get token from localStorage
+const getAuthHeader = () => {
+  const token = localStorage.getItem('token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+};
+
 // Original function - fetches layanan and returns them in react-select format
 export const fetchLayanan = async () => {
   try {
@@ -33,13 +69,24 @@ export const getAllLayanan = async () => {
   }
 };
 
-// Function to delete a layanan
+// Function to delete a layanan with role validation
 export const deleteLayanan = async (id) => {
+  // Check if user is superadmin
+  if (!isSuperAdmin()) {
+    return createTemporaryError("Hanya superadmin yang dapat menghapus layanan");
+  }
+
   try {
-    const response = await axios.delete(`http://localhost:5000/api/pelayanan/${id}`);
+    const response = await axios.delete(`http://localhost:5000/api/pelayanan/${id}`, {
+      headers: getAuthHeader()
+    });
     return response.data;
   } catch (error) {
     console.error("Error deleting layanan:", error);
+    // If server returns 403 error, show permission message
+    if (error.response?.status === 403) {
+      return createTemporaryError("Hanya superadmin yang dapat menghapus layanan");
+    }
     throw error;
   }
 };
@@ -55,24 +102,46 @@ export const getLayananById = async (id) => {
   }
 };
 
-// Function to create a new layanan
+// Function to create a new layanan with role validation
 export const createLayanan = async (layananData) => {
+  // Check if user is superadmin
+  if (!isSuperAdmin()) {
+    return createTemporaryError("Hanya superadmin yang dapat menambah layanan");
+  }
+
   try {
-    const response = await axios.post("http://localhost:5000/api/pelayanan", layananData);
+    const response = await axios.post("http://localhost:5000/api/pelayanan", layananData, {
+      headers: getAuthHeader()
+    });
     return response.data;
   } catch (error) {
     console.error("Error creating layanan:", error);
+    // If server returns 403 error, show permission message
+    if (error.response?.status === 403) {
+      return createTemporaryError("Hanya superadmin yang dapat menambah layanan");
+    }
     throw error;
   }
 };
 
-// Function to update a layanan
+// Function to update a layanan with role validation
 export const updateLayanan = async (id, layananData) => {
+  // Check if user is superadmin
+  if (!isSuperAdmin()) {
+    return createTemporaryError("Hanya superadmin yang dapat mengubah layanan");
+  }
+
   try {
-    const response = await axios.put(`http://localhost:5000/api/pelayanan/${id}`, layananData);
+    const response = await axios.put(`http://localhost:5000/api/pelayanan/${id}`, layananData, {
+      headers: getAuthHeader()
+    });
     return response.data;
   } catch (error) {
     console.error("Error updating layanan:", error);
+    // If server returns 403 error, show permission message
+    if (error.response?.status === 403) {
+      return createTemporaryError("Hanya superadmin yang dapat mengubah layanan");
+    }
     throw error;
   }
 };

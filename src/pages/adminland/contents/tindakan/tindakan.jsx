@@ -21,6 +21,10 @@ const Tindakan = () => {
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [layananToEdit, setLayananToEdit] = useState(null);
     const [showAddPopup, setShowAddPopup] = useState(false);
+    // State for error message
+    const [errorMessage, setErrorMessage] = useState('');
+    // State to store current user data
+    const [currentUser, setCurrentUser] = useState(null);
 
     const fetchAllLayanan = async () => {
         setIsLoading(true);
@@ -37,8 +41,34 @@ const Tindakan = () => {
         }
     };
 
+    // Get current user data from localStorage or session
+    const getCurrentUser = () => {
+        try {
+            // Get user data from localStorage (adjust based on how your auth is implemented)
+            const userString = localStorage.getItem('user');
+            if (userString) {
+                const userData = JSON.parse(userString);
+                setCurrentUser(userData);
+            }
+        } catch (error) {
+            console.error('Error getting current user:', error);
+        }
+    };
+
+    // Check if user has superadmin role
+    const isSuperAdmin = () => {
+        return currentUser && currentUser.aktor === 'superadmin';
+    };
+
+    // Show error message with timeout
+    const showError = (message) => {
+        setErrorMessage(message);
+        setTimeout(() => setErrorMessage(''), 2000);
+    };
+
     useEffect(() => {
         fetchAllLayanan();
+        getCurrentUser();
     }, []);
 
     useEffect(() => {
@@ -78,6 +108,10 @@ const Tindakan = () => {
     }, [searchTerm, layanan, sortBy, sortOrder]);
 
     const handleDelete = (layanan) => {
+        if (!isSuperAdmin()) {
+            showError('Hanya superadmin yang dapat menghapus layanan');
+            return;
+        }
         setLayananToDelete(layanan);
         setShowDeletePopup(true); // Open the popup2 component
     };
@@ -90,7 +124,10 @@ const Tindakan = () => {
         try {
             // Implement your delete API call here
             await fetch(`http://localhost:5000/api/pelayanan/${layananToDelete._id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
             
             const updatedLayanan = layanan.filter(l => l._id !== layananToDelete._id);
@@ -98,7 +135,11 @@ const Tindakan = () => {
             setFilteredLayanan(updatedLayanan);
         } catch (error) {
             console.error("Gagal menghapus layanan:", error);
-            alert("Gagal menghapus layanan: " + (error.response?.data?.message || error.message));
+            if (error.response?.status === 403) {
+                showError("Hanya superadmin yang dapat menghapus layanan");
+            } else {
+                showError("Gagal menghapus layanan: " + (error.response?.data?.message || error.message));
+            }
         } finally {
             setIsLoading(false);
             setLayananToDelete(null);
@@ -189,6 +230,10 @@ const Tindakan = () => {
     };
 
     const handleAddLayanan = () => {
+        if (!isSuperAdmin()) {
+            showError('Hanya superadmin yang dapat menambah layanan');
+            return;
+        }
         setShowAddPopup(true);
     };
 
@@ -202,6 +247,11 @@ const Tindakan = () => {
     };
 
     const handleEdit = (layananItem) => {
+        if (!isSuperAdmin()) {
+            showError('Hanya superadmin yang dapat mengedit layanan');
+            return;
+        }
+        
         const layananToEdit = layanan.find(l => l._id === layananItem._id);
         if (layananToEdit) {
             setLayananToEdit(layananToEdit);
@@ -228,10 +278,21 @@ const Tindakan = () => {
     return (
         <div className='tindakan-container'>
             <div className="dashboard-header">
-                <h1>Layanan</h1>
+                <h1>Manajemen &gt; Layanan</h1>
             </div>
+
+            {/* Error message display */}
+            {errorMessage && (
+                <div className="error-message-container">
+                    <div className="error-message">{errorMessage}</div>
+                </div>
+            )}
+
             <div className="riwayat-filter-container">
-                <button className="tambah-user-button" onClick={handleAddLayanan}>
+                <button 
+                    className={`tambah-user-button ${!isSuperAdmin() ? 'button-looks-disabled' : ''}`} 
+                    onClick={handleAddLayanan}
+                >
                     + Tambah Layanan
                 </button>
                 <div className="riwayat-search-wrapper">
@@ -313,10 +374,18 @@ const Tindakan = () => {
                                         <td>{formatCurrency(item.harga_kesayangan_satwaliar)}</td>
                                         <td>{formatCurrency(item.harga_unggas)}</td>
                                         <td className="riwayat-actions">
-                                            <button className="btn-green" title="Edit" onClick={() => handleEdit(item)}>
+                                            <button 
+                                                className={`btn-green ${!isSuperAdmin() ? 'button-looks-disabled' : ''}`} 
+                                                title="Edit" 
+                                                onClick={() => handleEdit(item)}
+                                            >
                                                 <img src={editIcon} alt="edit" />
                                             </button>
-                                            <button className="btn-red" title="Hapus" onClick={() => handleDelete(item)} disabled={isLoading}>
+                                            <button 
+                                                className={`btn-red ${!isSuperAdmin() ? 'button-looks-disabled' : ''}`} 
+                                                title="Hapus" 
+                                                onClick={() => handleDelete(item)} 
+                                            >
                                                 <img src={hapusIcon} alt="hapus" />
                                             </button>
                                         </td>

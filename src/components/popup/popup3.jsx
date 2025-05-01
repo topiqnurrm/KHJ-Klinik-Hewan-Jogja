@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "./popup3.css";
 import ConfirmUpdatePopup from "./ConfirmUpdatePopup";
+import { updateUser, sendVerificationEmail } from "../../api/api-user"; // Import fungsi dari api-user.js
 
 const Popup3 = ({ isOpen, onClose, userData }) => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const Popup3 = ({ isOpen, onClose, userData }) => {
     gambar: null,
   });
 
+  const [originalEmail, setOriginalEmail] = useState("");
   const [fileName, setFileName] = useState("");
   const [error, setError] = useState("");
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
@@ -36,6 +38,7 @@ const Popup3 = ({ isOpen, onClose, userData }) => {
         alamat: userData.alamat || "",
         gambar: null,
       });
+      setOriginalEmail(userData.email || "");
     }
   }, [userData]);
 
@@ -52,24 +55,9 @@ const Popup3 = ({ isOpen, onClose, userData }) => {
     setTimeout(() => setError(""), 3000);
   };
 
-  const sendVerificationEmail = async (email, password) => {
+  const handleSendVerificationEmail = async (email, password) => {
     try {
-      const res = await fetch("http://localhost:5000/api/send-verification-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        const contentType = res.headers.get("content-type");
-        if (contentType?.includes("application/json")) {
-          const data = await res.json();
-          throw new Error(data.message || "Gagal mengirim email verifikasi.");
-        } else {
-          const text = await res.text();
-          throw new Error(`Server tidak mengembalikan JSON. ${text}`);
-        }
-      }
+      await sendVerificationEmail(email, password);
     } catch (err) {
       console.error("Email verifikasi gagal:", err);
       showError("Gagal mengirim email verifikasi.");
@@ -88,15 +76,25 @@ const Popup3 = ({ isOpen, onClose, userData }) => {
     }
   };
 
+  const isEmailChanged = () => {
+    return formData.email !== originalEmail;
+  };
+
   const handleSubmit = async () => {
     if (!isDataChanged()) {
-        return showError("Tidak ada perubahan.");
+      return showError("Tidak ada perubahan.");
     }
 
     const { nama, email, password, telepon, alamat, gender, tanggal_lahir } = formData;
 
     if (!nama || nama.length > 100) return showError("Nama wajib diisi dan maksimal 100 karakter.");
     if (!email || !validateEmail(email) || email.length > 100) return showError("Email wajib diisi, format harus valid, dan maksimal 100 karakter.");
+    
+    // Check if email is changed but password is empty
+    if (isEmailChanged() && !password) {
+      return showError("Password wajib diisi jika mengubah email.");
+    }
+    
     if (password && (password.length < 6 || password.length > 100)) return showError("Password minimal 6 karakter dan maksimal 100 karakter.");
     if (!telepon || !validatePhone(telepon) || telepon.length > 20) return showError("Telepon wajib diisi, hanya angka atau +, maksimal 20 karakter.");
     if (!alamat) return showError("Alamat wajib diisi.");
@@ -106,28 +104,14 @@ const Popup3 = ({ isOpen, onClose, userData }) => {
     const tahun = parseInt(tanggal_lahir.split("-")[0], 10);
     if (tahun < 1900 || tahun > 2099) return showError("Tahun lahir harus antara 1900 dan 2099.");
 
-    const currentUser = JSON.parse(localStorage.getItem("user")) || {};
-    const token = currentUser.token;
-
-    const dataToSend = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value) dataToSend.append(key, value);
-    });
-
     try {
-      const res = await fetch(`http://localhost:5000/api/users/${userData._id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: dataToSend,
-      });
+      // Gunakan fungsi updateUser dari api-user.js
+      const result = await updateUser(userData._id, formData);
 
-      const result = await res.json();
-
-      if (res.ok) {
-        const updatedUser = result.user;
-        const mergedUser = { ...updatedUser, token };
+      if (result.user) {
+        // Update local storage dengan data user yang baru
+        const currentUser = JSON.parse(localStorage.getItem("user")) || {};
+        const mergedUser = { ...result.user, token: currentUser.token };
         localStorage.setItem("user", JSON.stringify(mergedUser));
 
         // Kirim email verifikasi jika email atau password diubah
@@ -135,7 +119,7 @@ const Popup3 = ({ isOpen, onClose, userData }) => {
           (email && email !== userData.email) ||
           (password && password.length > 0)
         ) {
-          await sendVerificationEmail(email, password);
+          await handleSendVerificationEmail(email, password);
         }
 
         onClose();
@@ -145,7 +129,7 @@ const Popup3 = ({ isOpen, onClose, userData }) => {
       }
     } catch (error) {
       console.error("Update error:", error);
-      showError("Terjadi kesalahan saat mengirim data.");
+      showError(error.response?.data?.message || "Terjadi kesalahan saat mengirim data.");
     }
   };
 
@@ -158,6 +142,12 @@ const Popup3 = ({ isOpen, onClose, userData }) => {
   
     if (!nama || nama.length > 100) return showError("Nama wajib diisi dan maksimal 100 karakter.");
     if (!email || !validateEmail(email) || email.length > 100) return showError("Email wajib diisi, format harus valid, dan maksimal 100 karakter.");
+    
+    // Check if email is changed but password is empty
+    if (isEmailChanged() && !password) {
+      return showError("Password wajib diisi jika mengubah email.");
+    }
+    
     if (password && (password.length < 6 || password.length > 100)) return showError("Password minimal 6 karakter dan maksimal 100 karakter.");
     if (!telepon || !validatePhone(telepon) || telepon.length > 20) return showError("Telepon wajib diisi, hanya angka atau +, maksimal 20 karakter.");
     if (!alamat) return showError("Alamat wajib diisi.");
@@ -170,7 +160,6 @@ const Popup3 = ({ isOpen, onClose, userData }) => {
     setShowConfirmPopup(true);
   };
   
-
   const handleConfirm = () => {
     setShowConfirmPopup(false);
     handleSubmit();
@@ -190,7 +179,6 @@ const Popup3 = ({ isOpen, onClose, userData }) => {
     );
   };
   
-
   if (!isOpen || !userData) return null;
 
   return ReactDOM.createPortal(
@@ -216,8 +204,16 @@ const Popup3 = ({ isOpen, onClose, userData }) => {
               <label>Telepon *</label>
               <input name="telepon" value={formData.telepon} onChange={handleChange} className={formData.telepon ? "edited" : ""} />
 
-              <label>Password</label>
-              <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Tulis password baru" className={formData.password ? "edited" : ""} />
+              <label>Password {isEmailChanged() ? '* (Wajib diisi jika email diubah)' : ''}</label>
+              <input 
+                type="password" 
+                name="password" 
+                value={formData.password} 
+                onChange={handleChange} 
+                placeholder={isEmailChanged() ? "Password wajib diisi" : "Tulis password baru"} 
+                className={formData.password ? "edited" : isEmailChanged() ? "edited required" : ""}
+                required={isEmailChanged()}
+              />
             </div>
 
             <div className="form-right">
