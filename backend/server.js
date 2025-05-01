@@ -25,6 +25,10 @@ import bookingWithRetribusi from './routes/bookingWithRetribusi.js';
 
 import routeUser from './routes/rout-user.js';
 
+import routeProduk from './routes/rout-produk.js';
+
+import routePasien from './routes/rout-pasien.js';
+
 dotenv.config();
 
 const app = express();
@@ -100,6 +104,9 @@ app.use('/api/bookings-retribusi', bookingWithRetribusi);
 
 app.use('/api/users', routeUser);
 
+app.use('/api/produk', routeProduk); // Menambahkan route produk
+
+app.use('/api/pasien', routePasien); // Menambahkan route pasiennya
 
 // Route ambil data klien
 app.get('/api/users/klien', async (req, res) => {

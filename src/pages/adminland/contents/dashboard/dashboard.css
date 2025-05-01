@@ -560,25 +560,25 @@
 }
 
 /* Custom scrollbar */
-.dashboard-container .wadah::-webkit-scrollbar,
+/* .dashboard-container .wadah::-webkit-scrollbar, */
 .dashboard-container .table-container::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-.dashboard-container .wadah::-webkit-scrollbar-track,
+/* .dashboard-container .wadah::-webkit-scrollbar-track, */
 .dashboard-container .table-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 10px;
 }
 
-.dashboard-container .wadah::-webkit-scrollbar-thumb,
+/* .dashboard-container .wadah::-webkit-scrollbar-thumb, */
 .dashboard-container .table-container::-webkit-scrollbar-thumb {
   background: #bbb;
   border-radius: 10px;
 }
 
-.dashboard-container .wadah::-webkit-scrollbar-thumb:hover,
+/* .dashboard-container .wadah::-webkit-scrollbar-thumb:hover, */
 .dashboard-container .table-container::-webkit-scrollbar-thumb:hover {
   background: #999;
 }

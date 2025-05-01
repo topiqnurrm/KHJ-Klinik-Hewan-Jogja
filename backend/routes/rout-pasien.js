@@ -5,6 +5,16 @@ import mongoose from 'mongoose';
 
 const router = express.Router();
 
+router.get('/', async (req, res) => {
+  try {
+    const pasien = await Pasien.find({});
+    res.json(pasien);
+  } catch (error) {
+    console.error("Error fetching all patients:", error);
+    res.status(500).json({ message: 'Gagal mengambil semua data pasien' });
+  }
+});
+
 router.get('/user/:userId', async (req, res) => {
     try {
       const pasien = await Pasien.find({ id_user: req.params.userId }); // ✅ Sesuai field di DB

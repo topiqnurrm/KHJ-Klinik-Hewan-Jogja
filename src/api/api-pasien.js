@@ -1,5 +1,14 @@
 import axios from 'axios';
 
+export const getAllPasien = async () => {
+  try {
+    const response = await axios.get("http://localhost:5000/api/pasien");
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil semua data pasien:", error);
+    throw error;
+  }
+};
 
 export const getPasienByUserId = async (userId) => {
   try {
@@ -11,7 +20,6 @@ export const getPasienByUserId = async (userId) => {
   }
 };
 
-
 export const deletePasienById = async (id) => {
   try {
     const response = await axios.delete(`http://localhost:5000/api/pasien/${id}`);
@@ -21,9 +29,6 @@ export const deletePasienById = async (id) => {
     throw error;
   }
 };
-
-
-// In your api-pasien.js or equivalent file
 
 export const updatePasien = async (pasienId, pasienData) => {
   try {
@@ -36,6 +41,16 @@ export const updatePasien = async (pasienId, pasienData) => {
     return response.data;
   } catch (error) {
     console.error('Gagal update data pasien:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const createPasien = async (pasienData) => {
+  try {
+    const response = await axios.post("http://localhost:5000/api/pasien", pasienData);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal menambah pasien baru:", error);
     throw error;
   }
 };
