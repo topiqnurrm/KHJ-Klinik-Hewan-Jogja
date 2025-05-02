@@ -1,7 +1,13 @@
 @font-face {
   font-family: "SansSerifBldFLF";
-  src: url("/src/components/fonts/SansSerifBldFLF.ttf") format("truetype"),
-       url("/src/components/fonts/SansSerifFLF.ttf") format("truetype");
+  src: url("/src/components/fonts/SansSerifBldFLF.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SansSerifFLF";
+  src: url("/src/components/fonts/SansSerifFLF.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
 }
@@ -121,7 +127,7 @@
 }
 
 .pengguna-container .riwayat-table th {
- background-color: #b2d5af;
+ background-color: #d5ead3;
  font-weight: bold;
 }
 

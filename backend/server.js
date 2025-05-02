@@ -29,6 +29,8 @@ import routeProduk from './routes/rout-produk.js';
 
 import routePasien from './routes/rout-pasien.js';
 
+import routeUserEdit from './routes/route-user-edit.js';
+
 dotenv.config();
 
 const app = express();
@@ -107,6 +109,8 @@ app.use('/api/users', routeUser);
 app.use('/api/produk', routeProduk); // Menambahkan route produk
 
 app.use('/api/pasien', routePasien); // Menambahkan route pasiennya
+
+app.use('/api/user-edit', routeUserEdit); // Menambahkan route edit user
 
 // Route ambil data klien
 app.get('/api/users/klien', async (req, res) => {

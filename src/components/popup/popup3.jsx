@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "./popup3.css";
 import ConfirmUpdatePopup from "./ConfirmUpdatePopup";
-import { updateUser, sendVerificationEmail } from "../../api/api-user"; // Import fungsi dari api-user.js
+// Import fungsi dari api-user-profile.js yang baru
+import { updateUserProfile, sendProfileVerificationEmail } from "../../api/api-user-profile";
 
 const Popup3 = ({ isOpen, onClose, userData }) => {
   const [formData, setFormData] = useState({
@@ -57,7 +58,7 @@ const Popup3 = ({ isOpen, onClose, userData }) => {
 
   const handleSendVerificationEmail = async (email, password) => {
     try {
-      await sendVerificationEmail(email, password);
+      await sendProfileVerificationEmail(email, password);
     } catch (err) {
       console.error("Email verifikasi gagal:", err);
       showError("Gagal mengirim email verifikasi.");
@@ -105,8 +106,8 @@ const Popup3 = ({ isOpen, onClose, userData }) => {
     if (tahun < 1900 || tahun > 2099) return showError("Tahun lahir harus antara 1900 dan 2099.");
 
     try {
-      // Gunakan fungsi updateUser dari api-user.js
-      const result = await updateUser(userData._id, formData);
+      // Gunakan fungsi updateUserProfile dari api-user-profile.js
+      const result = await updateUserProfile(userData._id, formData);
 
       if (result.user) {
         // Update local storage dengan data user yang baru

@@ -1,9 +1,16 @@
 @font-face {
     font-family: "SansSerifBldFLF";
-    src: url("../assets/fonts/SansSerifBldFLF.ttf") format("truetype");
+    src: url("/src/components/fonts/SansSerifBldFLF.otf") format("opentype");
     font-weight: normal;
     font-style: normal;
-}
+  }
+  
+  @font-face {
+    font-family: "SansSerifFLF";
+    src: url("/src/components/fonts/SansSerifFLF.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+  }
 
 .navbar {
     width: 100%; /* Lebar full agar tidak terpengaruh parent */

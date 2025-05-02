@@ -1,18 +1,16 @@
 @font-face {
-    font-family: "SansSerifFLF";
-    src: url("/assets/fonts/SansSerifFLF.ttf") format("truetype");
-    font-weight: normal;
-    font-style: normal;
-  }
-  
-  @font-face {
-    font-family: "SansSerifFLF-Bold";
-    src: url("/assets/fonts/SansSerifBldFLF.ttf") format("truetype");
-    font-weight: bold;
-    font-style: normal;
-  }
-  
-  
+  font-family: "SansSerifBldFLF";
+  src: url("/src/components/fonts/SansSerifBldFLF.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SansSerifFLF";
+  src: url("/src/components/fonts/SansSerifFLF.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
   
   .riwayat-popup-content {
     width: 100%;
@@ -50,7 +48,7 @@
     z-index: 2;
     padding: 10px;
     color: #3F4254;
-    font-family: "SansSerifFLF", sans-serif;
+    font-family: "SansSerifBldFLF", sans-serif;
     font-weight: normal;
     font-style: normal;
     font-size: 12px;

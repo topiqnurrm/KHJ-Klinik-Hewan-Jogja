@@ -1,6 +1,13 @@
 @font-face {
+  font-family: "SansSerifBldFLF";
+  src: url("/src/components/fonts/SansSerifBldFLF.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
   font-family: "SansSerifFLF";
-  src: url("/src/components/fonts/SansSerifFLF.ttf") format("truetype");
+  src: url("/src/components/fonts/SansSerifFLF.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
 }
