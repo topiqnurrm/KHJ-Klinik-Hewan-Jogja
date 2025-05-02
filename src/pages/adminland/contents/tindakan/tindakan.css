@@ -56,29 +56,15 @@
   max-height: 400px;
 }
 
-/* Error message styling */
-/* .tindakan-container .error-message-container {
-  width: calc(100% - 40px);
-  margin: 0 20px 10px;
-  background-color: #fee2e2;
-  border-left: 4px solid #dc2626;
-  padding: 12px 16px;
+/* Error notification */
+.tindakan-container .error-notification {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin: 0 20px 15px 20px;
+  border: 1px solid #f5c6cb;
   border-radius: 4px;
-  animation: fadeOut 2s linear;
-  position: relative;
-  z-index: 100;
-} */
-
-.tindakan-container .error-message {
-  color: #b91c1c;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-@keyframes fadeOut {
-  0% { opacity: 1; }
-  70% { opacity: 1; }
-  100% { opacity: 0; }
+  text-align: center;
 }
 
 /* Filter styling */
@@ -245,27 +231,6 @@
   height: 16px;
 }
 
-/* Button that looks disabled but is still clickable */
-.tindakan-container .button-looks-disabled {
-  opacity: 0.5;
-  position: relative;
-}
-
-.tindakan-container .button-looks-disabled::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: inherit;
-}
-
-.tindakan-container .button-looks-disabled img {
-  opacity: 0.5;
-}
-
 /* Loading indicator */
 .tindakan-container .loading-indicator {
   text-align: center;
@@ -345,4 +310,10 @@
 
 .tindakan-container .tambah-user-button:hover {
   background-color: #0e3d3b;
+}
+
+/* Disabled button styling that keeps it clickable */
+.tindakan-container .disabled-button {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

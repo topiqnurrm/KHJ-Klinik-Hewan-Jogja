@@ -32,7 +32,7 @@ const Pasien = () => {
     const [showError, setShowError] = useState(false);
     
     // State untuk user role
-    const [currentUserRole, setCurrentUserRole] = useState("");
+    const [isSuperAdmin, setIsSuperAdmin] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
 
     const showErrorMessage = (message) => {
@@ -45,18 +45,14 @@ const Pasien = () => {
         }, 2000);
     };
 
-    const fetchCurrentUserRole = async () => {
+    const fetchCurrentUserRole = () => {
         try {
-            // Dapatkan user ID dari localStorage atau sessionStorage
-            const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user'));
-            
-            if (currentUser && currentUser._id) {
-                const response = await fetch(`http://localhost:5000/api/users/${currentUser._id}`);
-                const userData = await response.json();
-                setCurrentUserRole(userData.aktor || "");
-            }
+            // Dapatkan user dari localStorage
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+            setIsSuperAdmin(currentUser.aktor === "superadmin");
         } catch (error) {
-            console.error('Gagal fetch data user:', error);
+            console.error('Gagal membaca data user:', error);
+            setIsSuperAdmin(false);
         }
     };
 
@@ -147,8 +143,8 @@ const Pasien = () => {
     };
 
     const handleDelete = (pasien) => {
-        if (currentUserRole !== "superadmin") {
-            showErrorMessage("Hanya superadmin yang dapat menghapus data pasien");
+        if (!isSuperAdmin) {
+            showErrorMessage("Anda tidak memiliki akses untuk menghapus pasien. Hanya Superadmin yang diizinkan.");
             return;
         }
         setPasienToDelete(pasien);
@@ -156,7 +152,7 @@ const Pasien = () => {
     };
 
     const confirmDeletePasien = async () => {
-        if (!pasienToDelete || currentUserRole !== "superadmin") return;
+        if (!pasienToDelete || !isSuperAdmin) return;
         setIsLoading(true);
         setShowDeleteConfirm(false);
 
@@ -194,8 +190,8 @@ const Pasien = () => {
     };
 
     const handleEdit = (pasienItem) => {
-        if (currentUserRole !== "superadmin") {
-            showErrorMessage("Hanya superadmin yang dapat mengubah data pasien");
+        if (!isSuperAdmin) {
+            showErrorMessage("Anda tidak memiliki akses untuk mengubah pasien. Hanya Superadmin yang diizinkan.");
             return;
         }
         setEditingPasien(pasienItem);
@@ -203,8 +199,8 @@ const Pasien = () => {
     };
 
     const handleAddPasien = () => {
-        if (currentUserRole !== "superadmin") {
-            showErrorMessage("Hanya superadmin yang dapat menambah data pasien");
+        if (!isSuperAdmin) {
+            showErrorMessage("Anda tidak memiliki akses untuk menambah pasien. Hanya Superadmin yang diizinkan.");
             return;
         }
         setShowAddModal(true);
@@ -234,24 +230,27 @@ const Pasien = () => {
         setShowAddModal(false);
     };
 
-    const isSuperAdmin = currentUserRole === "superadmin";
-
     return (
         <div className='pasien-container'>
             <div className="dashboard-header">
                 <h1>Manajemen &gt; Pasien</h1>
             </div>
             
-            {/* Error Message */}
+            {/* Error notification */}
             {showError && (
-                <div className="error-message-container">
-                    <div className="error-message">
-                        {errorMessage}
-                    </div>
+                <div className="error-notification">
+                    {errorMessage}
                 </div>
             )}
             
             <div className="riwayat-filter-container">
+                {/* <button 
+                    className={`tambah-user-button ${!isSuperAdmin ? 'disabled-button' : ''}`}
+                    onClick={handleAddPasien}
+                >
+                    + Tambah Pasien
+                </button> */}
+
                 <div className="riwayat-search-wrapper">
                     <label className="riwayat-search-label">Filter Pencarian</label>
                     <input
@@ -328,22 +327,24 @@ const Pasien = () => {
                                         </td>
                                         <td>{users[item.id_user]?.nama || "Loading..."}</td>
                                         <td className="riwayat-actions">
-                                            <button className="btn-blue" title="Lihat" onClick={() => handleViewDetail(item)}>
+                                            <button 
+                                                className="btn-blue" 
+                                                title="Lihat" 
+                                                onClick={() => handleViewDetail(item)}
+                                            >
                                                 <img src={lihatIcon} alt="lihat" />
                                             </button>
                                             <button 
-                                                className={`btn-green ${!isSuperAdmin ? 'disabled' : ''}`} 
+                                                className={`btn-green ${!isSuperAdmin ? 'disabled-button' : ''}`} 
                                                 title="Edit" 
                                                 onClick={() => handleEdit(item)}
-                                                disabled={!isSuperAdmin}
                                             >
                                                 <img src={editIcon} alt="edit" />
                                             </button>
                                             <button 
-                                                className={`btn-red ${!isSuperAdmin ? 'disabled' : ''}`} 
+                                                className={`btn-red ${!isSuperAdmin ? 'disabled-button' : ''}`} 
                                                 title="Hapus" 
-                                                onClick={() => handleDelete(item)} 
-                                                disabled={!isSuperAdmin || isLoading}
+                                                onClick={() => handleDelete(item)}
                                             >
                                                 <img src={hapusIcon} alt="hapus" />
                                             </button>
@@ -394,6 +395,24 @@ const Pasien = () => {
                     />
                 )} */}
             </div>
+            
+            {/* CSS for disabled buttons and error notification */}
+            <style jsx="true">{`
+                .disabled-button {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+                
+                .error-notification {
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    padding: 10px 15px;
+                    margin: 0 20px 15px 20px;
+                    border: 1px solid #f5c6cb;
+                    border-radius: 4px;
+                    text-align: center;
+                }
+            `}</style>
         </div>
     );
 };

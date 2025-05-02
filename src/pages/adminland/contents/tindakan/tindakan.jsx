@@ -23,8 +23,11 @@ const Tindakan = () => {
     const [showAddPopup, setShowAddPopup] = useState(false);
     // State for error message
     const [errorMessage, setErrorMessage] = useState('');
+    const [showError, setShowError] = useState(false);
     // State to store current user data
     const [currentUser, setCurrentUser] = useState(null);
+    // State to check if current user is superadmin
+    const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
     const fetchAllLayanan = async () => {
         setIsLoading(true);
@@ -41,34 +44,17 @@ const Tindakan = () => {
         }
     };
 
-    // Get current user data from localStorage or session
-    const getCurrentUser = () => {
-        try {
-            // Get user data from localStorage (adjust based on how your auth is implemented)
-            const userString = localStorage.getItem('user');
-            if (userString) {
-                const userData = JSON.parse(userString);
-                setCurrentUser(userData);
-            }
-        } catch (error) {
-            console.error('Error getting current user:', error);
-        }
-    };
-
-    // Check if user has superadmin role
-    const isSuperAdmin = () => {
-        return currentUser && currentUser.aktor === 'superadmin';
-    };
-
-    // Show error message with timeout
-    const showError = (message) => {
-        setErrorMessage(message);
-        setTimeout(() => setErrorMessage(''), 2000);
-    };
-
     useEffect(() => {
         fetchAllLayanan();
-        getCurrentUser();
+        
+        // Check if the logged-in user is a superadmin
+        const checkUserRole = () => {
+            const currentUser = JSON.parse(localStorage.getItem("user")) || {};
+            setIsSuperAdmin(currentUser.aktor === "superadmin");
+            setCurrentUser(currentUser);
+        };
+        
+        checkUserRole();
     }, []);
 
     useEffect(() => {
@@ -107,9 +93,17 @@ const Tindakan = () => {
         setFilteredLayanan(result);
     }, [searchTerm, layanan, sortBy, sortOrder]);
 
+    const showPermissionError = () => {
+        setErrorMessage('Anda tidak memiliki akses untuk melakukan tindakan ini. Hanya Superadmin yang diizinkan.');
+        setShowError(true);
+        setTimeout(() => {
+            setShowError(false);
+        }, 2000);
+    };
+
     const handleDelete = (layanan) => {
-        if (!isSuperAdmin()) {
-            showError('Hanya superadmin yang dapat menghapus layanan');
+        if (!isSuperAdmin) {
+            showPermissionError();
             return;
         }
         setLayananToDelete(layanan);
@@ -136,9 +130,13 @@ const Tindakan = () => {
         } catch (error) {
             console.error("Gagal menghapus layanan:", error);
             if (error.response?.status === 403) {
-                showError("Hanya superadmin yang dapat menghapus layanan");
+                showPermissionError();
             } else {
-                showError("Gagal menghapus layanan: " + (error.response?.data?.message || error.message));
+                setErrorMessage("Gagal menghapus layanan: " + (error.response?.data?.message || error.message));
+                setShowError(true);
+                setTimeout(() => {
+                    setShowError(false);
+                }, 2000);
             }
         } finally {
             setIsLoading(false);
@@ -230,8 +228,8 @@ const Tindakan = () => {
     };
 
     const handleAddLayanan = () => {
-        if (!isSuperAdmin()) {
-            showError('Hanya superadmin yang dapat menambah layanan');
+        if (!isSuperAdmin) {
+            showPermissionError();
             return;
         }
         setShowAddPopup(true);
@@ -247,8 +245,8 @@ const Tindakan = () => {
     };
 
     const handleEdit = (layananItem) => {
-        if (!isSuperAdmin()) {
-            showError('Hanya superadmin yang dapat mengedit layanan');
+        if (!isSuperAdmin) {
+            showPermissionError();
             return;
         }
         
@@ -281,16 +279,16 @@ const Tindakan = () => {
                 <h1>Manajemen &gt; Layanan</h1>
             </div>
 
-            {/* Error message display */}
-            {errorMessage && (
-                <div className="error-message-container">
-                    <div className="error-message">{errorMessage}</div>
+            {/* Error notification */}
+            {showError && (
+                <div className="error-notification">
+                    {errorMessage}
                 </div>
             )}
 
             <div className="riwayat-filter-container">
                 <button 
-                    className={`tambah-user-button ${!isSuperAdmin() ? 'button-looks-disabled' : ''}`} 
+                    className={`tambah-user-button ${!isSuperAdmin ? 'disabled-button' : ''}`} 
                     onClick={handleAddLayanan}
                 >
                     + Tambah Layanan
@@ -375,14 +373,14 @@ const Tindakan = () => {
                                         <td>{formatCurrency(item.harga_unggas)}</td>
                                         <td className="riwayat-actions">
                                             <button 
-                                                className={`btn-green ${!isSuperAdmin() ? 'button-looks-disabled' : ''}`} 
+                                                className={`btn-green ${!isSuperAdmin ? 'disabled-button' : ''}`} 
                                                 title="Edit" 
                                                 onClick={() => handleEdit(item)}
                                             >
                                                 <img src={editIcon} alt="edit" />
                                             </button>
                                             <button 
-                                                className={`btn-red ${!isSuperAdmin() ? 'button-looks-disabled' : ''}`} 
+                                                className={`btn-red ${!isSuperAdmin ? 'disabled-button' : ''}`} 
                                                 title="Hapus" 
                                                 onClick={() => handleDelete(item)} 
                                             >
@@ -401,9 +399,7 @@ const Tindakan = () => {
                     isOpen={showDeletePopup}
                     onClose={cancelDelete}
                     title="Konfirmasi Hapus"
-                    description={
-                        <p>Apakah Anda yakin ingin menghapus layanan <strong>{layananToDelete?.nama || 'ini'}</strong>?</p>
-                    }
+                    description={`Apakah Anda yakin ingin menghapus layanan ${layananToDelete?.nama || 'ini'}?`}
                     onConfirm={confirmDeleteLayanan}
                 />
 
@@ -424,6 +420,24 @@ const Tindakan = () => {
                     />
                 )}
             </div>
+            
+            {/* CSS for disabled buttons and error notification */}
+            <style jsx="true">{`
+                .disabled-button {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+                
+                .error-notification {
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    padding: 10px 15px;
+                    margin-bottom: 15px;
+                    border: 1px solid #f5c6cb;
+                    border-radius: 4px;
+                    text-align: center;
+                }
+            `}</style>
         </div>
     );
 };

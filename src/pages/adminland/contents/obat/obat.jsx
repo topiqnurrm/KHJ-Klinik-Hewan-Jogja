@@ -15,7 +15,7 @@ const Obat = () => {
     const [sortOrder, setSortOrder] = useState("desc");
     const [isLoading, setIsLoading] = useState(false);
     const [produkToDelete, setProdukToDelete] = useState(null);
-    const [showDeletePopup, setShowDeletePopup] = useState(false); // Changed from showDeleteConfirm
+    const [showDeletePopup, setShowDeletePopup] = useState(false);
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [produkToEdit, setProdukToEdit] = useState(null);
     const [showAddPopup, setShowAddPopup] = useState(false);
@@ -70,7 +70,6 @@ const Obat = () => {
         // Hide error after 2 seconds
         setTimeout(() => {
             setShowError(false);
-            setErrorMessage("");
         }, 2000);
     };
 
@@ -151,7 +150,7 @@ const Obat = () => {
         }
         
         setProdukToDelete(produk);
-        setShowDeletePopup(true); // Show the popup2 component
+        setShowDeletePopup(true);
     };
 
     const confirmDeleteProduk = async () => {
@@ -349,21 +348,21 @@ const Obat = () => {
 
     return (
         <div className='obat-container'>
-            {/* Error message popup */}
+            <div className="dashboard-header">
+                <h1>Manajemen &gt; Obat</h1>
+            </div>
+            
+            {/* Error notification */}
             {showError && (
-                <div className="error-message-popup">
+                <div className="error-notification">
                     {errorMessage}
                 </div>
             )}
             
-            <div className="dashboard-header">
-                <h1>Manajemen &gt; Obat</h1>
-            </div>
             <div className="riwayat-filter-container">
                 <button 
                     className={`tambah-user-button ${!isSuperAdmin ? 'disabled-button' : ''}`} 
                     onClick={handleAddProduk}
-                    disabled={!isSuperAdmin}
                 >
                     + Tambah Obat
                 </button>
@@ -450,7 +449,6 @@ const Obat = () => {
                                                 className={`btn-green ${!isSuperAdmin ? 'disabled-button' : ''}`} 
                                                 title="Edit" 
                                                 onClick={() => handleEdit(item)}
-                                                disabled={!isSuperAdmin}
                                             >
                                                 <img src={editIcon} alt="edit" />
                                             </button>
@@ -458,7 +456,6 @@ const Obat = () => {
                                                 className={`btn-red ${!isSuperAdmin ? 'disabled-button' : ''}`} 
                                                 title="Hapus" 
                                                 onClick={() => handleDelete(item)} 
-                                                disabled={!isSuperAdmin || isLoading}
                                             >
                                                 <img src={hapusIcon} alt="hapus" />
                                             </button>
@@ -475,11 +472,7 @@ const Obat = () => {
                     isOpen={showDeletePopup}
                     onClose={cancelDelete}
                     title="Konfirmasi Hapus"
-                    description={
-                        <p>
-                            Apakah Anda yakin ingin menghapus obat <strong>{produkToDelete?.nama || 'ini'}</strong>?
-                        </p>
-                    }
+                    description={`Apakah Anda yakin ingin menghapus obat ${produkToDelete?.nama || 'ini'}?`}
                     onConfirm={confirmDeleteProduk}
                 />
 
@@ -500,6 +493,24 @@ const Obat = () => {
                     />
                 )}
             </div>
+            
+            {/* CSS for disabled buttons and error notification */}
+            <style jsx="true">{`
+                .disabled-button {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+                
+                .error-notification {
+                    background-color: #f8d7da;
+                    color: #721c24;
+                    padding: 10px 15px;
+                    margin-bottom: 15px;
+                    border: 1px solid #f5c6cb;
+                    border-radius: 4px;
+                    text-align: center;
+                }
+            `}</style>
         </div>
     );
 };

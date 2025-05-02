@@ -197,9 +197,12 @@
 }
 
 .pasien-container .btn-green:hover,
-.pasien-container .btn-red:hover,
-.pasien-container .btn-blue:hover {
+.pasien-container .btn-red:hover {
   opacity: 0.8;
+}
+
+.pasien-container .btn-blue:hover {
+  opacity: 1;
 }
 
 .pasien-container .btn-green {
@@ -211,7 +214,7 @@
 }
 
 .pasien-container .btn-blue {
-  background-color: #60a5fa;
+  background-color: #3690ff;
 }
 
 .pasien-container .btn-green img,
@@ -300,4 +303,21 @@
 
 .pasien-container .tambah-user-button:hover {
   background-color: #0e3d3b;
+}
+
+/* Disabled button styling */
+.pasien-container .disabled-button {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Error notification */
+.pasien-container .error-notification {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin: 0 20px 15px 20px;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  text-align: center;
 }

@@ -331,7 +331,7 @@ const Pengguna = () => {
             </div>
             
             {/* CSS for disabled buttons and error notification */}
-            <style jsx>{`
+            <style jsx="true">{`
                 .disabled-button {
                     opacity: 0.5;
                     cursor: not-allowed;

@@ -56,6 +56,25 @@
   max-height: 400px;
 }
 
+/* Error notification styling */
+.obat-container .error-notification {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin: 0 20px 15px 20px;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  text-align: center;
+  animation: fadeInOut 2s forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 /* Filter styling */
 .obat-container .riwayat-filter-container {
   display: flex;
@@ -218,6 +237,12 @@
 .obat-container .btn-blue img {
   width: 16px;
   height: 16px;
+}
+
+/* Disabled button styling - buttons still clickable but look disabled */
+.obat-container .disabled-button {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Loading indicator */
