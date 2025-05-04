@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './booking.css';
 import editIcon from "../../../../components/riwayat/gambar/edit.png";
-import hapusIcon from "../../../../components/riwayat/gambar/hapus.png";
-import lihatIcon from "../../../../components/riwayat/gambar/lihat.png";
-import { getAllBookings, deleteBookingById, updateBookingStatus, addNoteToBooking } from '../../../../api/api-aktivitas-booking';
-import Popup from '../../admin_nav/popup_nav/popup2';
-// import LihatBooking from './LihatBooking';
+import { getAllBookings, updateBookingStatus, addNoteToBooking, getCurrentUser } from '../../../../api/api-aktivitas-booking';
 import EditBooking from './EditBooking';
 
 const Booking = () => {
@@ -15,14 +11,11 @@ const Booking = () => {
     const [sortBy, setSortBy] = useState("tanggal_buat");
     const [sortOrder, setSortOrder] = useState("desc");
     const [isLoading, setIsLoading] = useState(false);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [bookingToDelete, setBookingToDelete] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
     
-    // State untuk modal edit dan lihat booking
+    // State untuk modal edit
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingBooking, setEditingBooking] = useState(null);
-    const [showDetailModal, setShowDetailModal] = useState(false);
-    const [detailBooking, setDetailBooking] = useState(null);
     
     // State untuk error message
     const [errorMessage, setErrorMessage] = useState("");
@@ -32,10 +25,10 @@ const Booking = () => {
         setErrorMessage(message);
         setShowError(true);
         
-        // Hapus pesan error setelah 2 detik
+        // Hapus pesan error setelah 3 detik
         setTimeout(() => {
             setShowError(false);
-        }, 2000);
+        }, 3000);
     };
 
     const fetchAllBookings = async () => {
@@ -54,6 +47,10 @@ const Booking = () => {
 
     useEffect(() => {
         fetchAllBookings();
+        
+        // Get current user from localStorage
+        const user = getCurrentUser();
+        setCurrentUser(user);
     }, []);
 
     useEffect(() => {
@@ -93,39 +90,21 @@ const Booking = () => {
         setFilteredBookings(result);
     }, [searchTerm, bookings, sortBy, sortOrder]);
 
-    const handleViewDetail = (booking) => {
-        setDetailBooking(booking);
-        setShowDetailModal(true);
+    // Check if user has permission
+    const hasEditPermission = () => {
+        if (!currentUser) return false;
+        return ['superadmin', 'administrasi'].includes(currentUser.aktor);
     };
 
-    const handleDelete = (booking) => {
-        setBookingToDelete(booking);
-        setShowDeleteConfirm(true);
-    };
-
-    const confirmDeleteBooking = async () => {
-        if (!bookingToDelete) return;
-        setIsLoading(true);
-        setShowDeleteConfirm(false);
-
-        try {
-            await deleteBookingById(bookingToDelete._id);
-            
-            const updatedBookings = bookings.filter(b => b._id !== bookingToDelete._id);
-            setBookings(updatedBookings);
-            setFilteredBookings(updatedBookings);
-        } catch (error) {
-            console.error("Gagal menghapus booking:", error);
-            showErrorMessage("Gagal menghapus booking: " + (error.response?.data?.message || error.message));
-        } finally {
-            setIsLoading(false);
-            setBookingToDelete(null);
+    const handleEdit = (bookingItem) => {
+        // Check if user has permission to edit
+        if (!hasEditPermission()) {
+            showErrorMessage("Anda tidak memiliki izin untuk mengedit booking. Hanya Administrasi dan Superadmin yang diizinkan.");
+            return;
         }
-    };
-
-    const cancelDelete = () => {
-        setShowDeleteConfirm(false);
-        setBookingToDelete(null);
+        
+        setEditingBooking(bookingItem);
+        setShowEditModal(true);
     };
 
     const getStatusClass = (status) => {
@@ -153,11 +132,6 @@ const Booking = () => {
         }
     };
 
-    const handleEdit = (bookingItem) => {
-        setEditingBooking(bookingItem);
-        setShowEditModal(true);
-    };
-
     const handleUpdateBooking = (updatedBooking) => {
         // Update booking list dengan data yang sudah diupdate
         setBookings(prev => 
@@ -171,11 +145,6 @@ const Booking = () => {
     const closeEditModal = () => {
         setShowEditModal(false);
         setEditingBooking(null);
-    };
-
-    const closeDetailModal = () => {
-        setShowDetailModal(false);
-        setDetailBooking(null);
     };
 
     const formatLayanan = (jenis) => {
@@ -282,7 +251,11 @@ const Booking = () => {
                                         </td>
                                         <td>{new Date(item.tanggal_edit).toLocaleString()}</td>
                                         <td className="riwayat-actions">
-                                            <button className="btn-green" title="Edit" onClick={() => handleEdit(item)}>
+                                            <button 
+                                                className={`btn-green ${!hasEditPermission() ? 'disabled-button' : ''}`} 
+                                                title="Edit" 
+                                                onClick={() => handleEdit(item)}
+                                            >
                                                 <img src={editIcon} alt="edit" />
                                             </button>
                                         </td>
@@ -301,29 +274,7 @@ const Booking = () => {
                         onUpdate={handleUpdateBooking} 
                     />
                 )}
-
-                {/* Delete Confirmation using Popup Component */}
-                <Popup
-                    isOpen={showDeleteConfirm}
-                    onClose={cancelDelete}
-                    title="Konfirmasi Hapus"
-                    description={`Apakah Anda yakin ingin menghapus booking untuk ${bookingToDelete?.nama_hewan || 'ini'}?`}
-                    onConfirm={confirmDeleteBooking}
-                />
             </div>
-            
-            {/* CSS for error notification */}
-            <style jsx="true">{`
-                .error-notification {
-                    background-color: #f8d7da;
-                    color: #721c24;
-                    padding: 10px 15px;
-                    margin: 0 20px 15px 20px;
-                    border: 1px solid #f5c6cb;
-                    border-radius: 4px;
-                    text-align: center;
-                }
-            `}</style>
         </div>
     );
 };

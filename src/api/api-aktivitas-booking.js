@@ -3,6 +3,28 @@ import axios from 'axios';
 // API URL for booking activities
 const AKTIVITAS_BOOKING_API_URL = 'http://localhost:5000/api/aktivitas-booking';
 
+// Get current user from localStorage
+export const getCurrentUser = () => {
+  try {
+    const userJson = localStorage.getItem('user');
+    if (!userJson) return null;
+    
+    const user = JSON.parse(userJson);
+    return user;
+  } catch (error) {
+    console.error('Error getting user from localStorage:', error);
+    return null;
+  }
+};
+
+// Check if the current user has admin permissions
+export const hasAdminPermission = () => {
+  const user = getCurrentUser();
+  if (!user) return false;
+  
+  return ['superadmin', 'administrasi'].includes(user.aktor);
+};
+
 // Get all bookings with enhanced information
 export const getAllBookings = async () => {
   try {
@@ -27,6 +49,11 @@ export const getBookingById = async (id) => {
 
 // Update booking status
 export const updateBookingStatus = async (id, status) => {
+  // Check permissions first
+  if (!hasAdminPermission()) {
+    throw new Error('Tidak memiliki izin untuk mengubah status booking');
+  }
+  
   try {
     const response = await axios.put(`${AKTIVITAS_BOOKING_API_URL}/${id}/status`, { status });
     return response.data;
@@ -38,6 +65,11 @@ export const updateBookingStatus = async (id, status) => {
 
 // Add note to a booking
 export const addNoteToBooking = async (id, noteData) => {
+  // Check permissions first
+  if (!hasAdminPermission()) {
+    throw new Error('Tidak memiliki izin untuk menambahkan catatan pada booking');
+  }
+  
   try {
     const response = await axios.post(`${AKTIVITAS_BOOKING_API_URL}/${id}/catatan`, noteData);
     return response.data;
@@ -49,6 +81,11 @@ export const addNoteToBooking = async (id, noteData) => {
 
 // Delete a booking
 export const deleteBookingById = async (id) => {
+  // Check permissions first
+  if (!hasAdminPermission()) {
+    throw new Error('Tidak memiliki izin untuk menghapus booking');
+  }
+  
   try {
     const response = await axios.delete(`${AKTIVITAS_BOOKING_API_URL}/${id}`);
     return response.data;

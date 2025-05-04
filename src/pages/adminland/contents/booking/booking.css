@@ -203,12 +203,9 @@
 }
 
 .booking-container .btn-green:hover,
-.booking-container .btn-red:hover {
-  opacity: 0.8;
-}
-
+.booking-container .btn-red:hover,
 .booking-container .btn-blue:hover {
-  opacity: 1;
+  opacity: 0.8;
 }
 
 .booking-container .btn-green {
@@ -230,6 +227,12 @@
   height: 16px;
 }
 
+/* Disabled button styling */
+.booking-container .disabled-button {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Loading indicator */
 .booking-container .loading-indicator {
   text-align: center;
@@ -247,6 +250,7 @@
   border: 1px solid #f5c6cb;
   border-radius: 4px;
   text-align: center;
+  font-weight: 500;
 }
 
 /* Delete confirmation popup */
@@ -378,4 +382,12 @@
 .submit-button {
   background-color: #175451;
   color: white;
+}
+
+/* Catatan cell styling */
+.booking-container .catatan-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
