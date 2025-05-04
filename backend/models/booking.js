@@ -20,7 +20,8 @@ const BookingSchema = new mongoose.Schema({
             },
             status_administrasi: {
               type: String,
-              enum: ['menunggu respon administrasi', 'disetujui administrasi', 'ditolak administrasi'],
+              enum: ['menunggu respon administrasi', 'disetujui administrasi', 'ditolak administrasi',
+                 'sedang diperiksa', 'dibatalkan administrasi'],
               required: false
             },
             tanggal: {

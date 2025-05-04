@@ -273,7 +273,8 @@ router.put('/update/:id', async (req, res) => {
       'menunggu respon administrasi',
       'disetujui administrasi',
       'ditolak administrasi',
-      'dibatalkan administrasi'
+      'dibatalkan administrasi',
+      'sedang diperiksa'
     ];
     
     if (!allowedStatuses.includes(booking.status_booking)) {
