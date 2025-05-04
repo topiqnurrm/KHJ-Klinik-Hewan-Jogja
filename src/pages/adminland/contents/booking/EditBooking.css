@@ -12,7 +12,7 @@
     font-style: normal;
 }
 
-.edit-booking-overlay {
+.edit-booking-overlay-aktivitasbkng {
     position: fixed;
     top: 0;
     left: 0;
@@ -24,9 +24,10 @@
     align-items: center;
     z-index: 1000;
     backdrop-filter: blur(5px);
+    pointer-events: auto; /* Allow clicks inside the popup */
 }
 
-.edit-booking-container {
+.edit-booking-overlay-aktivitasbkng .edit-booking-container {
     background-color: white;
     border-radius: 8px;
     width: 800px;
@@ -36,9 +37,10 @@
     flex-direction: column;
     max-height: 90vh;
     overflow: hidden;
+    pointer-events: auto; /* Ensure clicks inside the container work */
 }
 
-.edit-booking-header {
+.edit-booking-overlay-aktivitasbkng .edit-booking-header {
     background-color: #175451;
     color: white;
     padding: 15px 20px;
@@ -50,7 +52,7 @@
     position: relative;
 }
 
-.edit-booking-header h2 {
+.edit-booking-overlay-aktivitasbkng .edit-booking-header h2 {
     margin: 0;
     font-size: 20px;
     font-weight: bold;
@@ -58,7 +60,7 @@
     text-align: center;
 }
 
-.close-button {
+.edit-booking-overlay-aktivitasbkng .close-button {
     background: none;
     border: none;
     color: white;
@@ -74,40 +76,40 @@
     right: 15px;
 }
 
-.edit-booking-content {
+.edit-booking-overlay-aktivitasbkng .edit-booking-content {
     padding: 20px;
     overflow-y: auto;
     flex: 1;
 }
 
-.booking-form {
+.edit-booking-overlay-aktivitasbkng .booking-form {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-.form-row {
+.edit-booking-overlay-aktivitasbkng .form-row {
     display: flex;
     gap: 20px;
     margin-bottom: 15px;
 }
 
-.form-group {
+.edit-booking-overlay-aktivitasbkng .form-group {
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-.form-group label {
+.edit-booking-overlay-aktivitasbkng .form-group label {
     font-weight: bold;
     margin-bottom: 5px;
     color: #3F4254;
     font-family: "SansSerifFLF", sans-serif;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.edit-booking-overlay-aktivitasbkng .form-group input,
+.edit-booking-overlay-aktivitasbkng .form-group select,
+.edit-booking-overlay-aktivitasbkng .form-group textarea {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -115,29 +117,29 @@
     font-family: "SansSerifFLF", sans-serif;
 }
 
-.form-group textarea {
+.edit-booking-overlay-aktivitasbkng .form-group textarea {
     resize: vertical;
     min-height: 20px;
     height: 20px;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.form-group input:focus.edit-booking-overlay-aktivitasbkng 
+.edit-booking-overlay-aktivitasbkng .form-group select:focus,
+.edit-booking-overlay-aktivitasbkng .form-group textarea:focus {
     outline: none;
     border-color: #175451;
     background-color: #e9e9e9;
 }
 
-.form-group input:disabled,
-.form-group select:disabled,
-.form-group textarea:disabled {
+.edit-booking-overlay-aktivitasbkng .form-group input:disabled,
+.edit-booking-overlay-aktivitasbkng .form-group select:disabled,
+.edit-booking-overlay-aktivitasbkng .form-group textarea:disabled {
     background-color: #f5f5f5;
     color: #666;
 }
 
 /* DatePicker styles */
-.datepicker-custom {
+.edit-booking-overlay-aktivitasbkng .datepicker-custom {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -149,14 +151,14 @@
 }
 
 /* Status button styles */
-.booking-status-section {
+.edit-booking-overlay-aktivitasbkng .booking-status-section {
     margin-top: 0px;
     border: 1px solid #d9d9d9;
     padding: 20px;
     border-radius: 8px;
 }
 
-.booking-status-section h3 {
+.edit-booking-overlay-aktivitasbkng .booking-status-section h3 {
     font-size: 16px;
     margin-bottom: 15px;
     margin-top: 0px;
@@ -164,19 +166,19 @@
     font-family: "SansSerifFLF", sans-serif;
 }
 
-.status-row {
+.edit-booking-overlay-aktivitasbkng .status-row {
     display: flex;
     justify-content: space-between;
     gap: 40px;
 }
 
-.status-group {
+.edit-booking-overlay-aktivitasbkng .status-group {
     flex: 1;
     display: flex;
     padding: 0px;
 }
 
-.status-group label {
+.edit-booking-overlay-aktivitasbkng .status-group label {
     display: inline-block;
     font-weight: bold;
     font-size: 14px;
@@ -189,14 +191,14 @@
     font-family: "SansSerifFLF", sans-serif;
 }
 
-.status-buttons {
+.edit-booking-overlay-aktivitasbkng .status-buttons {
     display: flex;
     gap: 10px;
     width: 150px;
     height: fit-content;
 }
 
-.status-button {
+.edit-booking-overlay-aktivitasbkng .status-button {
     background-color: #d9d9d9;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -208,24 +210,24 @@
     cursor: pointer;
 }
 
-.status-button img {
+.edit-booking-overlay-aktivitasbkng .status-button img {
     width: 10px;
     height: 10px;
 }
 
-.status-button .menunggu {
+.edit-booking-overlay-aktivitasbkng .status-button .menunggu {
     width: 15px;
     height: 5px;
     filter: brightness(0) invert(1);
 }
 
-.status-button.active {
+.edit-booking-overlay-aktivitasbkng .status-button.active {
     background-color: #175451;
     border-color: #175451;
 }
 
 /* Action buttons */
-.action-buttons {
+.edit-booking-overlay-aktivitasbkng .action-buttons {
     /* display: flex; */
     justify-content: center;
     padding: 20px;
@@ -233,14 +235,14 @@
     gap: 20px;
 }
 
-.button-group {
+.edit-booking-overlay-aktivitasbkng .button-group {
     display: flex;
     gap: 20px;
     justify-content: center;
 }
 
-.cancel-button,
-.save-button {
+.edit-booking-overlay-aktivitasbkng .cancel-button,
+.edit-booking-overlay-aktivitasbkng .save-button {
     padding: 10px 40px;
     border-radius: 4px;
     font-weight: bold;
@@ -250,49 +252,49 @@
     transition: opacity 0.2s;
 }
 
-.cancel-button {
+.edit-booking-overlay-aktivitasbkng .cancel-button {
     background-color: #5d0f26;
     color: white;
     border: none;
 }
 
-.save-button {
+.edit-booking-overlay-aktivitasbkng .save-button {
     background-color: #175451;
     color: white;
     border: none;
     min-width: 200px;
 }
 
-.cancel-button:hover,
-.save-button:hover {
+.edit-booking-overlay-aktivitasbkng .cancel-button:hover,
+.edit-booking-overlay-aktivitasbkng .save-button:hover {
     opacity: 0.9;
 }
 
-.cancel-button:disabled,
-.save-button:disabled {
+.edit-booking-overlay-aktivitasbkng .cancel-button:disabled,
+.edit-booking-overlay-aktivitasbkng .save-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
 /* Message styles */
-.validation-message {
+.edit-booking-overlay-aktivitasbkng .validation-message {
     padding: 10px 15px;
     border-radius: 4px;
     margin-bottom: 15px;
     text-align: center;
 }
 
-.validation-message.error {
+.edit-booking-overlay-aktivitasbkng .validation-message.error {
     background-color: #fee2e2;
     color: #b91c1c;
 }
 
-.validation-message.success {
+.edit-booking-overlay-aktivitasbkng .validation-message.success {
     background-color: #d1fae5;
     color: #065f46;
 }
 
-.error-message {
+.edit-booking-overlay-aktivitasbkng .error-message {
     background-color: #fee2e2;
     color: #b91c1c;
     padding: 10px;
@@ -301,19 +303,19 @@
     text-align: center;
 }
 
-.error-text {
+.edit-booking-overlay-aktivitasbkng .error-text {
     color: #e53935;
     font-size: 12px;
     margin-top: 4px;
     display: block;
 }
 
-.input-error {
+.edit-booking-overlay-aktivitasbkng .input-error {
     border: 1px solid #e53935 !important;
     background-color: rgba(229, 57, 53, 0.05);
 }
 
-.loading-text {
+.edit-booking-overlay-aktivitasbkng .loading-text {
     text-align: center;
     padding: 15px;
     font-style: italic;
@@ -321,7 +323,7 @@
 }
 
 /* React Select custom styling for dropdown */
-.react-select__control {
+.edit-booking-overlay-aktivitasbkng .react-select__control {
     background-color: #f5f5f5 !important;
     border: 1px solid #ccc !important;
     border-radius: 4px !important;
@@ -330,22 +332,22 @@
     font-family: "SansSerifFLF", sans-serif;
 }
 
-.react-select__control:hover {
+.edit-booking-overlay-aktivitasbkng .react-select__control:hover {
     border-color: #175451 !important;
 }
 
-.react-select__placeholder {
+.edit-booking-overlay-aktivitasbkng .react-select__placeholder {
     color: #757575 !important;
     font-family: "SansSerifFLF", sans-serif;
 }
 
-.react-select__single-value {
+.edit-booking-overlay-aktivitasbkng .react-select__single-value {
     color: #3F4254 !important;
     font-family: "SansSerifFLF", sans-serif;
 }
 
 /* DatePicker Header */
-.datepicker-header {
+.edit-booking-overlay-aktivitasbkng .datepicker-header {
     margin: 8px;
     display: flex;
     justify-content: space-between;
@@ -353,7 +355,7 @@
     font-family: "SansSerifFLF", sans-serif;
 }
 
-.datepicker-header button {
+.edit-booking-overlay-aktivitasbkng .datepicker-header button {
     background: #f5f5f5;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -361,7 +363,7 @@
     cursor: pointer;
 }
 
-.datepicker-header select {
+.edit-booking-overlay-aktivitasbkng .datepicker-header select {
     padding: 2px 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -370,69 +372,69 @@
 }
 
 /* Calendar day states */
-.red-day {
+.edit-booking-overlay-aktivitasbkng .red-day {
     color: #ccc !important;
     text-decoration: line-through;
 }
 
-.green-day {
+.edit-booking-overlay-aktivitasbkng .green-day {
     color: #175451 !important;
     font-weight: bold;
 }
 
-.highlighted-day {
+.edit-booking-overlay-aktivitasbkng .highlighted-day {
     background-color: #175451 !important;
     color: white !important;
     border-radius: 50%;
 }
 
-.kuota-info {
+.edit-booking-overlay-aktivitasbkng .kuota-info {
     font-size: 12px;
     margin-top: 5px;
     font-family: "SansSerifFLF", sans-serif;
 }
 
-.kuota-info.available {
+.edit-booking-overlay-aktivitasbkng .kuota-info.available {
     color: #065f46;
 }
 
-.kuota-info.full {
+.edit-booking-overlay-aktivitasbkng .kuota-info.full {
     color: #b91c1c;
 }
 
-.required {
+.edit-booking-overlay-aktivitasbkng .required {
     color: #e53935;
 }
 
-input[type="number"] {
+.edit-booking-overlay-aktivitasbkng input[type="number"] {
     appearance: textfield;
     -moz-appearance: textfield;
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
+.edit-booking-overlay-aktivitasbkng input::-webkit-outer-spin-button,
+.edit-booking-overlay-aktivitasbkng input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
 /* Media queries for responsive design */
 @media (max-width: 768px) {
-    .form-row {
+    .edit-booking-overlay-aktivitasbkng .form-row {
         flex-direction: column;
         gap: 15px;
     }
     
-    .status-row {
+    .edit-booking-overlay-aktivitasbkng .status-row {
         flex-direction: column;
         gap: 20px;
     }
     
-    .action-buttons {
+    .edit-booking-overlay-aktivitasbkng .action-buttons {
         flex-direction: column;
         gap: 10px;
     }
     
-    .cancel-button {
+    .edit-booking-overlay-aktivitasbkng .cancel-button {
         margin-right: 0;
         margin-bottom: 10px;
     }
@@ -442,29 +444,45 @@ input::-webkit-inner-spin-button {
 
 
 /* Add this class to apply the font globally */
-.edit-booking-container * {
+.edit-booking-overlay-aktivitasbkng .edit-booking-container * {
     font-family: "SansSerifFLF", sans-serif;
 }
 
 /* Make sure DatePicker components also use the font */
-.react-datepicker__input-container input,
-.react-datepicker__month-container,
-.react-datepicker__header,
-.react-datepicker__day,
-.react-datepicker__day-name,
-.react-datepicker__current-month,
-.react-datepicker-time__header,
-.react-datepicker-year-header {
+.edit-booking-overlay-aktivitasbkng .react-datepicker__input-container input,
+.edit-booking-overlay-aktivitasbkng .react-datepicker__month-container,
+.edit-booking-overlay-aktivitasbkng .react-datepicker__header,
+.edit-booking-overlay-aktivitasbkng .react-datepicker__day,
+.edit-booking-overlay-aktivitasbkng .react-datepicker__day-name,
+.edit-booking-overlay-aktivitasbkng .react-datepicker__current-month,
+.edit-booking-overlay-aktivitasbkng .react-datepicker-time__header,
+.edit-booking-overlay-aktivitasbkng .react-datepicker-year-header {
     font-family: "SansSerifFLF", sans-serif !important;
 }
 
 /* You may also want to apply it to select elements */
-.react-select__control,
-.react-select__menu,
-.react-select__option,
-.react-select__single-value,
-.react-select__placeholder,
-.react-select__value-container {
+.edit-booking-overlay-aktivitasbkng .react-select__control,
+.edit-booking-overlay-aktivitasbkng .react-select__menu,
+.edit-booking-overlay-aktivitasbkng .react-select__option,
+.edit-booking-overlay-aktivitasbkng .react-select__single-value,
+.edit-booking-overlay-aktivitasbkng .react-select__placeholder,
+.edit-booking-overlay-aktivitasbkng .react-select__value-container {
     font-family: "SansSerifFLF", sans-serif !important;
 }
 
+
+
+
+
+
+.edit-booking-overlay-aktivitasbkng .edit-booking-container table td, 
+.edit-booking-overlay-aktivitasbkng .edit-booking-container table th {
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: none;
+    overflow: visible;
+    text-overflow: clip;
+
+    table-layout: auto;
+    width: 100%;
+}

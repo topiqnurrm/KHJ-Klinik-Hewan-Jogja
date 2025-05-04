@@ -775,14 +775,32 @@ const EditBooking = ({ booking, onClose, onUpdate }) => {
         await submitChanges();
     };
 
+    // const handlePersetujuan = (status) => {
+    //     // Just set the pending status without showing popup
+    //     setPendingPersetujuanStatus(status);
+    // };
+
     const handlePersetujuan = (status) => {
         // Just set the pending status without showing popup
         setPendingPersetujuanStatus(status);
+        
+        // Clear check-in status if persetujuan is set to 'ditolak'
+        if (status === 'ditolak') {
+            setCheckInStatus('menunggu');
+            setPendingCheckInStatus('menunggu');
+        }
     };
 
     const handleCheckIn = (status) => {
-        // Just set the pending status without showing popup
+        // Set the pending check-in status
         setPendingCheckInStatus(status);
+        
+        // Automatically set the persetujuan UI to disetujui when any check-in button is clicked
+        // But don't set pendingPersetujuanStatus to avoid sending this data
+        if (persetujuanStatus !== 'disetujui') {
+            // This is UI-only change - we're not setting pendingPersetujuanStatus
+            setPersetujuanStatus('disetujui');
+        }
     };
 
     const isCheckInDisabled = () => {
@@ -874,15 +892,20 @@ const EditBooking = ({ booking, onClose, onUpdate }) => {
         );
     };
     
-    // Add a new function to determine if persetujuan buttons should be disabled
+    // const isPersetujuanDisabled = () => {
+    //     // Only disable persetujuan buttons if check-in status is active but not the booking status
+    //     return (
+    //         (checkInStatus === 'disetujui' && booking?.status_administrasi !== 'sedang diperiksa') ||
+    //         (checkInStatus === 'ditolak' && booking?.status_administrasi === 'dibatalkan administrasi')
+    //     );
+    // };
+
     const isPersetujuanDisabled = () => {
-        // Check if booking status is "dibatalkan administrasi" or "sedang diperiksa"
-        const statusToDisable = ['dibatalkan administrasi', 'sedang diperiksa'];
-        
+        // Only disable persetujuan buttons in specific cases
         return (
-            statusToDisable.includes(booking?.status_administrasi) ||
-            (checkInStatus === 'disetujui' && booking?.status_administrasi !== 'sedang diperiksa') ||
-            (checkInStatus === 'ditolak' && booking?.status_administrasi === 'dibatalkan administrasi')
+            (checkInStatus === 'disetujui' && booking?.status_administrasi !== 'sedang diperiksa')
+            // Remove this condition to allow persetujuan buttons to be clickable when status is "dibatalkan administrasi"
+            // (checkInStatus === 'ditolak' && booking?.status_administrasi === 'dibatalkan administrasi')
         );
     };
 
@@ -921,7 +944,7 @@ const EditBooking = ({ booking, onClose, onUpdate }) => {
 
     // Create the modal content
     return ReactDOM.createPortal(
-        <div className="edit-booking-overlay" onClick={handleBackdropClick}>
+        <div className="edit-booking-overlay-aktivitasbkng" onClick={handleBackdropClick}>
             <div className="edit-booking-container" aria-modal="true" role="dialog">
                 <div className="edit-booking-header">
                     <h2>Edit Booking - {animalName || 'Hewan'} ({clientName || 'Klien'})</h2>
@@ -941,7 +964,8 @@ const EditBooking = ({ booking, onClose, onUpdate }) => {
                                         <button 
                                             className={`status-button ${persetujuanStatus === 'menunggu' && !pendingPersetujuanStatus ? 'active' : ''} ${pendingPersetujuanStatus === 'menunggu' ? 'active pending' : ''}`} 
                                             onClick={() => handlePersetujuan('menunggu')}
-                                            disabled={isLoading || isPersetujuanDisabled() || persetujuanStatus !== 'menunggu'}
+                                            disabled={isLoading || persetujuanStatus !== 'menunggu' || 
+                                                ['dibatalkan administrasi', 'sedang diperiksa'].includes(booking?.status_administrasi)}
                                         >
                                             <img src={waitingIcon} alt="Menunggu" className="menunggu" />
                                         </button>

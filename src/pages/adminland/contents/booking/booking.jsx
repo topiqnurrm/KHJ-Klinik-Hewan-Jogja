@@ -64,7 +64,7 @@ const Booking = () => {
                 ${item.status || ""}
                 ${item.catatan || ""}
                 ${new Date(item.tanggal_buat).toLocaleString()}
-                ${new Date(item.tanggal_booking).toLocaleString()}
+                ${new Date(item.tanggal_booking).toLocaleDateString()}
                 ${new Date(item.tanggal_edit).toLocaleString()}
             `.toLowerCase();
             return allFields.includes(lower);
@@ -149,6 +149,16 @@ const Booking = () => {
 
     const formatLayanan = (jenis) => {
         return jenis === 'house call' ? 'House Call' : 'Onsite';
+    };
+
+    // Format tanggal booking (hanya tampilkan tanggal, tanpa jam)
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
     };
 
     return (
@@ -236,14 +246,12 @@ const Booking = () => {
                                     <tr key={item._id}>
                                         <td>{index + 1}</td>
                                         <td>{new Date(item.tanggal_buat).toLocaleString()}</td>
-                                        <td>{new Date(item.tanggal_booking).toLocaleString()}</td>
+                                        <td>{formatDate(item.tanggal_booking)}</td>
                                         <td>{item.klien}</td>
                                         <td>{item.nama_hewan}</td>
                                         <td>{item.jenis_hewan}</td>
                                         <td>{formatLayanan(item.jenis_layanan)}</td>
-                                        <td className="catatan-cell">{item.catatan.length > 20
-                                            ? `${item.catatan.substring(0, 20)}...`
-                                            : item.catatan}</td>
+                                        <td className="catatan-cell">{item.catatan}</td>
                                         <td>
                                             <span className={`status-label ${getStatusClass(item.status)}`}>
                                                 {item.status}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Popup from "../popup/popupriwayat";
 import ConfirmPopup from "../popup/popup2"; 
 import PopupEditBooking from "../popup/popupeditbooking";
@@ -31,6 +31,7 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
     const [bookingToDelete, setBookingToDelete] = useState(null);
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [bookingToEdit, setBookingToEdit] = useState(null);
+    const [debugInfo, setDebugInfo] = useState(null); // State untuk debugging
 
     const fetchRiwayat = () => {
         setIsLoading(true);
@@ -47,6 +48,18 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                 const filteredByUser = data.filter(
                     (item) => item.administrasis1?.some(admin => admin.id_user === userId)
                 );
+                
+                // Debug: Cek salah satu data untuk melihat struktur administrasis1
+                if (filteredByUser.length > 0) {
+                    const sampleItem = filteredByUser[0];
+                    console.log("Sample administrasis1:", sampleItem.administrasis1);
+                    setDebugInfo({
+                        itemId: sampleItem._id,
+                        administrasis1: sampleItem.administrasis1,
+                        latestNote: getLatestNote(sampleItem.administrasis1)
+                    });
+                }
+                
                 setRiwayat(filteredByUser);
                 setFiltered(filteredByUser);
                 setIsLoading(false);
@@ -66,6 +79,64 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
         }
     }, [isOpen]);
 
+    // Perbaikan fungsi getLatestNote untuk mengembalikan catatan berdasarkan data buat terbaru
+    const getLatestNote = (administrasisArray) => {
+        // Debug
+        console.log("Receiving administrasisArray:", administrasisArray);
+        
+        // Pastikan array ada dan tidak kosong
+        if (!administrasisArray || !Array.isArray(administrasisArray) || administrasisArray.length === 0) {
+            console.log("Array kosong atau tidak valid, mengembalikan default");
+            return { catatan: "-", status_administrasi: "", tanggal: null };
+        }
+
+        // Buat salinan array untuk mencegah modifikasi array asli
+        let adminCopy = [...administrasisArray];
+
+        // Debug - cetak semua tanggal sebelum sorting
+        console.log("Tanggal sebelum sorting:", adminCopy.map(a => ({
+            tanggal: a.tanggal,
+            catatan: a.catatan,
+            createdAt: a.createdAt,
+            parsed: a.createdAt ? new Date(a.createdAt) : new Date(a.tanggal)
+        })));
+
+        // Urutkan array berdasarkan createdAt atau tanggal jika createdAt tidak ada
+        // Urutan DESCENDING (dari yang terbaru)
+        adminCopy.sort((a, b) => {
+            // Prioritaskan berdasarkan createdAt jika ada
+            const dateFieldA = a.createdAt || a.tanggal;
+            const dateFieldB = b.createdAt || b.tanggal;
+            
+            // Jika tanggal tidak valid, letakkan di akhir
+            if (!dateFieldA) return 1;
+            if (!dateFieldB) return -1;
+            
+            // Ubah string tanggal menjadi objek Date
+            const dateA = new Date(dateFieldA);
+            const dateB = new Date(dateFieldB);
+            
+            // Validasi untuk memastikan tanggal valid
+            if (isNaN(dateA.getTime())) return 1;
+            if (isNaN(dateB.getTime())) return -1;
+            
+            // Urutan descending (terbaru dulu)
+            return dateB - dateA;
+        });
+
+        // Debug - cetak hasil sorting
+        console.log("Hasil setelah sorting:", adminCopy.map(a => ({
+            tanggal: a.tanggal,
+            createdAt: a.createdAt,
+            catatan: a.catatan
+        })));
+
+        // Ambil elemen pertama (terbaru) setelah pengurutan
+        const newest = adminCopy[0];
+        console.log("Catatan terbaru yang dipilih:", newest);
+        return newest;
+    };
+    
     useEffect(() => {
         const lower = searchTerm.toLowerCase();
         let result = riwayat.filter((r) => {
@@ -74,15 +145,17 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                 .map(p => formatServiceDisplay(p, r.jenis_layanan))
                 .filter(Boolean)
                 .join(", ");
-            const catatanStr = (r.administrasis1 || [])
-                .map(a => a.catatan)
-                .filter(Boolean)
-                .join(", ");
+            
+            // Get the complete latest note object with improved debugging
+            const latestNote = getLatestNote(r.administrasis1);
+            console.log(`Item ${r._id} - Latest note:`, latestNote);
+            
             const allFields = `
                 ${r.nama || r.id_pasien?.nama || ""}
                 ${r.keluhan || ""}
                 ${r.status_booking || ""}
-                ${catatanStr}
+                ${latestNote?.catatan || "-"}
+                ${latestNote?.status_administrasi || ""}
                 ${new Date(r.createdAt).toLocaleString()}
                 ${new Date(r.updatedAt).toLocaleString()}
                 ${biayaStr}
@@ -92,27 +165,56 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
             return allFields.includes(lower);
         });
 
+        // Sorting logic
         if (sortBy) {
-            result = result.sort((a, b) => {
+            result.sort((a, b) => {
                 let valueA, valueB;
-                if (sortBy === "createdAt" || sortBy === "updatedAt" || sortBy === "pilih_tanggal") {
-                    valueA = new Date(a[sortBy]).getTime();
-                    valueB = new Date(b[sortBy]).getTime();
-                } else if (sortBy === "nama_hewan") {
-                    valueA = (a.nama || a.id_pasien?.nama || "").toLowerCase();
-                    valueB = (b.nama || b.id_pasien?.nama || "").toLowerCase();
-                } else if (sortBy === "biaya") {
-                    const aVal = a.biaya?.$numberDecimal ?? a.biaya ?? 0;
-                    const bVal = b.biaya?.$numberDecimal ?? b.biaya ?? 0;
-                    valueA = parseFloat(aVal);
-                    valueB = parseFloat(bVal);
+
+                switch (sortBy) {
+                    case "createdAt":
+                    case "updatedAt":
+                    case "pilih_tanggal":
+                        valueA = new Date(a[sortBy]).getTime();
+                        valueB = new Date(b[sortBy]).getTime();
+                        break;
+                    case "nama_hewan":
+                        valueA = a.nama || a.id_pasien?.nama || "";
+                        valueB = b.nama || b.id_pasien?.nama || "";
+                        break;
+                    case "biaya":
+                        valueA = typeof a.biaya === "object" && a.biaya.$numberDecimal
+                            ? parseFloat(a.biaya.$numberDecimal)
+                            : typeof a.biaya === "string"
+                            ? parseFloat(a.biaya)
+                            : a.biaya || 0;
+                        valueB = typeof b.biaya === "object" && b.biaya.$numberDecimal
+                            ? parseFloat(b.biaya.$numberDecimal)
+                            : typeof b.biaya === "string"
+                            ? parseFloat(b.biaya)
+                            : b.biaya || 0;
+                        break;
+                    default:
+                        valueA = a[sortBy];
+                        valueB = b[sortBy];
                 }
-                return sortOrder === "asc" ? (valueA > valueB ? 1 : -1) : (valueA < valueB ? 1 : -1);
+
+                // Handle null values
+                if (valueA === null || valueA === undefined) valueA = sortOrder === "asc" ? "" : "zzz";
+                if (valueB === null || valueB === undefined) valueB = sortOrder === "asc" ? "" : "zzz";
+
+                // Comparison
+                if (typeof valueA === "string" && typeof valueB === "string") {
+                    return sortOrder === "asc"
+                        ? valueA.localeCompare(valueB)
+                        : valueB.localeCompare(valueA);
+                } else {
+                    return sortOrder === "asc" ? valueA - valueB : valueB - valueA;
+                }
             });
         }
 
         setFiltered(result);
-    }, [searchTerm, riwayat, sortBy, sortOrder]);
+    }, [riwayat, searchTerm, sortBy, sortOrder]);
 
     const handleDelete = (booking) => {
         setBookingToDelete(booking);
@@ -198,9 +300,68 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
         return jenisLayanan ? `${nama} (${formattedJenisLayanan})` : nama;
     };
 
+    // Komponen untuk menampilkan debugging info
+    const DebugPanel = ({data}) => {
+        if (!data) return null;
+        
+        // Buat salinan array dan urutkan terbalik
+        const reversedAdministrasis = data.administrasis1 ? [...data.administrasis1].reverse() : [];
+        
+        return (
+            <div style={{margin: "20px 0", padding: "10px", backgroundColor: "#f5f5f5", border: "1px solid #ddd"}}>
+                <h3>Debug Info:</h3>
+                <p><strong>Item ID:</strong> {data.itemId}</p>
+                <div>
+                    <strong>All administrasis1 entries:</strong>
+                    <pre style={{maxHeight: "200px", overflow: "auto"}}>
+                        {JSON.stringify(reversedAdministrasis, null, 2)}
+                    </pre>
+                </div>
+                <div>
+                    <strong>Latest Note Selected:</strong>
+                    <pre>
+                        {JSON.stringify(data.latestNote, null, 2)}
+                    </pre>
+                </div>
+            </div>
+        );
+    };
+
+    // Fungsi untuk menampilkan semua catatan dalam administrasis1
+    const showAllNotes = (administrasis) => {
+        if (!administrasis || !Array.isArray(administrasis) || administrasis.length === 0) {
+            return <span className="no-notes">Tidak ada catatan</span>;
+        }
+
+        // Urutkan dari yang terbaru ke terlama
+        const sortedNotes = [...administrasis].sort((a, b) => {
+            if (!a.tanggal) return 1;
+            if (!b.tanggal) return -1;
+            return new Date(b.tanggal) - new Date(a.tanggal);
+        });
+
+        return (
+            <div className="all-notes">
+                {sortedNotes.map((admin, idx) => (
+                    <div key={idx} className="note-item">
+                        <div className="note-date">
+                            {admin.tanggal ? new Date(admin.tanggal).toLocaleDateString("id-ID") : "Tanggal tidak tersedia"}
+                        </div>
+                        <div className="note-content">
+                            {admin.catatan || "-"}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
     return (
         <>
-            <Popup isOpen={isOpen} onClose={onClose} title="Riwayat Pemeriksaan">
+            <Popup isOpen={isOpen} onClose={onClose} title="Riwayat Pemeriksaan Hewan Saya">
+                {/* Tampilkan panel debugging jika ada data */}
+                {/* {debugInfo && <DebugPanel data={debugInfo} />} */}
+                
                 <div className="riwayat-filter-container">
                     <div className="riwayat-search-wrapper">
                         <label className="riwayat-search-label">Filter Pencarian</label>
@@ -255,7 +416,8 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                                     <th>Keluhan</th>
                                     <th>Lokasi</th>
                                     <th>Layanan</th>
-                                    <th>Catatan</th>
+                                    <th>Catatan Terbaru</th>
+                                    {/* <th>Semua Catatan</th> */}
                                     <th>Status</th>
                                     <th>Biaya</th>
                                     <th>Tgl Update</th>
@@ -265,7 +427,7 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                             <tbody>
                                 {filtered.length === 0 ? (
                                     <tr>
-                                        <td colSpan="11" className="no-data">Tidak ada data booking</td>
+                                        <td colSpan="13" className="no-data">Tidak ada data booking</td>
                                     </tr>
                                 ) : (
                                     filtered.map((r, index) => (
@@ -282,7 +444,8 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                                                     .filter(Boolean)
                                                     .join(", ") || "-"}
                                             </td>
-                                            <td>{r.administrasis1?.[0]?.catatan || "-"}</td>
+                                            <td>{getLatestNote(r.administrasis1).catatan || "-"}</td>
+                                            {/* <td>{showAllNotes(r.administrasis1)}</td> */}
                                             <td>
                                                 <span className={`status-label ${getStatusClass(r.status_booking)}`}>
                                                     {r.status_booking}
@@ -344,6 +507,42 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                 }
                 onConfirm={confirmDeleteBooking}
             />
+
+            {/* Tambahkan CSS untuk styling tampilan catatan */}
+            <style jsx>{`
+                .all-notes {
+                    max-height: 120px;
+                    overflow-y: auto;
+                    padding: 5px;
+                    border: 1px solid #ddd;
+                    background-color: #f9f9f9;
+                    border-radius: 4px;
+                }
+                
+                .note-item {
+                    border-bottom: 1px solid #eee;
+                    padding: 5px 0;
+                }
+                
+                .note-item:last-child {
+                    border-bottom: none;
+                }
+                
+                .note-date {
+                    font-size: 0.8em;
+                    color: #666;
+                    margin-bottom: 2px;
+                }
+                
+                .note-content {
+                    font-size: 0.9em;
+                }
+                
+                .no-notes {
+                    color: #999;
+                    font-style: italic;
+                }
+            `}</style>
         </>
     );
 };

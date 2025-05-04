@@ -306,6 +306,15 @@
   color: white;
 }
 
+/* Modified catatan cell styling to allow text wrapping */
+.booking-container .catatan-cell {
+  max-width: 200px;
+  /* Remove text overflow properties to allow text to wrap */
+  white-space: normal; /* Changed from nowrap to normal */
+  word-wrap: break-word; /* Added for better word breaking */
+  overflow-wrap: break-word; /* Added for better word breaking */
+}
+
 /* Modal styles */
 .modal-overlay {
   position: fixed;
@@ -382,12 +391,4 @@
 .submit-button {
   background-color: #175451;
   color: white;
-}
-
-/* Catatan cell styling */
-.booking-container .catatan-cell {
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }

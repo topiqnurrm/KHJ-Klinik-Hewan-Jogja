@@ -3,6 +3,13 @@ import axios from 'axios';
 // API URL for booking activities
 const AKTIVITAS_BOOKING_API_URL = 'http://localhost:5000/api/aktivitas-booking';
 
+const VALID_STATUSES = [
+  'menunggu respon administrasi', 
+  'disetujui administrasi', 
+  'ditolak administrasi', 
+  'dibatalkan administrasi'
+];
+
 // Get current user from localStorage
 export const getCurrentUser = () => {
   try {
@@ -28,8 +35,15 @@ export const hasAdminPermission = () => {
 // Get all bookings with enhanced information
 export const getAllBookings = async () => {
   try {
+    // Mengambil semua data booking
     const response = await axios.get(`${AKTIVITAS_BOOKING_API_URL}`);
-    return response.data;
+    
+    // Filter hanya booking dengan status yang diinginkan
+    const filteredBookings = response.data.filter(booking => 
+      VALID_STATUSES.includes(booking.status)
+    );
+    
+    return filteredBookings;
   } catch (error) {
     console.error('Gagal mengambil data booking:', error);
     throw error;
