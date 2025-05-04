@@ -449,7 +449,6 @@
 }
 
 /* Make sure DatePicker components also use the font */
-.edit-booking-overlay-aktivitasbkng .react-datepicker__input-container input,
 .edit-booking-overlay-aktivitasbkng .react-datepicker__month-container,
 .edit-booking-overlay-aktivitasbkng .react-datepicker__header,
 .edit-booking-overlay-aktivitasbkng .react-datepicker__day,
@@ -458,6 +457,11 @@
 .edit-booking-overlay-aktivitasbkng .react-datepicker-time__header,
 .edit-booking-overlay-aktivitasbkng .react-datepicker-year-header {
     font-family: "SansSerifFLF", sans-serif !important;
+}
+
+.edit-booking-overlay-aktivitasbkng .react-datepicker__input-container input {
+    font-family: "SansSerifFLF", sans-serif !important;
+    width: 340px !important;
 }
 
 /* You may also want to apply it to select elements */

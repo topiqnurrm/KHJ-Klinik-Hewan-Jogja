@@ -11,7 +11,7 @@ import editIcon from "./gambar/edit.png";
 import hapusIcon from "./gambar/hapus.png";
 
 const formatRupiah = (value) => {
-    if (!value) return "Rp0";
+    if (!value) return "Rp -";
     const amount = typeof value === "object" && value.$numberDecimal
         ? parseFloat(value.$numberDecimal)
         : typeof value === "string"
@@ -416,7 +416,7 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                                     <th>Keluhan</th>
                                     <th>Lokasi</th>
                                     <th>Layanan</th>
-                                    <th>Catatan Terbaru</th>
+                                    <th>Catatan</th>
                                     {/* <th>Semua Catatan</th> */}
                                     <th>Status</th>
                                     <th>Biaya</th>

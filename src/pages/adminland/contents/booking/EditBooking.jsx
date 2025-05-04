@@ -8,6 +8,7 @@ import { getBookingById, updateBookingStatus, addNoteToBooking } from '../../../
 import { getPasienByUserId } from '../../../../api/api-pasien';
 import { fetchLayanan } from '../../../../api/api-pelayanan';
 import { checkBookingAvailability, updateBooking } from '../../../../api/api-booking';
+import { checkAndCreateKunjungan } from '../../../../api/aktivitas-booking-kunjungan'; // Add this import
 
 // Icons for buttons
 import waitingIcon from "./gambar/menunggu.png";
@@ -673,6 +674,19 @@ const EditBooking = ({ booking, onClose, onUpdate }) => {
                         catatan: "-",
                         status_administrasi: 'sedang diperiksa'
                     });
+
+                    // Check if kunjungan exists and create one if it doesn't
+                    try {
+                        await checkAndCreateKunjungan(booking._id, {
+                            administrasis2: [{
+                                id_user: JSON.parse(localStorage.getItem("user"))?._id || 'current_user_id',
+                                catatan: "dibuat",
+                                status_kunjungan: "sedang diperiksa"
+                            }]
+                        });
+                    } catch (error) {
+                        console.error("Error creating kunjungan:", error);
+                    }
                 } else if (pendingCheckInStatus === 'ditolak') {
                     newStatusBooking = 'dibatalkan administrasi';
                     
