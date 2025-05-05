@@ -254,7 +254,7 @@
 }
 
 /* Modal styles */
-.modal-overlay {
+.kunjungan-container .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -267,7 +267,7 @@
   z-index: 1000;
 }
 
-.modal-content {
+.kunjungan-container .modal-content {
   background-color: white;
   padding: 20px;
   border-radius: 8px;
@@ -278,7 +278,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.modal-header {
+.kunjungan-container .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -287,13 +287,13 @@
   padding-bottom: 10px;
 }
 
-.modal-title {
+.kunjungan-container .modal-title {
   font-size: 20px;
   font-weight: bold;
   color: #3F4254;
 }
 
-.modal-close {
+.kunjungan-container .modal-close {
   background: none;
   border: none;
   font-size: 24px;
@@ -301,11 +301,11 @@
   color: #666;
 }
 
-.modal-body {
+.kunjungan-container .modal-body {
   margin-bottom: 20px;
 }
 
-.modal-footer {
+.kunjungan-container .modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -313,7 +313,7 @@
   padding-top: 15px;
 }
 
-.modal-button {
+.kunjungan-container .modal-button {
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
@@ -321,12 +321,70 @@
   font-weight: bold;
 }
 
-.cancel-button {
+.kunjungan-container .cancel-button {
   background-color: #e5e7eb;
   color: #4b5563;
 }
 
-.submit-button {
+.kunjungan-container .submit-button {
   background-color: #175451;
   color: white;
+}
+
+/* Tambahkan kode CSS ini ke file kunjungan.css yang sudah ada */
+
+/* Styling untuk tombol tambah kunjungan */
+.kunjungan-container .tambah-kunjungan-button {
+  background-color: #175451;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-family: "SansSerifFLF", sans-serif;
+  font-size: 14px;
+  transition: background-color 0.2s;
+  margin-right: 100px;
+}
+
+.kunjungan-container .tambah-kunjungan-button:hover {
+  background-color: #0e3d3b;
+}
+
+/* Pastikan riwayat-filter-container bisa menampung tombol tambah kunjungan */
+.kunjungan-container .riwayat-filter-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 20px;
+  background-color: #f2f2f2;
+  padding: 5px;
+  border-radius: 4px;
+  gap: 20px; /* Tambahkan gap untuk spacing antara elemen */
+}
+
+/* Styling untuk tombol yang di-disable */
+.kunjungan-container .disabled-button {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Jika Anda juga ingin menyesuaikan styling header seperti pada komponen Pengguna */
+.kunjungan-container .dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+  background-color: #d9d9d9;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 20px;
+  font-size: 14px;
+  font-family: "SansSerifFLF";
+  font-weight: bold;
+  font-style: normal;
 }

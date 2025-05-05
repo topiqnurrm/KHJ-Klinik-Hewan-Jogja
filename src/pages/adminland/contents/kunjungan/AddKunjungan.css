@@ -1,0 +1,250 @@
+@font-face {
+    font-family: "SansSerifBldFLF";
+    src: url("/src/components/fonts/SansSerifBldFLF.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+}
+  
+@font-face {
+    font-family: "SansSerifFLF";
+    src: url("/src/components/fonts/SansSerifFLF.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+}
+    
+.edit-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.edit-popup {
+    background-color: white;
+    border-radius: 8px;
+    width: 800px;
+    max-width: 90%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    overflow: hidden;
+    position: relative; /* Tambahkan ini untuk positioning */
+}
+
+.edit-header {
+    background-color: #175451;
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+    font-family: "SansSerifBldFLF", "SansSerifFLF", sans-serif;
+}
+
+.edit-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.edit-content {
+    padding: 20px;
+    overflow-y: auto;
+    /* Tambahkan padding-bottom supaya konten tidak tertutup tombol */
+    padding-bottom: 80px;
+}
+
+.edit-form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.edit-form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #3F4254;
+    font-family: "SansSerifFLF";
+    font-weight: normal;
+    font-style: normal;
+}
+
+.edit-form-group input,
+.edit-form-group select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #e9e9e9;
+    font-family: "SansSerifFLF", sans-serif;
+}
+
+.edit-form-group input:focus,
+.edit-form-group select:focus {
+    outline: none;
+    border-color: #175451;
+}
+
+.input-error {
+    border-color: #dc2626 !important;
+}
+
+.error-text {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.required {
+    color: #dc2626;
+}
+
+.booking-info,
+.antri-info {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.booking-info h3,
+.antri-info h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #175451;
+    font-family: "SansSerifBldFLF", sans-serif;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 5px;
+}
+
+.info-label {
+    font-weight: bold;
+    width: 120px;
+    color: #3F4254;
+    font-family: "SansSerifFLF", sans-serif;
+}
+
+.info-value {
+    flex: 1;
+    font-family: "SansSerifFLF", sans-serif;
+}
+
+.nomor-antri {
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    color: #175451;
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #e9f5f4;
+    border-radius: 4px;
+    letter-spacing: 3px;
+    font-family: "SansSerifBldFLF", sans-serif;
+}
+
+.antri-details {
+    background-color: white;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px dashed #ccc;
+}
+
+.antri-details p {
+    margin: 5px 0;
+    font-family: "SansSerifFLF", sans-serif;
+}
+
+.antri-details strong {
+    color: #175451;
+    font-family: "SansSerifBldFLF", sans-serif;
+}
+
+.edit-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 0;
+    padding: 15px 20px;
+    border-top: 1px solid #e9ecef;
+    background-color: white;
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.batal-button,
+.simpan-button {
+    padding: 10px 40px;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: "SansSerifFLF", sans-serif;
+    font-size: 16px;
+    transition: opacity 0.2s;
+}
+
+.batal-button {
+    background-color: #5d0f26;
+    color: white;
+}
+
+.simpan-button {
+    background-color: #175451;
+    color: white;
+}
+
+.batal-button:hover,
+.simpan-button:hover {
+    opacity: 0.9;
+}
+
+.batal-button:disabled,
+.simpan-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.loading-text {
+    text-align: center;
+    padding: 15px;
+    font-style: italic;
+    color: #666;
+    font-family: "SansSerifFLF", sans-serif;
+}
+
+.error-message {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-family: "SansSerifFLF", sans-serif;
+}

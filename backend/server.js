@@ -35,6 +35,8 @@ import routeAktivitasBooking from './routes/route-aktivitas-booking.js';
 
 import routeAktivitasKunjungan from './routes/aktivitas-booking-kunjungan.js';
 
+import kunjunganRoutes from './routes/route-aktivitas-kunjungan.js';
+
 dotenv.config();
 
 const app = express();
@@ -119,6 +121,8 @@ app.use('/api/user-edit', routeUserEdit); // Menambahkan route edit user
 app.use('/api/aktivitas-booking', routeAktivitasBooking); // Menambahkan route aktivitas booking
 
 app.use('/api/aktivitas-kunjungan', routeAktivitasKunjungan); // Menambahkan route aktivitas kunjungan
+
+app.use('/api/aktivitas-kunjungan2', kunjunganRoutes);
 
 // Route ambil data klien
 app.get('/api/users/klien', async (req, res) => {

@@ -110,7 +110,7 @@ const BookingSchema = new mongoose.Schema({
     },
     jenis_layanan: {
       type: String,
-      enum: ['onsite', 'house call'],
+      enum: ['onsite', 'house call', 'offline'],
       required: true,
       default: 'onsite'
     },

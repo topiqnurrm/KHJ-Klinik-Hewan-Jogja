@@ -20,7 +20,7 @@ export const checkAndCreateKunjungan = async (bookingId, kunjunganData) => {
             return checkResponse.data.kunjungan;
         }
         
-        console.log('Creating new kunjungan for booking:', bookingId);
+        // console.log('Creating new kunjungan for booking:', bookingId);
         
         // If not, create a new kunjungan
         // Generate queue number
@@ -36,7 +36,7 @@ export const checkAndCreateKunjungan = async (bookingId, kunjunganData) => {
         
         // Post the new kunjungan
         const createResponse = await axios.post(`${API_URL}/akvtsbkngknjgn`, newKunjungan);
-        console.log('Kunjungan created successfully:', createResponse.data);
+        // console.log('Kunjungan created successfully:', createResponse.data);
         return createResponse.data;
         
     } catch (error) {

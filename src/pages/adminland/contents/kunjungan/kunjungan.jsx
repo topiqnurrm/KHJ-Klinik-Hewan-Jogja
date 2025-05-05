@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './kunjungan.css';
 import editIcon from "../../../../components/riwayat/gambar/kunjungan.png";
+import Rekammedis from './rekammedis.jsx'; // Import komponen Rekammedis
+import AddKunjungan from './AddKunjungan.jsx'; // Import komponen AddKunjungan
+import { 
+    getAllKunjungan, 
+    searchKunjungan,
+    hasEditPermission,
+    getCurrentUser
+} from '../../../../api/api-aktivitas-kunjungan';
 
 const Kunjungan = () => {
     const [kunjungan, setKunjungan] = useState([]);
@@ -9,11 +17,18 @@ const Kunjungan = () => {
     const [sortBy, setSortBy] = useState("tanggal_checkin");
     const [sortOrder, setSortOrder] = useState("desc");
     const [isLoading, setIsLoading] = useState(false);
-    const [currentUser, setCurrentUser] = useState({ aktor: 'superadmin' }); // Dummy user for testing
+    const [currentUser, setCurrentUser] = useState(null);
+    
+    // State untuk menampilkan halaman rekam medis
+    const [showRekamMedis, setShowRekamMedis] = useState(false);
+    const [selectedKunjungan, setSelectedKunjungan] = useState(null);
     
     // State untuk error message
     const [errorMessage, setErrorMessage] = useState("");
     const [showError, setShowError] = useState(false);
+
+    // State untuk popup tambah kunjungan
+    const [showAddKunjungan, setShowAddKunjungan] = useState(false);
 
     const showErrorMessage = (message) => {
         setErrorMessage(message);
@@ -24,69 +39,27 @@ const Kunjungan = () => {
             setShowError(false);
         }, 3000);
     };
-
-    // Dummy data
-    const dummyData = [
-        {
-            _id: '1',
-            tanggal_checkin: '2025-05-04T09:30:00',
-            klien: 'Ahmad Subarjo',
-            nama_hewan: 'Fluffy',
-            nomor_antri: 1,
-            status: 'menunggu',
-            tanggal_edit: '2025-05-04T09:30:00'
-        },
-        {
-            _id: '2',
-            tanggal_checkin: '2025-05-04T10:15:00',
-            klien: 'Budi Santoso',
-            nama_hewan: 'Rex',
-            nomor_antri: 2,
-            status: 'diperiksa',
-            tanggal_edit: '2025-05-04T10:15:00'
-        },
-        {
-            _id: '3',
-            tanggal_checkin: '2025-05-04T10:45:00',
-            klien: 'Siti Aminah',
-            nama_hewan: 'Kitty',
-            nomor_antri: 3,
-            status: 'selesai',
-            tanggal_edit: '2025-05-04T11:30:00'
-        },
-        {
-            _id: '4',
-            tanggal_checkin: '2025-05-04T11:00:00',
-            klien: 'Darmawan',
-            nama_hewan: 'Bolt',
-            nomor_antri: 4,
-            status: 'dibatalkan',
-            tanggal_edit: '2025-05-04T11:05:00'
-        },
-        {
-            _id: '5',
-            tanggal_checkin: '2025-05-04T13:30:00',
-            klien: 'Rina Marlina',
-            nama_hewan: 'Whiskers',
-            nomor_antri: 5,
-            status: 'menunggu',
-            tanggal_edit: '2025-05-04T13:30:00'
-        }
-    ];
+    
+    // Fetch user data
+    useEffect(() => {
+        const user = getCurrentUser();
+        setCurrentUser(user);
+    }, []);
 
     const fetchAllKunjungan = async () => {
         setIsLoading(true);
         try {
-            // Simulasi API call dengan dummy data
-            setTimeout(() => {
-                setKunjungan(dummyData);
-                setFilteredKunjungan(dummyData);
-                setIsLoading(false);
-            }, 500);
+            const data = await getAllKunjungan();
+            setKunjungan(data);
+            setFilteredKunjungan(data);
+            setIsLoading(false);
         } catch (error) {
             console.error('Gagal fetch data kunjungan:', error);
             showErrorMessage("Gagal memuat data kunjungan: " + (error.response?.data?.message || error.message));
             setIsLoading(false);
+            // Set empty arrays to prevent errors
+            setKunjungan([]);
+            setFilteredKunjungan([]);
         }
     };
 
@@ -94,27 +67,36 @@ const Kunjungan = () => {
         fetchAllKunjungan();
     }, []);
 
+    // Handle search and sort
     useEffect(() => {
-        const lower = searchTerm.toLowerCase();
-        let result = kunjungan.filter((item) => {
-            const allFields = `
-                ${item.nama_hewan || ""}
-                ${item.klien || ""}
-                ${item.nomor_antri || ""}
-                ${item.status || ""}
-                ${new Date(item.tanggal_checkin).toLocaleString()}
-                ${new Date(item.tanggal_edit).toLocaleString()}
-            `.toLowerCase();
-            return allFields.includes(lower);
-        });
-
+        if (kunjungan.length === 0) return;
+        
+        let filteredData = [...kunjungan];
+        
+        // Apply search filter if term exists
+        if (searchTerm) {
+            const lower = searchTerm.toLowerCase();
+            filteredData = filteredData.filter((item) => {
+                const allFields = `
+                    ${item.nama_hewan || ""}
+                    ${item.klien || ""}
+                    ${item.jenis_layanan || ""} 
+                    ${item.nomor_antri || ""}
+                    ${item.status || ""}
+                    ${new Date(item.tanggal_checkin).toLocaleString()}
+                `.toLowerCase();
+                return allFields.includes(lower);
+            });
+        }
+        
+        // Apply sorting
         if (sortBy) {
-            result = result.sort((a, b) => {
+            filteredData.sort((a, b) => {
                 let valueA, valueB;
                 if (sortBy === "tanggal_checkin" || sortBy === "tanggal_edit") {
                     valueA = new Date(a[sortBy]).getTime();
                     valueB = new Date(b[sortBy]).getTime();
-                } else if (sortBy === "nama_hewan" || sortBy === "klien" || sortBy === "status") {
+                } else if (sortBy === "nama_hewan" || sortBy === "klien" || sortBy === "status" || sortBy === "jenis_layanan") {
                     valueA = (a[sortBy] || "").toLowerCase();
                     valueB = (b[sortBy] || "").toLowerCase();
                 } else {
@@ -125,13 +107,13 @@ const Kunjungan = () => {
             });
         }
 
-        setFilteredKunjungan(result);
+        setFilteredKunjungan(filteredData);
     }, [searchTerm, kunjungan, sortBy, sortOrder]);
-
-    // Check if user has permission
-    const hasEditPermission = () => {
-        if (!currentUser) return false;
-        return ['superadmin', 'administrasi', 'dokter'].includes(currentUser.aktor);
+    
+    // Reset search filter
+    const resetFilters = () => {
+        setSearchTerm("");
+        setFilteredKunjungan(kunjungan);
     };
 
     const handleEdit = (kunjunganItem) => {
@@ -141,24 +123,70 @@ const Kunjungan = () => {
             return;
         }
         
-        // Implement the edit functionality here
-        alert(`Edit kunjungan untuk ${kunjunganItem.nama_hewan}`);
+        // Set selected kunjungan dan tampilkan halaman rekam medis
+        setSelectedKunjungan(kunjunganItem);
+        setShowRekamMedis(true);
+    };
+
+    // Handler untuk tombol tambah kunjungan
+    const handleAddKunjungan = () => {
+        // Check if user has permission to add
+        if (!hasEditPermission()) {
+            showErrorMessage("Anda tidak memiliki izin untuk menambah kunjungan. Hanya Administrasi, Dokter, dan Superadmin yang diizinkan.");
+            return;
+        }
+        
+        // Tampilkan form atau modal tambah kunjungan
+        setShowAddKunjungan(true);
+    };
+
+    // Handler untuk menutup modal tambah kunjungan
+    const handleCloseAddKunjungan = () => {
+        setShowAddKunjungan(false);
+    };
+
+    // Handler untuk update setelah tambah kunjungan
+    const handleKunjunganCreated = (newKunjungan) => {
+        // Refresh data kunjungan setelah penambahan berhasil
+        fetchAllKunjungan();
+    };
+
+    // Handler untuk kembali ke halaman kunjungan dari rekam medis
+    const handleBackFromRekamMedis = () => {
+        setShowRekamMedis(false);
+        setSelectedKunjungan(null);
+        // Refresh data kunjungan setelah kembali dari rekam medis
+        fetchAllKunjungan();
     };
 
     const getStatusClass = (status) => {
         switch (status) {
-            case "menunggu":
+            case "menunggu respon administrasi":
                 return "status-kuning";
-            case "diperiksa":
+            case "disetujui administrasi":
+                return "status-kuning";
+            case "sedang diperiksa":
                 return "status-biru";
+            case "dirawat inap":
+                return "status-biru";
+            case "dibatalkan administrasi":
+                return "status-merah";
             case "selesai":
                 return "status-hijau";
-            case "dibatalkan":
-                return "status-merah";
             default:
                 return "";
         }
     };
+    
+    // Format status display - keep full original status names
+    const formatStatus = (status) => {
+        return status || "";
+    };
+
+    // Conditional rendering - tampilkan Rekammedis atau daftar Kunjungan
+    if (showRekamMedis && selectedKunjungan) {
+        return <Rekammedis kunjunganData={selectedKunjungan} onBack={handleBackFromRekamMedis} />;
+    }
 
     return (
         <div className='kunjungan-container'>
@@ -174,6 +202,13 @@ const Kunjungan = () => {
             )}
             
             <div className="riwayat-filter-container">
+                <button 
+                    className={`tambah-kunjungan-button ${!hasEditPermission() ? 'disabled-button' : ''}`} 
+                    onClick={handleAddKunjungan}
+                    disabled={!hasEditPermission()}
+                >
+                    + Tambah Kunjungan
+                </button>
                 <div className="riwayat-search-wrapper">
                     <label className="riwayat-search-label">Filter Pencarian</label>
                     <input
@@ -199,6 +234,7 @@ const Kunjungan = () => {
                         <option value="tanggal_edit">Tanggal Edit</option>
                         <option value="nomor_antri">Nomor Antri</option>
                         <option value="nama_hewan">Nama Hewan</option>
+                        <option value="jenis_layanan">Jenis Layanan</option>
                         <option value="klien">Klien</option>
                         <option value="status">Status</option>
                     </select>
@@ -224,6 +260,7 @@ const Kunjungan = () => {
                                 <th>Tanggal Check-in</th>
                                 <th>Klien</th>
                                 <th>Nama Hewan</th>
+                                <th>Jenis Layanan</th>
                                 <th>Nomor Antri</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
@@ -232,7 +269,7 @@ const Kunjungan = () => {
                         <tbody>
                             {filteredKunjungan.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="no-data">Tidak ada data kunjungan</td>
+                                    <td colSpan="8" className="no-data">Tidak ada data kunjungan</td>
                                 </tr>
                             ) : (
                                 filteredKunjungan.map((item, index) => (
@@ -241,19 +278,21 @@ const Kunjungan = () => {
                                         <td>{new Date(item.tanggal_checkin).toLocaleString()}</td>
                                         <td>{item.klien}</td>
                                         <td>{item.nama_hewan}</td>
+                                        <td>{item.jenis_layanan || "-"}</td>
                                         <td>{item.nomor_antri}</td>
                                         <td>
                                             <span className={`status-label ${getStatusClass(item.status)}`}>
-                                                {item.status}
+                                                {formatStatus(item.status)}
                                             </span>
                                         </td>
                                         <td className="riwayat-actions">
                                             <button 
                                                 className={`btn-green ${!hasEditPermission() ? 'disabled-button' : ''}`} 
-                                                title="Edit" 
+                                                title="Rekam Medis" 
                                                 onClick={() => handleEdit(item)}
+                                                disabled={!hasEditPermission()}
                                             >
-                                                <img src={editIcon} alt="edit" />
+                                                <img src={editIcon} alt="rekam medis" />
                                             </button>
                                         </td>
                                     </tr>
@@ -263,6 +302,14 @@ const Kunjungan = () => {
                     </table>
                 )}
             </div>
+            
+            {/* Modal untuk Tambah Kunjungan */}
+            {showAddKunjungan && (
+                <AddKunjungan 
+                    onClose={handleCloseAddKunjungan} 
+                    onUpdate={handleKunjunganCreated}
+                />
+            )}
         </div>
     );
 };

@@ -6,16 +6,16 @@ const KunjunganSchema = new mongoose.Schema({
             id_user: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User',
-                required: true
+                required: false
             },
             catatan: {
                 type: String,
-                required: true
+                required: false
             },
             status_kunjungan: {
                 type: String,
                 enum: ['sedang diperiksa', 'dirawat inap', 'dibatalkan administrasi'],
-                required: true
+                required: false
             },
             tanggal: {
                 type: Date,
@@ -26,7 +26,7 @@ const KunjunganSchema = new mongoose.Schema({
     id_booking: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Booking',
-        required: true
+        required: false
     },
     tanggal: {
         type: Date,
@@ -37,7 +37,52 @@ const KunjunganSchema = new mongoose.Schema({
         required: true,
         maxlength: 10,
         minlength: 1
-    }
+    },
+    nama_klein : {
+        type: String,
+        required: false,
+        maxlength: 200,
+        minlength: 3
+    },
+    nama_hewan : {
+        type: String,
+        required: false,
+        maxlength: 200,
+        minlength: 3
+    },
+    jenis_layanan: {
+        type: String,
+        enum: ['onsite', 'house call', 'offline'],
+        required: false,
+        default: 'offline'
+    },
+    jenis_kelamin : {
+        type: String,
+        enum: ['jantan', 'betina', '-'],
+        required: false,
+        default: '-'
+    },
+    jenis: {
+        type: String,
+        required: false,
+        maxlength: 100
+    },
+    ras: {
+        type: String,
+        required: false,
+        maxlength: 250
+    },
+    umur_hewan: {
+        type: Number,
+        required: false,
+        min: 0,
+        max: 999 
+    },
+    kategori: {
+        type: String,
+        required: false,
+        enum: ['ternak', 'kesayangan / satwa liar', 'unggas']
+    },
 }, { timestamps: true });
 
 export default mongoose.model('Kunjungan', KunjunganSchema);
