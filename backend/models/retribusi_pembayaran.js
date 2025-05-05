@@ -1,46 +1,6 @@
 import mongoose from 'mongoose';
 
 const RetribusiPembayaranSchema = new mongoose.Schema({
-    subtotal_obat: {
-        type: mongoose.Types.Decimal128,
-        required: true,
-        validate: {
-            validator: function(value) {
-                return /^\d{1,10}(\.\d{1,2})?$/.test(value.toString());
-            },
-            message: 'Subtotal obat harus berupa angka dengan maksimal 10 digit dan 2 digit desimal.'
-        }
-    },
-    total_obat: {
-        type: mongoose.Types.Decimal128,
-        required: true,
-        validate: {
-            validator: function(value) {
-                return /^\d{1,10}(\.\d{1,2})?$/.test(value.toString());
-            },
-            message: 'Total obat harus berupa angka dengan maksimal 10 digit dan 2 digit desimal.'
-        }
-    },
-    subtotal_pelayanan: {
-        type: mongoose.Types.Decimal128,
-        required: true,
-        validate: {
-            validator: function(value) {
-                return /^\d{1,10}(\.\d{1,2})?$/.test(value.toString());
-            },
-            message: 'Subtotal pelayanan harus berupa angka dengan maksimal 10 digit dan 2 digit desimal.'
-        }
-    },
-    total_pelayanan: {
-        type: mongoose.Types.Decimal128,
-        required: true,
-        validate: {
-            validator: function(value) {
-                return /^\d{1,10}(\.\d{1,2})?$/.test(value.toString());
-            },
-            message: 'Total pelayanan harus berupa angka dengan maksimal 10 digit dan 2 digit desimal.'
-        }
-    },
     grand_total: {
         type: mongoose.Types.Decimal128,
         required: true,
@@ -54,11 +14,11 @@ const RetribusiPembayaranSchema = new mongoose.Schema({
     metode_bayar: {
         type: String,
         enum: ['cash', 'debit', 'kredit', 'transfer', 'qris', 'ovo', 'gopay', 'dana', 'linkaja'],
-        required: true
+        required: false
     },
     kembali: {
         type: mongoose.Types.Decimal128,
-        required: true,
+        required: false,
         validate: {
             validator: function(value) {
                 return /^\d{1,10}(\.\d{1,2})?$/.test(value.toString());
@@ -83,15 +43,7 @@ const RetribusiPembayaranSchema = new mongoose.Schema({
     id_user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
-    },
-    tanggal_bayar: {
-        type: Date,
-        default: null
-    },
-    tanggal_ambil_obat: {
-        type: Date,
-        default: null
+        required: false
     },
 }, { timestamps: true });
 

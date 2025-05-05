@@ -27,7 +27,8 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
         jenis: '', // This is now required
         ras: '',
         umur_hewan: '',
-        kategori: 'kesayangan / satwa liar' // Default value
+        kategori: 'kesayangan / satwa liar', // Default value
+        keluhan: '' // Add this new field
     });
     
     const [isLoading, setIsLoading] = useState(false);
@@ -40,7 +41,8 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
         jenis: '',
         ras: '',
         umur_hewan: '',
-        kategori: ''
+        kategori: '',
+        keluhan: '' // Add this new field
     });
     
     // State untuk melacak ketersediaan portal
@@ -154,6 +156,17 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                     errorMessage = 'Kategori hewan harus dipilih';
                 }
                 break;
+
+            case 'keluhan':
+                if (!value) {
+                    errorMessage = 'Keluhan harus diisi';
+                } else {
+                    const wordCount = value.split(' ').length;
+                    if (wordCount > 250) {
+                        errorMessage = 'Keluhan tidak boleh lebih dari 250 kata';
+                    }
+                }
+                break;
             
             default:
                 break;
@@ -227,8 +240,9 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                 ras: kunjunganData.ras,
                 umur_hewan: kunjunganData.umur_hewan,
                 kategori: kunjunganData.kategori,
+                keluhan: kunjunganData.keluhan, // Add this line
                 tanggal_waktu: dateTimeString,
-                id_user: userId // Tambahkan ID user
+                id_user: userId
             };
             
             // Send data to API
@@ -250,7 +264,7 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
 
     const isFormValid = () => {
         // Check if form has all required fields filled and no validation errors
-        const requiredFields = ['nama_klein', 'nama_hewan', 'tanggal', 'waktu', 'kategori', 'jenis'];
+        const requiredFields = ['nama_klein', 'nama_hewan', 'tanggal', 'waktu', 'kategori', 'jenis', 'keluhan'];
         const hasAllFields = requiredFields.every(field => kunjunganData[field]);
         
         // Check if there are any validation errors
@@ -369,6 +383,23 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                                     <option value="unggas">Unggas</option>
                                 </select>
                                 {validation.kategori && <span className="error-text">{validation.kategori}</span>}
+                            </div>
+                        </div>
+
+                        <div className="edit-form-row">
+                            <div className="edit-form-group">
+                                <label htmlFor="keluhan">Keluhan <span className="required">*</span></label>
+                                <textarea
+                                    id="keluhan"
+                                    name="keluhan"
+                                    value={kunjunganData.keluhan}
+                                    onChange={handleChange}
+                                    className={validation.keluhan ? 'input-error' : ''}
+                                    placeholder="Masukkan keluhan"
+                                    rows="4"
+                                ></textarea>
+                                {validation.keluhan && <span className="error-text">{validation.keluhan}</span>}
+                                <span className="info-text" >Maksimal 250 kata</span>
                             </div>
                         </div>
                         

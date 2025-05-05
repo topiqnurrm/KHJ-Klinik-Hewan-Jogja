@@ -39,12 +39,13 @@ export const getAllKunjungan = async () => {
     
     // Format dates and filter by VALID_STATUSES if needed
     const formattedKunjungan = response.data
-      // Optionally filter by valid statuses (uncomment if you want to filter)
-      // .filter(item => VALID_STATUSES.includes(item.status))
-      .map(kunjungan => ({
+    .map(kunjungan => ({
         ...kunjungan,
-        tanggal_checkin_display: new Date(kunjungan.tanggal_checkin).toLocaleString()
-      }));
+          tanggal_checkin_display: new Date(kunjungan.tanggal_checkin).toLocaleString(),
+          // Ensure keluhan and kategori are passed through
+          keluhan: kunjungan.keluhan || 'N/A',
+          kategori: kunjungan.kategori || 'kesayangan / satwa liar'
+    }));
     
     return formattedKunjungan;
   } catch (error) {
@@ -59,7 +60,10 @@ export const getKunjunganById = async (id) => {
     const response = await axios.get(`${AKTIVITAS_KUNJUNGAN_API_URL}/${id}`);
     return {
       ...response.data,
-      tanggal_checkin_display: new Date(response.data.tanggal_checkin).toLocaleString()
+      tanggal_checkin_display: new Date(response.data.tanggal_checkin).toLocaleString(),
+      // Ensure keluhan and kategori are passed through
+      keluhan: response.data.keluhan || 'N/A',
+      kategori: response.data.kategori || 'kesayangan / satwa liar'
     };
   } catch (error) {
     console.error(`Gagal mengambil data kunjungan dengan ID ${id}:`, error);

@@ -37,6 +37,8 @@ import routeAktivitasKunjungan from './routes/aktivitas-booking-kunjungan.js';
 
 import kunjunganRoutes from './routes/route-aktivitas-kunjungan.js';
 
+import rekamMedisRoutes from './routes/route-aktivitas-rekammedis.js';
+
 dotenv.config();
 
 const app = express();
@@ -123,6 +125,8 @@ app.use('/api/aktivitas-booking', routeAktivitasBooking); // Menambahkan route a
 app.use('/api/aktivitas-kunjungan', routeAktivitasKunjungan); // Menambahkan route aktivitas kunjungan
 
 app.use('/api/aktivitas-kunjungan2', kunjunganRoutes);
+
+app.use('/api/rekam-medis', rekamMedisRoutes);
 
 // Route ambil data klien
 app.get('/api/users/klien', async (req, res) => {

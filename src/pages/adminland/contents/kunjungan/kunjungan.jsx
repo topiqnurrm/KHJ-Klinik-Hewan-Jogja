@@ -123,8 +123,15 @@ const Kunjungan = () => {
             return;
         }
         
+        // Pastikan data keluhan dan kategori tersedia
+        const completeData = {
+            ...kunjunganItem,
+            keluhan: kunjunganItem.keluhan || "",
+            kategori: kunjunganItem.kategori || ""
+        };
+        
         // Set selected kunjungan dan tampilkan halaman rekam medis
-        setSelectedKunjungan(kunjunganItem);
+        setSelectedKunjungan(completeData);
         setShowRekamMedis(true);
     };
 
@@ -181,6 +188,12 @@ const Kunjungan = () => {
     // Format status display - keep full original status names
     const formatStatus = (status) => {
         return status || "";
+    };
+
+    // Format tanggal untuk tanggal_edit
+    const formatDate = (dateString) => {
+        if (!dateString) return "-";
+        return new Date(dateString).toLocaleString();
     };
 
     // Conditional rendering - tampilkan Rekammedis atau daftar Kunjungan
@@ -263,13 +276,14 @@ const Kunjungan = () => {
                                 <th>Jenis Layanan</th>
                                 <th>Nomor Antri</th>
                                 <th>Status</th>
+                                <th>Edited At</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredKunjungan.length === 0 ? (
                                 <tr>
-                                    <td colSpan="8" className="no-data">Tidak ada data kunjungan</td>
+                                    <td colSpan="9" className="no-data">Tidak ada data kunjungan</td>
                                 </tr>
                             ) : (
                                 filteredKunjungan.map((item, index) => (
@@ -285,6 +299,7 @@ const Kunjungan = () => {
                                                 {formatStatus(item.status)}
                                             </span>
                                         </td>
+                                        <td>{formatDate(item.tanggal_edit)}</td>
                                         <td className="riwayat-actions">
                                             <button 
                                                 className={`btn-green ${!hasEditPermission() ? 'disabled-button' : ''}`} 

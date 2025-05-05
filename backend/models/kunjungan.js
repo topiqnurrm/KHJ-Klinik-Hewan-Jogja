@@ -14,7 +14,7 @@ const KunjunganSchema = new mongoose.Schema({
             },
             status_kunjungan: {
                 type: String,
-                enum: ['sedang diperiksa', 'dirawat inap', 'dibatalkan administrasi'],
+                enum: ['sedang diperiksa', 'dirawat inap', 'dibatalkan administrasi', 'menunggu pembayaran'],
                 required: false
             },
             tanggal: {
@@ -82,6 +82,17 @@ const KunjunganSchema = new mongoose.Schema({
         type: String,
         required: false,
         enum: ['ternak', 'kesayangan / satwa liar', 'unggas']
+    },
+    keluhan: {
+        type: String,
+        required: false,
+        validate: {
+            validator: function(value) {
+                const wordCount = value.split(' ').length;
+                return wordCount <= 250;  // Validasi agar keluhan tidak lebih dari 250 kata
+            },
+            message: 'Keluhan tidak boleh lebih dari 250 kata'
+        }
     },
 }, { timestamps: true });
 

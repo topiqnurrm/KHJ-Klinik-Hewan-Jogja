@@ -295,6 +295,7 @@
   
   .rekammedis-container .obat-selection, .layanan-selection {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 15px;
   }
@@ -306,6 +307,7 @@
     border-radius: 4px;
     background-color: #fff;
     font-family: "SansSerifFLF";
+    max-width: 325px;
   }
   
   .rekammedis-container .qty-input {
@@ -391,4 +393,123 @@
 .rekammedis-container .navigation-link:hover {
     text-decoration: underline;
     color: #014c8c;
+}
+
+
+
+
+
+
+
+/* Search Input Styling */
+.search-input-container {
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Quantity Input Styling */
+.qty-input-container {
+  position: relative; 
+  display: flex;
+  align-items: center;
+  width: 80px;
+}
+
+.qty-input {
+  width: 100%;
+  padding: 8px;
+  padding-right: 20px; /* Space for buttons */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.qty-buttons {
+  position: absolute;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.qty-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  transition: background-color 0.2s;
+}
+
+.qty-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.qty-up {
+  top: 0;
+}
+
+.qty-down {
+  bottom: 0;
+}
+
+
+
+
+
+/* Style untuk dropdown autocomplete - tambahkan di file rekammedis.css */
+.dropdown-container {
+  position: relative;
+  width: 100%;
+  max-width: 325px;
+}
+
+.dropdown-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: "SansSerifFLF";
+}
+
+.dropdown-list {
+  position: absolute;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.no-results {
+  padding: 8px 12px;
+  color: #666;
+  font-style: italic;
 }

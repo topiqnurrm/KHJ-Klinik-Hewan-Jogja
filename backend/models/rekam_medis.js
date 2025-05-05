@@ -4,7 +4,6 @@ const RekamMedisSchema = new mongoose.Schema({
     diagnosa: {
         type: String,
         required: false,
-        trim: true,
         maxlength: 255
     },
     berat_badan: {
@@ -15,7 +14,8 @@ const RekamMedisSchema = new mongoose.Schema({
                 return /^\d{1,6}(\.\d{1,2})?$/.test(value.toString());
             },
             message: 'Berat badan harus berupa angka dengan maksimal 6 digit dan 2 digit desimal.'
-        }
+        },
+        default: 0
     },
     suhu_badan: {
         type: mongoose.Types.Decimal128,
@@ -25,7 +25,8 @@ const RekamMedisSchema = new mongoose.Schema({
                 return /^\d{1,5}(\.\d{1,2})?$/.test(value.toString());
             },
             message: 'Suhu badan harus berupa angka dengan maksimal 5 digit dan 2 digit desimal.'
-        }
+        },
+        default: 0
     },
     pemeriksaan: {
         type: String,
@@ -49,7 +50,12 @@ const RekamMedisSchema = new mongoose.Schema({
             id_user: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User',
-                required: true
+                required: false
+            },
+            status: {
+                type: String,
+                enum: ['sedang diperiksa', 'dirawat inap', 'menunggu pembayaran'],
+                required: false
             },
             hasil: {
                 type: String,
@@ -76,6 +82,26 @@ const RekamMedisSchema = new mongoose.Schema({
                 type: Date,
                 default: Date.now
             },
+            harga: {
+                type: mongoose.Types.Decimal128,
+                required: false,
+                validate: {
+                    validator: function(value) {
+                        return /^\d{1,10}(\.\d{1,2})?$/.test(value.toString());
+                    },
+                    message: 'Total obat harus berupa angka dengan maksimal 10 digit dan 2 digit desimal.'
+                }
+            },
+            subtotal_obat: {
+                type: mongoose.Types.Decimal128,
+                required: false,
+                validate: {
+                    validator: function(value) {
+                        return /^\d{1,10}(\.\d{1,2})?$/.test(value.toString());
+                    },
+                    message: 'Subtotal obat harus berupa angka dengan maksimal 10 digit dan 2 digit desimal.'
+                }
+            },
         }
     ],
     pelayanans2: [
@@ -83,15 +109,35 @@ const RekamMedisSchema = new mongoose.Schema({
             id_pelayanan: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Pelayanan',
-                required: true
+                required: false
             },
             jumlah: {
                 type: Number,
-                required: true
+                required: false
             },
             tanggal: {
                 type: Date,
                 default: Date.now
+            },
+            harga: {
+                type: mongoose.Types.Decimal128,
+                required: false,
+                validate: {
+                    validator: function(value) {
+                        return /^\d{1,10}(\.\d{1,2})?$/.test(value.toString());
+                    },
+                    message: 'Total pelayanan harus berupa angka dengan maksimal 10 digit dan 2 digit desimal.'
+                }
+            },
+            subtotal_pelayanan: {
+                type: mongoose.Types.Decimal128,
+                required: false,
+                validate: {
+                    validator: function(value) {
+                        return /^\d{1,10}(\.\d{1,2})?$/.test(value.toString());
+                    },
+                    message: 'Subtotal pelayanan harus berupa angka dengan maksimal 10 digit dan 2 digit desimal.'
+                }
             },
         }
     ],
