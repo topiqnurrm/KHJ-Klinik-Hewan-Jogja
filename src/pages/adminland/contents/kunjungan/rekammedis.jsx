@@ -544,7 +544,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         } else if (statusPasien === "dirawat") {
             statusKunjungan = "dirawat inap";
             dokterStatus = "dirawat inap";
-        } else if (statusPasien === "selesai" || statusPasien === "selesai") {
+        } else if (statusPasien === "menunggu pembayaran" || statusPasien === "selesai") {
             statusKunjungan = "menunggu pembayaran";
             dokterStatus = "menunggu pembayaran";
         }
@@ -658,9 +658,35 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                         <div className="biodata-value">{pasienData.namaHewan}</div>
                                     </div>
                                     <div className="biodata-row">
+                                        <div className="biodata-label">Jenis Kelamin Hewan</div>
+                                        <div className="biodata-separator">:</div>
+                                        <span>{kunjunganData.jenis_kelamin || '-'}</span>
+                                    </div>
+                                    
+                                    <div className="biodata-row">
                                         <div className="biodata-label">Kategori Hewan</div>
                                         <div className="biodata-separator">:</div>
                                         <div className="biodata-value">{pasienData.kategoriHewan}</div>
+                                    </div>
+                                    <div className="biodata-row">
+                                        <div className="biodata-label">Ras Hewan</div>
+                                        <div className="biodata-separator">:</div>
+                                        <span>{kunjunganData.ras || '-'}</span>
+                                    </div>
+                                    <div className="biodata-row">
+                                        <div className="biodata-label">Umur Hewan</div>
+                                        <div className="biodata-separator">:</div>
+                                        <span>{kunjunganData.umur || '-'}</span>
+                                    </div>
+                                    <div className="biodata-row">
+                                        <div className="biodata-label">Jenis Layanan</div>
+                                        <div className="biodata-separator">:</div>
+                                        <span>{kunjunganData.jenis_layanan || '-'}</span>
+                                    </div>
+                                    <div className="biodata-row">
+                                        <div className="biodata-label">Layanan Dipilih</div>
+                                        <div className="biodata-separator">:</div>
+                                        <span>{kunjunganData.layanan || '-'}</span>
                                     </div>
                                 </div>
                             </div>

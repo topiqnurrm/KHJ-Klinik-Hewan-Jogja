@@ -7,6 +7,7 @@ import {
     getAllKunjungan, 
     searchKunjungan,
     hasEditPermission,
+    hasAddPermission,
     getCurrentUser
 } from '../../../../api/api-aktivitas-kunjungan';
 
@@ -23,27 +24,49 @@ const Kunjungan = () => {
     const [showRekamMedis, setShowRekamMedis] = useState(false);
     const [selectedKunjungan, setSelectedKunjungan] = useState(null);
     
-    // State untuk error message
-    const [errorMessage, setErrorMessage] = useState("");
-    const [showError, setShowError] = useState(false);
-
+    // State untuk notifications
+    const [notification, setNotification] = useState({
+        show: false,
+        message: "",
+        type: "error" // error, success, warning, info
+    });
+    
     // State untuk popup tambah kunjungan
     const [showAddKunjungan, setShowAddKunjungan] = useState(false);
+    
+    // State untuk menyimpan permission status
+    const [canEdit, setCanEdit] = useState(false);
+    const [canAdd, setCanAdd] = useState(false);
 
-    const showErrorMessage = (message) => {
-        setErrorMessage(message);
-        setShowError(true);
+    const showNotification = (message, type = "error") => {
+        setNotification({
+            show: true,
+            message: message,
+            type: type
+        });
         
-        // Hapus pesan error setelah 3 detik
+        // Hapus notifikasi setelah 3 detik
         setTimeout(() => {
-            setShowError(false);
+            setNotification({
+                ...notification,
+                show: false
+            });
         }, 3000);
     };
     
-    // Fetch user data
+    // Fetch user data dan set permissions
     useEffect(() => {
         const user = getCurrentUser();
         setCurrentUser(user);
+        
+        // Set permission flags
+        setCanEdit(hasEditPermission());
+        setCanAdd(hasAddPermission());
+        
+        // If no user or invalid permissions, show error
+        if (!user) {
+            showNotification("Silakan login untuk mengakses halaman ini", "error");
+        }
     }, []);
 
     const fetchAllKunjungan = async () => {
@@ -55,7 +78,7 @@ const Kunjungan = () => {
             setIsLoading(false);
         } catch (error) {
             console.error('Gagal fetch data kunjungan:', error);
-            showErrorMessage("Gagal memuat data kunjungan: " + (error.response?.data?.message || error.message));
+            showNotification("Gagal memuat data kunjungan: " + (error.response?.data?.message || error.message), "error");
             setIsLoading(false);
             // Set empty arrays to prevent errors
             setKunjungan([]);
@@ -117,17 +140,16 @@ const Kunjungan = () => {
     };
 
     const handleEdit = (kunjunganItem) => {
-        // Check if user has permission to edit
-        if (!hasEditPermission()) {
-            showErrorMessage("Anda tidak memiliki izin untuk mengedit kunjungan. Hanya Administrasi, Dokter, dan Superadmin yang diizinkan.");
-            return;
-        }
-        
         // Pastikan data keluhan dan kategori tersedia
         const completeData = {
             ...kunjunganItem,
             keluhan: kunjunganItem.keluhan || "",
-            kategori: kunjunganItem.kategori || ""
+            kategori: kunjunganItem.kategori || "",
+            // Add new fields with fallback to empty values if not available
+            layanan: kunjunganItem.layanan || "",
+            jenis_kelamin: kunjunganItem.jenis_kelamin || "",
+            ras: kunjunganItem.ras || "",
+            umur: kunjunganItem.umur || ""
         };
         
         // Set selected kunjungan dan tampilkan halaman rekam medis
@@ -137,11 +159,6 @@ const Kunjungan = () => {
 
     // Handler untuk tombol tambah kunjungan
     const handleAddKunjungan = () => {
-        // Check if user has permission to add
-        if (!hasEditPermission()) {
-            showErrorMessage("Anda tidak memiliki izin untuk menambah kunjungan. Hanya Administrasi, Dokter, dan Superadmin yang diizinkan.");
-            return;
-        }
         
         // Tampilkan form atau modal tambah kunjungan
         setShowAddKunjungan(true);
@@ -156,6 +173,7 @@ const Kunjungan = () => {
     const handleKunjunganCreated = (newKunjungan) => {
         // Refresh data kunjungan setelah penambahan berhasil
         fetchAllKunjungan();
+        showNotification("Kunjungan berhasil ditambahkan!", "success");
     };
 
     // Handler untuk kembali ke halaman kunjungan dari rekam medis
@@ -164,22 +182,15 @@ const Kunjungan = () => {
         setSelectedKunjungan(null);
         // Refresh data kunjungan setelah kembali dari rekam medis
         fetchAllKunjungan();
+        // showNotification("Data kunjungan berhasil diperbarui", "success");
     };
 
     const getStatusClass = (status) => {
         switch (status) {
-            case "menunggu respon administrasi":
-                return "status-kuning";
-            case "disetujui administrasi":
-                return "status-kuning";
             case "sedang diperiksa":
                 return "status-biru";
             case "dirawat inap":
                 return "status-biru";
-            case "dibatalkan administrasi":
-                return "status-merah";
-            case "selesai":
-                return "status-hijau";
             default:
                 return "";
         }
@@ -196,6 +207,20 @@ const Kunjungan = () => {
         return new Date(dateString).toLocaleString();
     };
 
+    // Get notification class based on type
+    const getNotificationClass = () => {
+        switch (notification.type) {
+            case "success":
+                return "success-notification";
+            case "warning":
+                return "warning-notification";
+            case "info":
+                return "info-notification";
+            default:
+                return "error-notification";
+        }
+    };
+
     // Conditional rendering - tampilkan Rekammedis atau daftar Kunjungan
     if (showRekamMedis && selectedKunjungan) {
         return <Rekammedis kunjunganData={selectedKunjungan} onBack={handleBackFromRekamMedis} />;
@@ -207,18 +232,23 @@ const Kunjungan = () => {
                 <h1>Aktivitas &gt; Kunjungan</h1>
             </div>
             
-            {/* Error notification */}
-            {showError && (
-                <div className="error-notification">
-                    {errorMessage}
+            {/* Notification system */}
+            {notification.show && (
+                <div className={getNotificationClass()}>
+                    {notification.message}
                 </div>
             )}
             
             <div className="riwayat-filter-container">
                 <button 
-                    className={`tambah-kunjungan-button ${!hasEditPermission() ? 'disabled-button' : ''}`} 
-                    onClick={handleAddKunjungan}
-                    disabled={!hasEditPermission()}
+                    className={`tambah-kunjungan-button ${!canAdd ? 'disabled-button' : ''}`} 
+                    onClick={() => {
+                        if (!canAdd) {
+                            showNotification("Anda tidak memiliki izin untuk menambah kunjungan. Hanya Administrasi dan Superadmin yang diizinkan.", "error");
+                        } else {
+                            handleAddKunjungan();
+                        }
+                    }}
                 >
                     + Tambah Kunjungan
                 </button>
@@ -262,6 +292,7 @@ const Kunjungan = () => {
                     </select>
                 </div>
             </div>
+            
             <div className="dashboard-content">
                 {isLoading ? (
                     <div className="loading-indicator">Memuat data...</div>
@@ -283,7 +314,7 @@ const Kunjungan = () => {
                         <tbody>
                             {filteredKunjungan.length === 0 ? (
                                 <tr>
-                                    <td colSpan="9" className="no-data">Tidak ada data kunjungan</td>
+                                    <td colSpan="9" className="no-data">Tidak ada data kunjungan dengan status yang ditentukan</td>
                                 </tr>
                             ) : (
                                 filteredKunjungan.map((item, index) => (
@@ -302,10 +333,15 @@ const Kunjungan = () => {
                                         <td>{formatDate(item.tanggal_edit)}</td>
                                         <td className="riwayat-actions">
                                             <button 
-                                                className={`btn-green ${!hasEditPermission() ? 'disabled-button' : ''}`} 
+                                                className={`btn-green ${!canEdit ? 'disabled-button' : ''}`} 
                                                 title="Rekam Medis" 
-                                                onClick={() => handleEdit(item)}
-                                                disabled={!hasEditPermission()}
+                                                onClick={() => {
+                                                    if (!canEdit) {
+                                                        showNotification("Anda tidak memiliki izin untuk mengedit kunjungan. Hanya Dokter dan Superadmin yang diizinkan.", "error");
+                                                    } else {
+                                                        handleEdit(item);
+                                                    }
+                                                }}
                                             >
                                                 <img src={editIcon} alt="rekam medis" />
                                             </button>

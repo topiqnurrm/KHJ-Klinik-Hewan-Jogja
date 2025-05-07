@@ -24,28 +24,42 @@ export const getCurrentUser = () => {
   }
 };
 
-// Check if the current user has edit permissions for kunjungan
+// Check if the current user has edit permissions for kunjungan (only dokter and superadmin)
 export const hasEditPermission = () => {
   const user = getCurrentUser();
   if (!user) return false;
   
-  return ['superadmin', 'administrasi', 'dokter'].includes(user.aktor);
+  return ['superadmin', 'dokter','paramedis'].includes(user.aktor);
 };
 
-// Get all kunjungan with enhanced information
+// Check if the current user has add permissions for kunjungan (only administrasi and superadmin)
+export const hasAddPermission = () => {
+  const user = getCurrentUser();
+  if (!user) return false;
+  
+  return ['superadmin', 'administrasi'].includes(user.aktor);
+};
+
+// Get all kunjungan with filtered status
 export const getAllKunjungan = async () => {
   try {
     const response = await axios.get(`${AKTIVITAS_KUNJUNGAN_API_URL}`);
     
-    // Format dates and filter by VALID_STATUSES if needed
+    // Format dates and filter by VALID_STATUSES
     const formattedKunjungan = response.data
-    .map(kunjungan => ({
+      .filter(kunjungan => VALID_STATUSES.includes(kunjungan.status))
+      .map(kunjungan => ({
         ...kunjungan,
-          tanggal_checkin_display: new Date(kunjungan.tanggal_checkin).toLocaleString(),
-          // Ensure keluhan and kategori are passed through
-          keluhan: kunjungan.keluhan || 'N/A',
-          kategori: kunjungan.kategori || 'kesayangan / satwa liar'
-    }));
+        tanggal_checkin_display: new Date(kunjungan.tanggal_checkin).toLocaleString(),
+        keluhan: kunjungan.keluhan || 'N/A',
+        kategori: kunjungan.kategori || 'kesayangan / satwa liar',
+        // Add new fields with default values if they don't exist
+        jenis_layanan: kunjungan.jenis_layanan || 'N/A',
+        layanan: kunjungan.layanan || 'N/A',
+        jenis_kelamin: kunjungan.jenis_kelamin || 'N/A',
+        ras: kunjungan.ras || 'N/A',
+        umur: kunjungan.umur || 'N/A'
+      }));
     
     return formattedKunjungan;
   } catch (error) {
@@ -58,12 +72,23 @@ export const getAllKunjungan = async () => {
 export const getKunjunganById = async (id) => {
   try {
     const response = await axios.get(`${AKTIVITAS_KUNJUNGAN_API_URL}/${id}`);
+    
+    // Verify the status is valid before returning
+    if (!VALID_STATUSES.includes(response.data.status)) {
+      throw new Error('Kunjungan tidak tersedia atau tidak dalam status yang valid');
+    }
+    
     return {
       ...response.data,
       tanggal_checkin_display: new Date(response.data.tanggal_checkin).toLocaleString(),
-      // Ensure keluhan and kategori are passed through
       keluhan: response.data.keluhan || 'N/A',
-      kategori: response.data.kategori || 'kesayangan / satwa liar'
+      kategori: response.data.kategori || 'kesayangan / satwa liar',
+      // Add new fields with default values if they don't exist
+      jenis_layanan: response.data.jenis_layanan || 'N/A',
+      layanan: response.data.layanan || 'N/A',
+      jenis_kelamin: response.data.jenis_kelamin || 'N/A',
+      ras: response.data.ras || 'N/A',
+      umur: response.data.umur || 'N/A'
     };
   } catch (error) {
     console.error(`Gagal mengambil data kunjungan dengan ID ${id}:`, error);
@@ -84,7 +109,10 @@ export const updateKunjunganStatus = async (id, status) => {
   }
   
   try {
-    const response = await axios.put(`${AKTIVITAS_KUNJUNGAN_API_URL}/${id}/status`, { status });
+    const response = await axios.put(`${AKTIVITAS_KUNJUNGAN_API_URL}/${id}/status`, { 
+      status,
+      userId: getCurrentUser()?._id // Send user ID for backend validation
+    });
     return response.data;
   } catch (error) {
     console.error(`Gagal mengupdate status kunjungan dengan ID ${id}:`, error);
@@ -105,7 +133,10 @@ export const addAdministrasiToKunjungan = async (id, adminData) => {
   }
   
   try {
-    const response = await axios.post(`${AKTIVITAS_KUNJUNGAN_API_URL}/${id}/administrasi`, adminData);
+    const response = await axios.post(`${AKTIVITAS_KUNJUNGAN_API_URL}/${id}/administrasi`, {
+      ...adminData,
+      userId: getCurrentUser()?._id // Send user ID for backend validation
+    });
     return response.data;
   } catch (error) {
     console.error(`Gagal menambahkan catatan administrasi ke kunjungan dengan ID ${id}:`, error);
@@ -119,15 +150,20 @@ export const searchKunjungan = async (keyword) => {
     const allKunjungan = await getAllKunjungan();
     const lowerKeyword = keyword.toLowerCase();
     
-    // Client-side search
+    // Client-side search with additional fields
     return allKunjungan.filter(kunjungan => {
-      // Create a string with all searchable fields
+      // Create a string with all searchable fields including new fields
       const searchableText = `
         ${kunjungan.klien || ''}
         ${kunjungan.nama_hewan || ''}
         ${kunjungan.nomor_antri || ''}
         ${kunjungan.status || ''}
         ${kunjungan.tanggal_checkin_display || ''}
+        ${kunjungan.jenis_layanan || ''}
+        ${kunjungan.layanan || ''}
+        ${kunjungan.jenis_kelamin || ''}
+        ${kunjungan.ras || ''}
+        ${kunjungan.umur || ''}
       `.toLowerCase();
       
       return searchableText.includes(lowerKeyword);
@@ -140,13 +176,16 @@ export const searchKunjungan = async (keyword) => {
 
 // Delete a kunjungan
 export const deleteKunjunganById = async (id) => {
-  // Check permissions first
-  if (!hasEditPermission()) {
+  // Only superadmin can delete
+  const user = getCurrentUser();
+  if (!user || user.aktor !== 'superadmin') {
     throw new Error('Tidak memiliki izin untuk menghapus kunjungan');
   }
   
   try {
-    const response = await axios.delete(`${AKTIVITAS_KUNJUNGAN_API_URL}/${id}`);
+    const response = await axios.delete(`${AKTIVITAS_KUNJUNGAN_API_URL}/${id}`, {
+      data: { userId: user._id } // Send user ID for backend validation
+    });
     return response.data;
   } catch (error) {
     console.error(`Gagal menghapus kunjungan dengan ID ${id}:`, error);
@@ -154,17 +193,18 @@ export const deleteKunjunganById = async (id) => {
   }
 };
 
-// ---- TAMBAHAN UNTUK FUNGSI YANG DIBUTUHKAN ADDKUNJUNGAN COMPONENT ---- //
-
 // Create a new kunjungan
 export const createKunjungan = async (kunjunganData) => {
   // Check permissions first
-  if (!hasEditPermission()) {
+  if (!hasAddPermission()) {
     throw new Error('Tidak memiliki izin untuk membuat kunjungan baru');
   }
   
   try {
-    const response = await axios.post(`${AKTIVITAS_KUNJUNGAN_API_URL}`, kunjunganData);
+    const response = await axios.post(`${AKTIVITAS_KUNJUNGAN_API_URL}`, {
+      ...kunjunganData,
+      userId: getCurrentUser()?._id // Send user ID for backend validation
+    });
     return response.data;
   } catch (error) {
     console.error('Gagal membuat kunjungan baru:', error);
@@ -175,10 +215,18 @@ export const createKunjungan = async (kunjunganData) => {
 // Get available bookings that can be used for kunjungan
 export const getBookingsForKunjungan = async () => {
   try {
+    // Verify if user has add permissions
+    if (!hasAddPermission()) {
+      throw new Error('Tidak memiliki izin untuk melihat data booking');
+    }
+    
     // Get bookings with status 'terkonfirmasi' or similar statuses that are ready for kunjungan
     const response = await axios.get(`${BOOKING_API_URL}`, {
       params: {
         status: 'terkonfirmasi' // Adjust based on your booking status flow
+      },
+      headers: {
+        'user-id': getCurrentUser()?._id // Send user ID for backend validation
       }
     });
     
@@ -187,7 +235,12 @@ export const getBookingsForKunjungan = async () => {
       ...booking,
       klien: booking.klien || 'Klien tidak diketahui',
       nama_hewan: booking.nama || 'Hewan tidak diketahui',
-      jenis_layanan: booking.jenis_layanan || 'Layanan tidak diketahui'
+      jenis_layanan: booking.jenis_layanan || 'Layanan tidak diketahui',
+      // Add new fields
+      layanan: booking.pelayanans1 && booking.pelayanans1[0]?.nama ? booking.pelayanans1[0].nama : 'N/A',
+      jenis_kelamin: booking.jenis_kelamin || 'N/A',
+      ras: booking.ras || 'N/A',
+      umur: booking.umur || 'N/A'
     }));
     
     return enhancedBookings;
@@ -200,11 +253,19 @@ export const getBookingsForKunjungan = async () => {
 // Get all kunjungan for a specific date (used for generating the queue number)
 export const getAllKunjunganByDate = async (date) => {
   try {
+    // Verify if user has add permissions
+    if (!hasAddPermission()) {
+      throw new Error('Tidak memiliki izin untuk melihat data kunjungan berdasarkan tanggal');
+    }
+    
     // Format date for API query (if needed)
     const formattedDate = date; // Already in YYYY-MM-DD format from the component
     
     const response = await axios.get(`${AKTIVITAS_KUNJUNGAN_API_URL}/by-date`, {
-      params: { date: formattedDate }
+      params: { date: formattedDate },
+      headers: {
+        'user-id': getCurrentUser()?._id // Send user ID for backend validation
+      }
     });
     
     return response.data;
@@ -214,24 +275,52 @@ export const getAllKunjunganByDate = async (date) => {
   }
 };
 
-
-
-
-
-// Add this function to your api-aktivitas-kunjungan.js file
-
 // Create a new kunjungan directly (without requiring booking)
 export const createDirectKunjungan = async (kunjunganData) => {
-    // Check permissions first
-    if (!hasEditPermission()) {
-      throw new Error('Tidak memiliki izin untuk membuat kunjungan baru');
+  // Check permissions first
+  if (!hasAddPermission()) {
+    throw new Error('Tidak memiliki izin untuk membuat kunjungan baru');
+  }
+  
+  try {
+    // Get current user ID from localStorage
+    const user = JSON.parse(localStorage.getItem('user')) || {};
+    const userId = user._id;
+    
+    // Make sure all required fields for medical records are included
+    const completeData = {
+      ...kunjunganData,
+      // Ensure these fields have defaults if not provided
+      jenis_layanan: kunjunganData.jenis_layanan || 'offline',
+      jenis_kelamin: kunjunganData.jenis_kelamin || '-',
+      ras: kunjunganData.ras || '-',
+      umur_hewan: kunjunganData.umur_hewan || '-',
+      kategori: kunjunganData.kategori || 'kesayangan / satwa liar',
+      keluhan: kunjunganData.keluhan || '-',
+      // Make sure pelayanans1 is properly formatted as an array of objects
+      pelayanans1: Array.isArray(kunjunganData.pelayanans1) ? kunjunganData.pelayanans1 : [],
+      // Important: Use id_user key instead of userId to match backend expectation
+      id_user: userId
+    };
+    
+    // For debugging - log the request payload
+    console.log('Sending data to API:', completeData);
+    
+    // Make sure the API endpoint matches exactly what's configured on the server
+    const response = await axios.post(`${AKTIVITAS_KUNJUNGAN_API_URL}/direct`, completeData);
+    return response.data;
+  } catch (error) {
+    console.error('Gagal membuat kunjungan langsung:', error);
+    
+    // Enhanced error logging to get more details
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Error response data:', error.response.data);
+      console.error('Error response status:', error.response.status);
+      console.error('Error response headers:', error.response.headers);
     }
     
-    try {
-      const response = await axios.post(`${AKTIVITAS_KUNJUNGAN_API_URL}/direct`, kunjunganData);
-      return response.data;
-    } catch (error) {
-      console.error('Gagal membuat kunjungan langsung:', error);
-      throw error;
-    }
-  };
+    throw error;
+  }
+};

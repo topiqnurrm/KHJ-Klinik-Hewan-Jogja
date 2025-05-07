@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import './AddKunjungan.css'; // Reuse existing styles
+import Select from 'react-select';
+import './AddKunjungan.css';
 import { createDirectKunjungan } from '../../../../api/api-aktivitas-kunjungan';
+import { fetchLayanan } from '../../../../api/api-pelayanan';
 
 const AddDirectKunjungan = ({ onClose, onUpdate }) => {
     // Dapatkan tanggal dan waktu saat ini dalam format yang sesuai
@@ -23,12 +25,13 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
         nama_klein: '',
         nama_hewan: '',
         jenis_layanan: 'offline',
-        jenis_kelamin: '-', // Default value
-        jenis: '', // This is now required
+        jenis_kelamin: '-',
+        jenis: '',
         ras: '',
         umur_hewan: '',
-        kategori: 'kesayangan / satwa liar', // Default value
-        keluhan: '' // Add this new field
+        kategori: 'kesayangan / satwa liar',
+        keluhan: '',
+        id_pelayanan: ''
     });
     
     const [isLoading, setIsLoading] = useState(false);
@@ -42,11 +45,61 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
         ras: '',
         umur_hewan: '',
         kategori: '',
-        keluhan: '' // Add this new field
+        keluhan: '',
+        id_pelayanan: ''
     });
+
+    // State for service options
+    const [layananOptions, setLayananOptions] = useState([]);
+    const [selectedLayanan, setSelectedLayanan] = useState(null);
     
     // State untuk melacak ketersediaan portal
     const [portalElement, setPortalElement] = useState(null);
+    
+    // Load services on component mount
+    useEffect(() => {
+        loadLayanan();
+    }, []);
+
+    // Load services from API
+    const loadLayanan = async () => {
+        try {
+            const layananData = await fetchLayanan();
+            const sortedLayanan = layananData.sort((a, b) => a.label.localeCompare(b.label));
+            setLayananOptions(sortedLayanan);
+        } catch (error) {
+            console.error("Gagal mengambil data layanan:", error);
+            setError("Gagal memuat data layanan");
+        }
+    };
+
+    // Custom styles for react-select
+    const customSelectStyles = {
+        control: (base) => ({
+            ...base,
+            minHeight: '38px',
+            borderRadius: '4px',
+            borderColor: validation.id_pelayanan ? '#ff3b30' : '#ced4da',
+            boxShadow: 'none',
+            '&:hover': {
+                borderColor: validation.id_pelayanan ? '#ff3b30' : '#adb5bd',
+            },
+            backgroundColor: '#e9e9e9'
+        }),
+        placeholder: (base) => ({
+            ...base,
+            color: '#6c757d',
+            fontSize: '14px'
+        }),
+        option: (base, state) => ({
+            ...base,
+            backgroundColor: state.isSelected ? '#007bff' : state.isFocused ? '#e9ecef' : null,
+            color: state.isSelected ? 'white' : '#212529',
+            '&:active': {
+                backgroundColor: state.isSelected ? '#007bff' : '#e9ecef'
+            }
+        })
+    };
     
     // Cek ketersediaan portal dan buat jika belum ada
     React.useEffect(() => {
@@ -168,6 +221,12 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                 }
                 break;
             
+            case 'id_pelayanan':
+                if (!value) {
+                    errorMessage = 'Layanan harus dipilih';
+                }
+                break;
+                
             default:
                 break;
         }
@@ -189,6 +248,24 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
         setValidation(prev => ({
             ...prev,
             [name]: errorMessage
+        }));
+    };
+
+    // Handle service selection change
+    const handleLayananChange = (selectedOption) => {
+        setSelectedLayanan(selectedOption);
+        
+        // Update kunjunganData with the selected service ID
+        setKunjunganData(prev => ({
+            ...prev,
+            id_pelayanan: selectedOption ? selectedOption.value : ''
+        }));
+        
+        // Validate the field
+        const errorMessage = validateField('id_pelayanan', selectedOption ? selectedOption.value : '');
+        setValidation(prev => ({
+            ...prev,
+            id_pelayanan: errorMessage
         }));
     };
 
@@ -226,9 +303,28 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
             // Gabungkan tanggal dan waktu menjadi satu string ISO
             const dateTimeString = `${kunjunganData.tanggal}T${kunjunganData.waktu}:00`;
             
+            // Format umur_hewan as a number
+            const umurHewan = kunjunganData.umur_hewan ? Number(kunjunganData.umur_hewan) : '';
+            
+            // Menyiapkan data layanan yang dipilih sesuai dengan format skema Mongoose
+            const pelayanans1 = selectedLayanan ? [
+                {
+                    id_pelayanan: selectedLayanan.value,  // _id dari layanan
+                    nama: selectedLayanan.label,          // nama layanan
+                    jumlah: 1,                            // default 1
+                    tanggal: new Date()                   // tambahkan tanggal sesuai skema
+                }
+            ] : [];
+            
             // Dapatkan ID user dari localStorage
             const user = JSON.parse(localStorage.getItem('user')) || {};
             const userId = user._id;
+            
+            if (!userId) {
+                setError('User ID tidak ditemukan. Harap login ulang.');
+                setIsLoading(false);
+                return;
+            }
             
             // Data yang akan dikirim ke API
             const dataToSubmit = {
@@ -237,22 +333,26 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                 jenis_layanan: kunjunganData.jenis_layanan,
                 jenis_kelamin: kunjunganData.jenis_kelamin,
                 jenis: kunjunganData.jenis,
-                ras: kunjunganData.ras,
-                umur_hewan: kunjunganData.umur_hewan,
+                ras: kunjunganData.ras || '-',
+                umur_hewan: umurHewan,
                 kategori: kunjunganData.kategori,
-                keluhan: kunjunganData.keluhan, // Add this line
+                keluhan: kunjunganData.keluhan,
                 tanggal_waktu: dateTimeString,
-                id_user: userId
+                id_user: userId,
+                id_pelayanan: kunjunganData.id_pelayanan,
+                pelayanans1: pelayanans1
             };
+            
+            console.log('Sending data to API:', dataToSubmit);
             
             // Send data to API
             const result = await createDirectKunjungan(dataToSubmit);
             
             if (result && result.kunjungan) {
-                onUpdate(result.kunjungan); // Pass new kunjungan data back to parent
-                onClose(); // Close the popup
+                onUpdate(result.kunjungan);
+                onClose();
             } else {
-                setError('Gagal membuat kunjungan baru');
+                setError('Gagal membuat kunjungan baru: Respons tidak valid');
             }
         } catch (error) {
             console.error('Gagal membuat kunjungan:', error);
@@ -264,7 +364,7 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
 
     const isFormValid = () => {
         // Check if form has all required fields filled and no validation errors
-        const requiredFields = ['nama_klein', 'nama_hewan', 'tanggal', 'waktu', 'kategori', 'jenis', 'keluhan'];
+        const requiredFields = ['nama_klein', 'nama_hewan', 'tanggal', 'waktu', 'kategori', 'jenis', 'keluhan', 'id_pelayanan'];
         const hasAllFields = requiredFields.every(field => kunjunganData[field]);
         
         // Check if there are any validation errors
@@ -292,6 +392,7 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                     {error && <div className="error-message">{error}</div>}
                     
                     <form onSubmit={handleSubmit}>
+                        {/* Baris 1: Tanggal & Waktu Kunjungan */}
                         <div className="edit-form-row">
                             <div className="edit-form-group">
                                 <label htmlFor="tanggal">Tanggal Kunjungan <span className="required">*</span></label>
@@ -320,6 +421,7 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                             </div>
                         </div>
                         
+                        {/* Baris 2: Nama Klien & Nama Hewan */}
                         <div className="edit-form-row">
                             <div className="edit-form-group">
                                 <label htmlFor="nama_klein">Nama Klien <span className="required">*</span></label>
@@ -334,9 +436,7 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                                 />
                                 {validation.nama_klein && <span className="error-text">{validation.nama_klein}</span>}
                             </div>
-                        </div>
-                        
-                        <div className="edit-form-row">
+                            
                             <div className="edit-form-group">
                                 <label htmlFor="nama_hewan">Nama Hewan <span className="required">*</span></label>
                                 <input
@@ -352,9 +452,10 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                             </div>
                         </div>
 
+                        {/* Baris 3: Jenis Hewan & Kategori */}
                         <div className="edit-form-row">
                             <div className="edit-form-group">
-                            <label htmlFor="jenis">Jenis Hewan <span className="required">*</span></label>
+                                <label htmlFor="jenis">Jenis Hewan <span className="required">*</span></label>
                                 <input
                                     type="text"
                                     id="jenis"
@@ -366,9 +467,7 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                                 />
                                 {validation.jenis && <span className="error-text">{validation.jenis}</span>}
                             </div>
-                        </div>
 
-                        <div className="edit-form-row">
                             <div className="edit-form-group">
                                 <label htmlFor="kategori">Kategori <span className="required">*</span></label>
                                 <select
@@ -386,54 +485,7 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                             </div>
                         </div>
 
-                        <div className="edit-form-row">
-                            <div className="edit-form-group">
-                                <label htmlFor="keluhan">Keluhan <span className="required">*</span></label>
-                                <textarea
-                                    id="keluhan"
-                                    name="keluhan"
-                                    value={kunjunganData.keluhan}
-                                    onChange={handleChange}
-                                    className={validation.keluhan ? 'input-error' : ''}
-                                    placeholder="Masukkan keluhan"
-                                    rows="4"
-                                ></textarea>
-                                {validation.keluhan && <span className="error-text">{validation.keluhan}</span>}
-                                <span className="info-text" >Maksimal 250 kata</span>
-                            </div>
-                        </div>
-                        
-                        <div className="edit-form-row">
-                            <div className="edit-form-group">
-                                <label htmlFor="jenis_layanan">Jenis Layanan (default offline)</label>
-                                <input
-                                    type="text"
-                                    id="jenis_layanan"
-                                    name="jenis_layanan"
-                                    value={kunjunganData.jenis_layanan}
-                                    disabled
-                                    className="disabled-input"
-                                />
-                                {/* <span className="info-text">Jenis layanan default adalah offline</span> */}
-                            </div>
-                        </div>
-                    
-                        <div className="edit-form-row">
-                            <div className="edit-form-group">
-                                <label htmlFor="jenis_kelamin">Jenis Kelamin Hewan</label>
-                                <select
-                                    id="jenis_kelamin"
-                                    name="jenis_kelamin"
-                                    value={kunjunganData.jenis_kelamin}
-                                    onChange={handleChange}
-                                >
-                                    <option value="-">-</option>
-                                    <option value="jantan">Jantan</option>
-                                    <option value="betina">Betina</option>
-                                </select>
-                            </div>
-                        </div>
-
+                        {/* Baris 4: Ras & Jenis Kelamin */}
                         <div className="edit-form-row">
                             <div className="edit-form-group">
                                 <label htmlFor="ras">Ras Hewan</label>
@@ -448,8 +500,23 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                                 />
                                 {validation.ras && <span className="error-text">{validation.ras}</span>}
                             </div>
-                        </div>
 
+                            <div className="edit-form-group">
+                                <label htmlFor="jenis_kelamin">Jenis Kelamin Hewan</label>
+                                <select
+                                    id="jenis_kelamin"
+                                    name="jenis_kelamin"
+                                    value={kunjunganData.jenis_kelamin}
+                                    onChange={handleChange}
+                                >
+                                    <option value="-">-</option>
+                                    <option value="jantan">Jantan</option>
+                                    <option value="betina">Betina</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        {/* Baris 5: Umur Hewan & Jenis Layanan */}
                         <div className="edit-form-row">
                             <div className="edit-form-group">
                                 <label htmlFor="umur_hewan">Umur Hewan (tahun)</label>
@@ -463,6 +530,55 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                                     placeholder="Masukkan umur hewan"
                                 />
                                 {validation.umur_hewan && <span className="error-text">{validation.umur_hewan}</span>}
+                            </div>
+                            
+                            <div className="edit-form-group">
+                                <label htmlFor="jenis_layanan">Jenis Layanan (default offline)</label>
+                                <input
+                                    type="text"
+                                    id="jenis_layanan"
+                                    name="jenis_layanan"
+                                    value={kunjunganData.jenis_layanan}
+                                    disabled
+                                    className="disabled-input"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Baris 6: Pilih Layanan */}
+                        <div className="edit-form-row">
+                            <div className="edit-form-group full-width">
+                                <label htmlFor="id_pelayanan">Pilih Layanan <span className="required">*</span></label>
+                                <Select
+                                    id="id_pelayanan"
+                                    styles={customSelectStyles}
+                                    options={layananOptions}
+                                    placeholder="Pilih Layanan"
+                                    onChange={handleLayananChange}
+                                    value={selectedLayanan}
+                                    isDisabled={isLoading}
+                                    classNamePrefix="select"
+                                    isSearchable={true}
+                                />
+                                {validation.id_pelayanan && <span className="error-text">{validation.id_pelayanan}</span>}
+                            </div>
+                        </div>
+
+                        {/* Baris 7: Keluhan */}
+                        <div className="edit-form-row">
+                            <div className="edit-form-group full-width">
+                                <label htmlFor="keluhan">Keluhan <span className="required">*</span></label>
+                                <textarea
+                                    id="keluhan"
+                                    name="keluhan"
+                                    value={kunjunganData.keluhan}
+                                    onChange={handleChange}
+                                    className={validation.keluhan ? 'input-error' : ''}
+                                    placeholder="Masukkan keluhan"
+                                    rows="4"
+                                ></textarea>
+                                {validation.keluhan && <span className="error-text">{validation.keluhan}</span>}
+                                <span className="info-text">Maksimal 250 kata</span>
                             </div>
                         </div>
 

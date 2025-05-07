@@ -9,11 +9,16 @@ const router = express.Router();
 // Get all kunjungan with detailed information
 router.get('/', async (req, res) => {
   try {
-    // Get all kunjungan with populated booking data
+    // Get all kunjungan with populated booking data - add more populate paths
     const kunjungans = await Kunjungan.find()
       .populate({
         path: 'id_booking',
-        select: 'nama status_booking pilih_tanggal administrasis1 jenis_layanan kategori keluhan'
+        select: 'nama status_booking pilih_tanggal administrasis1 jenis_layanan kategori keluhan pelayanans1',
+        // Add additional populate if pelayanans1 has references
+        populate: {
+          path: 'pelayanans1',
+          select: 'nama'
+        }
       })
       .sort({ tanggal: -1 }); // Sort by check-in date in descending order
 
@@ -26,29 +31,73 @@ router.get('/', async (req, res) => {
       let namaHewan = 'N/A';
       let jenisLayanan = 'offline';
       let status = 'sedang diperiksa';
-      // Add variables to store keluhan and kategori
       let keluhan = 'N/A';
       let kategori = 'kesayangan / satwa liar';  // Default value
+      
+      // New fields
+    let layanan = 'N/A';
+    let jenisKelamin = 'N/A';
+    let ras = 'N/A';
+    let umur = 'N/A';
 
-      // First check in kunjungan data
-      if (kunjungan.keluhan) {
-        keluhan = kunjungan.keluhan;
-      }
-      if (kunjungan.kategori) {
-        kategori = kunjungan.kategori;
-      }
+    // First check in kunjungan data
+    if (kunjungan.keluhan) {
+      keluhan = kunjungan.keluhan;
+    }
+    if (kunjungan.kategori) {
+      kategori = kunjungan.kategori;
+    }
+    
+    // Get the new fields from kunjungan data if available
+    if (kunjungan.jenis_kelamin) {
+      jenisKelamin = kunjungan.jenis_kelamin;
+    }
+    if (kunjungan.ras) {
+      ras = kunjungan.ras;
+    }
+    if (kunjungan.umur_hewan) {
+      umur = kunjungan.umur_hewan;
+    }
 
-      // Then check in booking data and override if present
-      if (kunjungan.id_booking) {
-        const booking = kunjungan.id_booking;
-        
-        if (booking.keluhan) {
-          keluhan = booking.keluhan;
-        }
-        if (booking.kategori) {
-          kategori = booking.kategori;
+    // Check for layanan in kunjungan.pelayanans1 first
+    if (kunjungan.pelayanans1 && kunjungan.pelayanans1.length > 0) {
+      // If pelayanans1 is populated object with nama
+      if (kunjungan.pelayanans1[0].nama) {
+        layanan = kunjungan.pelayanans1[0].nama;
+      } 
+      // If pelayanans1 is an array of strings or has a different structure
+      else if (typeof kunjungan.pelayanans1[0] === 'string') {
+        layanan = kunjungan.pelayanans1[0];
+      }
+      // If it's an object with id_pelayanan and nama
+      else if (kunjungan.pelayanans1[0] && kunjungan.pelayanans1[0].nama) {
+        layanan = kunjungan.pelayanans1[0].nama;
+      }
+    }
+
+    // Then check in booking data and override if present
+    if (kunjungan.id_booking) {
+      const booking = kunjungan.id_booking;
+      
+      if (booking.keluhan) {
+        keluhan = booking.keluhan;
+      }
+      if (booking.kategori) {
+        kategori = booking.kategori;
+      }
+      
+      // Get the layanan name from booking.pelayanans1 if available and if kunjungan.pelayanans1 wasn't found
+      if (layanan === 'N/A' && booking.pelayanans1 && booking.pelayanans1.length > 0) {
+        // If pelayanans1 is populated object with nama
+        if (booking.pelayanans1[0].nama) {
+          layanan = booking.pelayanans1[0].nama;
+        } 
+        // If pelayanans1 is an array of strings or has a different structure
+        else if (typeof booking.pelayanans1[0] === 'string') {
+          layanan = booking.pelayanans1[0];
         }
       }
+    }
       
       // First try to get data from the kunjungan record itself
       if (kunjungan.nama_klein) {
@@ -113,7 +162,7 @@ router.get('/', async (req, res) => {
         }
       }
 
-      // Create enhanced kunjungan object
+      // Create enhanced kunjungan object with additional fields
       enhancedKunjungans.push({
         _id: kunjungan._id,
         tanggal_checkin: kunjungan.tanggal,
@@ -126,6 +175,11 @@ router.get('/', async (req, res) => {
         id_booking: kunjungan.id_booking ? kunjungan.id_booking._id : null,
         keluhan: keluhan,
         kategori: kategori,
+        // Add new fields
+        layanan: layanan, 
+        jenis_kelamin: jenisKelamin,
+        ras: ras,
+        umur: umur
       });
     }
 
@@ -142,7 +196,12 @@ router.get('/:id', async (req, res) => {
     const kunjungan = await Kunjungan.findById(req.params.id)
       .populate({
         path: 'id_booking',
-        select: 'nama status_booking pilih_tanggal administrasis1 jenis_layanan kategori keluhan'
+        select: 'nama status_booking pilih_tanggal administrasis1 jenis_layanan kategori keluhan pelayanans1',
+        // Add additional populate if pelayanans1 has references
+        populate: {
+          path: 'pelayanans1',
+          select: 'nama'
+        }
       });
     
     if (!kunjungan) {
@@ -153,9 +212,14 @@ router.get('/:id', async (req, res) => {
     let namaHewan = 'N/A';
     let jenisLayanan = 'offline';
     let status = 'sedang diperiksa';
-    // Add variables to store keluhan and kategori
     let keluhan = 'N/A';
     let kategori = 'kesayangan / satwa liar';  // Default value
+    
+    // New fields
+    let layanan = 'N/A';
+    let jenisKelamin = 'N/A';
+    let ras = 'N/A';
+    let umur = 'N/A';
 
     // First check in kunjungan data
     if (kunjungan.keluhan) {
@@ -163,6 +227,33 @@ router.get('/:id', async (req, res) => {
     }
     if (kunjungan.kategori) {
       kategori = kunjungan.kategori;
+    }
+    
+    // Get the new fields from kunjungan data if available
+    if (kunjungan.jenis_kelamin) {
+      jenisKelamin = kunjungan.jenis_kelamin;
+    }
+    if (kunjungan.ras) {
+      ras = kunjungan.ras;
+    }
+    if (kunjungan.umur_hewan) {
+      umur = kunjungan.umur_hewan;
+    }
+
+    // Check for layanan in kunjungan.pelayanans1 first
+    if (kunjungan.pelayanans1 && kunjungan.pelayanans1.length > 0) {
+      // If pelayanans1 is populated object with nama
+      if (kunjungan.pelayanans1[0].nama) {
+        layanan = kunjungan.pelayanans1[0].nama;
+      } 
+      // If pelayanans1 is an array of strings or has a different structure
+      else if (typeof kunjungan.pelayanans1[0] === 'string') {
+        layanan = kunjungan.pelayanans1[0];
+      }
+      // If it's an object with id_pelayanan and nama
+      else if (kunjungan.pelayanans1[0] && kunjungan.pelayanans1[0].nama) {
+        layanan = kunjungan.pelayanans1[0].nama;
+      }
     }
 
     // Then check in booking data and override if present
@@ -175,6 +266,18 @@ router.get('/:id', async (req, res) => {
       if (booking.kategori) {
         kategori = booking.kategori;
       }
+      
+      // Get the layanan name from booking.pelayanans1 if available and if kunjungan.pelayanans1 wasn't found
+      if (layanan === 'N/A' && booking.pelayanans1 && booking.pelayanans1.length > 0) {
+        // If pelayanans1 is populated object with nama
+        if (booking.pelayanans1[0].nama) {
+          layanan = booking.pelayanans1[0].nama;
+        } 
+        // If pelayanans1 is an array of strings or has a different structure
+        else if (typeof booking.pelayanans1[0] === 'string') {
+          layanan = booking.pelayanans1[0];
+        }
+      }
     }
     
     // First try to get data from the kunjungan record itself
@@ -183,7 +286,7 @@ router.get('/:id', async (req, res) => {
     }
     
     if (kunjungan.nama_hewan) {
-        namaHewan = kunjungan.nama_hewan + (kunjungan.jenis ? ` (${kunjungan.jenis})` : '');
+      namaHewan = kunjungan.nama_hewan + (kunjungan.jenis ? ` (${kunjungan.jenis})` : '');
     }
     
     if (kunjungan.jenis_layanan) {
@@ -240,7 +343,7 @@ router.get('/:id', async (req, res) => {
       }
     }
 
-    // Create enhanced kunjungan object
+    // Create enhanced kunjungan object with additional fields
     const enhancedKunjungan = {
       _id: kunjungan._id,
       tanggal_checkin: kunjungan.tanggal,
@@ -251,6 +354,13 @@ router.get('/:id', async (req, res) => {
       status: status,
       tanggal_edit: kunjungan.updatedAt,
       id_booking: kunjungan.id_booking ? kunjungan.id_booking._id : null,
+      keluhan: keluhan,
+      kategori: kategori,
+      // Add new fields
+      layanan: layanan,
+      jenis_kelamin: jenisKelamin,
+      ras: ras,
+      umur: umur,
       // Include original data for detailed view
       originalKunjungan: kunjungan
     };
@@ -385,30 +495,63 @@ router.delete('/:id', async (req, res) => {
 
 // Create kunjungan directly (without requiring booking)
 router.post('/direct', async (req, res) => {
-    try {
-        const { 
-            tanggal_waktu, 
-            nama_klein, 
-            nama_hewan, 
-            jenis_layanan = 'offline',
-            jenis_kelamin = '-',
-            jenis,
-            ras,
-            umur_hewan,
-            kategori = 'kesayangan / satwa liar',
-            id_user,
-            keluhan  // <-- Add this line to extract keluhan from the request body
-          } = req.body;
+  try {
+      // Log the incoming request body for debugging
+      console.log('Received data:', req.body);
       
-        // Validate required fields
-        if (!tanggal_waktu || !nama_klein || !nama_hewan || !kategori || !jenis || !keluhan) {  // <-- Add keluhan to required fields validation
-            return res.status(400).json({ 
-            message: 'Tanggal dan waktu, nama klien, nama hewan, jenis hewan, keluhan, dan kategori harus diisi' 
-            });
-        }
-  
+      const { 
+          tanggal_waktu, 
+          nama_klein, 
+          nama_hewan, 
+          jenis_layanan = 'offline',
+          jenis_kelamin = '-',
+          jenis,
+          ras = '-',
+          umur_hewan = '-',
+          kategori = 'kesayangan / satwa liar',
+          id_user,  // Make sure this matches what's sent from the client
+          keluhan = '-',
+          pelayanans1 = [] // Extract pelayanans1 array from request
+      } = req.body;
+    
+      // Validate user ID
+      if (!id_user) {
+          return res.status(400).json({ 
+              message: 'ID user tidak valid' 
+          });
+      }
+      
+      // Validate required fields
+      if (!tanggal_waktu || !nama_klein || !nama_hewan || !jenis) {
+          return res.status(400).json({ 
+              message: 'Tanggal dan waktu, nama klien, nama hewan, dan jenis hewan harus diisi' 
+          });
+      }
+
+      // Validate pelayanans1 format
+      let validatedPelayanans = [];
+      if (pelayanans1 && pelayanans1.length > 0) {
+          // Ensure each item has required fields
+          validatedPelayanans = pelayanans1.map(item => ({
+              id_pelayanan: item.id_pelayanan || null,
+              nama: item.nama || '',
+              jumlah: parseInt(item.jumlah) || 1,
+              tanggal: item.tanggal || new Date()
+          }));
+          
+          // Only keep valid items (with id_pelayanan)
+          validatedPelayanans = validatedPelayanans.filter(item => item.id_pelayanan);
+      }
+
       // Parse the datetime string properly
       const visitDate = new Date(tanggal_waktu);
+      
+      // Check if the date is valid
+      if (isNaN(visitDate.getTime())) {
+          return res.status(400).json({ 
+              message: 'Format tanggal tidak valid' 
+          });
+      }
       
       // 1. Tentukan digit pertama berdasarkan hari (A-G untuk Senin-Minggu)
       const dayOfWeek = visitDate.getDay(); // 0 = Minggu, 1 = Senin, dst.
@@ -434,10 +577,10 @@ router.post('/direct', async (req, res) => {
       
       // 4. Ambil semua kunjungan dengan tanggal yang sama untuk menentukan urutan
       const existingKunjungan = await Kunjungan.find({
-        tanggal: {
-          $gte: new Date(formattedDate),
-          $lt: new Date(new Date(formattedDate).setDate(new Date(formattedDate).getDate() + 1))
-        }
+          tanggal: {
+              $gte: new Date(formattedDate),
+              $lt: new Date(new Date(formattedDate).setDate(new Date(formattedDate).getDate() + 1))
+          }
       });
       
       // Hitung kunjungan pada hari yang sama
@@ -447,42 +590,55 @@ router.post('/direct', async (req, res) => {
       
       // Gabungkan semua digit untuk nomor antri
       const no_antri = `${firstDigit}${secondDigit}${thirdDigit}`;
+
+      // Format umur_hewan as a number if provided
+      let numericUmurHewan = undefined;
+      if (umur_hewan !== '-') {
+          numericUmurHewan = Number(umur_hewan);
+          if (isNaN(numericUmurHewan)) {
+              numericUmurHewan = undefined;
+          }
+      }
   
-      // Create the new kunjungan - use the full visitDate with time component
-        const newKunjungan = new Kunjungan({
-            tanggal: visitDate,
-            nama_klein,
-            nama_hewan,
-            jenis_layanan,
-            jenis_kelamin,
-            jenis,
-            ras,
-            umur_hewan,
-            kategori,
-            keluhan,  // <-- Add this line to include keluhan in the new kunjungan
-            no_antri,
-            administrasis2: [{
-                id_user,
-                catatan: 'dibuat',
-                status_kunjungan: 'sedang diperiksa',
-                tanggal: new Date()
-            }]
-        });
+      // Create the new kunjungan object
+      const newKunjungan = new Kunjungan({
+          tanggal: visitDate,
+          nama_klein,
+          nama_hewan,
+          jenis_layanan,
+          jenis_kelamin,
+          jenis,
+          ras,
+          umur_hewan: numericUmurHewan,
+          kategori,
+          keluhan,
+          no_antri,
+          pelayanans1: validatedPelayanans, // Add validated pelayanans1 array to the new kunjungan
+          administrasis2: [{
+              id_user,
+              catatan: 'dibuat',
+              status_kunjungan: 'sedang diperiksa',
+              tanggal: new Date()
+          }]
+      });
+  
+      // Log the document before saving
+      console.log('Kunjungan document to save:', JSON.stringify(newKunjungan, null, 2));
   
       // Save the kunjungan to database
       const savedKunjungan = await newKunjungan.save();
   
       res.status(201).json({ 
-        message: 'Kunjungan berhasil dibuat', 
-        kunjungan: savedKunjungan 
+          message: 'Kunjungan berhasil dibuat', 
+          kunjungan: savedKunjungan 
       });
-    } catch (error) {
+  } catch (error) {
       console.error('Error creating direct kunjungan:', error);
       res.status(500).json({ 
-        message: 'Gagal membuat kunjungan', 
-        error: error.message 
+          message: 'Gagal membuat kunjungan: ' + error.message, 
+          error: error.message 
       });
-    }
-  });
+  }
+});
 
 export default router;

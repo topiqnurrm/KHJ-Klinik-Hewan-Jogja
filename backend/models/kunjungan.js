@@ -54,13 +54,11 @@ const KunjunganSchema = new mongoose.Schema({
         type: String,
         enum: ['onsite', 'house call', 'offline'],
         required: false,
-        default: 'offline'
     },
     jenis_kelamin : {
         type: String,
         enum: ['jantan', 'betina', '-'],
         required: false,
-        default: '-'
     },
     jenis: {
         type: String,
@@ -93,6 +91,30 @@ const KunjunganSchema = new mongoose.Schema({
             },
             message: 'Keluhan tidak boleh lebih dari 250 kata'
         }
+    },
+    pelayanans1: {
+        type: [
+            {
+            id_pelayanan: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Pelayanan',
+                required: false
+            },
+            nama: {
+                type: String,
+                require: false,
+            },
+            jumlah: {
+                type: Number,
+                required: false
+            },
+            tanggal: {
+                type: Date,
+                default: Date.now
+            }
+            }
+        ],
+        default: []
     },
 }, { timestamps: true });
 

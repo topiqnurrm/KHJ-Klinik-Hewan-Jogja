@@ -12,6 +12,7 @@
     font-style: normal;
 }
     
+/* Modal Overlay */
 .edit-popup-overlay {
     position: fixed;
     top: 0;
@@ -27,6 +28,7 @@
     -webkit-backdrop-filter: blur(5px);
 }
 
+/* Modal Container */
 .edit-popup {
     background-color: white;
     border-radius: 8px;
@@ -37,9 +39,10 @@
     flex-direction: column;
     max-height: 90vh;
     overflow: hidden;
-    position: relative; /* Tambahkan ini untuk positioning */
+    position: relative;
 }
 
+/* Modal Header */
 .edit-header {
     background-color: #175451;
     color: white;
@@ -54,139 +57,106 @@
     font-weight: bold;
 }
 
+/* Modal Content */
 .edit-content {
     padding: 20px;
     overflow-y: auto;
-    /* Tambahkan padding-bottom supaya konten tidak tertutup tombol */
-    padding-bottom: 80px;
+    padding-bottom: 80px; /* Space for fixed button section */
 }
 
+/* Form Layout - Two columns per row */
 .edit-form-row {
     display: flex;
     gap: 20px;
     margin-bottom: 15px;
+    width: 100%;
 }
 
 .edit-form-group {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 0; /* Prevents flex items from overflowing */
 }
 
+/* For full width items */
+.full-width {
+    flex-basis: 100%;
+}
+
+/* Form Elements Styling */
 .edit-form-group label {
     font-weight: bold;
     margin-bottom: 5px;
     color: #3F4254;
-    font-family: "SansSerifFLF";
-    font-weight: normal;
-    font-style: normal;
+    font-family: "SansSerifFLF", sans-serif;
 }
 
 .edit-form-group input,
-.edit-form-group select {
+.edit-form-group select,
+.edit-form-group textarea {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     background-color: #e9e9e9;
     font-family: "SansSerifFLF", sans-serif;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .edit-form-group input:focus,
-.edit-form-group select:focus {
+.edit-form-group select:focus,
+.edit-form-group textarea:focus {
     outline: none;
     border-color: #175451;
+    box-shadow: 0 0 0 2px rgba(23, 84, 81, 0.2);
 }
 
+/* Textarea specific styling */
+.edit-form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Error styling */
 .input-error {
     border-color: #dc2626 !important;
+    background-color: #fef2f2 !important;
 }
 
 .error-text {
     color: #dc2626;
     font-size: 12px;
     margin-top: 2px;
+    font-family: "SansSerifFLF", sans-serif;
 }
 
 .required {
     color: #dc2626;
+    margin-left: 2px;
 }
 
-.booking-info,
-.antri-info {
-    background-color: #f8f9fa;
-    border-radius: 6px;
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 1px solid #e9ecef;
-}
-
-.booking-info h3,
-.antri-info h3 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 16px;
-    color: #175451;
-    font-family: "SansSerifBldFLF", sans-serif;
-}
-
-.info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.info-row {
-    display: flex;
-    margin-bottom: 5px;
-}
-
-.info-label {
-    font-weight: bold;
-    width: 120px;
-    color: #3F4254;
+/* Helper text */
+.info-text {
     font-family: "SansSerifFLF", sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
 }
 
-.info-value {
-    flex: 1;
-    font-family: "SansSerifFLF", sans-serif;
+/* Disabled input styling */
+.disabled-input {
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
-.nomor-antri {
-    font-size: 32px;
-    font-weight: bold;
-    text-align: center;
-    color: #175451;
-    margin: 15px 0;
-    padding: 10px;
-    background-color: #e9f5f4;
-    border-radius: 4px;
-    letter-spacing: 3px;
-    font-family: "SansSerifBldFLF", sans-serif;
-}
-
-.antri-details {
-    background-color: white;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px dashed #ccc;
-}
-
-.antri-details p {
-    margin: 5px 0;
-    font-family: "SansSerifFLF", sans-serif;
-}
-
-.antri-details strong {
-    color: #175451;
-    font-family: "SansSerifBldFLF", sans-serif;
-}
-
+/* Bottom Action Bar */
 .edit-actions {
     display: flex;
     justify-content: center;
     gap: 20px;
-    margin-top: 0;
     padding: 15px 20px;
     border-top: 1px solid #e9ecef;
     background-color: white;
@@ -207,7 +177,7 @@
     cursor: pointer;
     font-family: "SansSerifFLF", sans-serif;
     font-size: 16px;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, background-color 0.2s;
 }
 
 .batal-button {
@@ -231,6 +201,7 @@
     cursor: not-allowed;
 }
 
+/* Status Messages */
 .loading-text {
     text-align: center;
     padding: 15px;
@@ -249,11 +220,62 @@
     font-family: "SansSerifFLF", sans-serif;
 }
 
+/* React-Select Custom Styling */
+.select__control {
+    background-color: #e9e9e9 !important;
+    border-color: #ccc !important;
+    box-shadow: none !important;
+    min-height: 38px !important;
+}
+
+.select__control--is-focused {
+    border-color: #175451 !important;
+    box-shadow: 0 0 0 2px rgba(23, 84, 81, 0.2) !important;
+}
+
+.select__placeholder {
+    color: #6c757d !important;
+    font-family: "SansSerifFLF", sans-serif !important;
+}
+
+.select__single-value {
+    color: #212529 !important;
+    font-family: "SansSerifFLF", sans-serif !important;
+}
+
+.select__menu {
+    font-family: "SansSerifFLF", sans-serif !important;
+    z-index: 1100 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .edit-form-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .edit-popup {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .edit-actions {
+        flex-direction: column;
+    }
+    
+    .batal-button, 
+    .simpan-button {
+        width: 100%;
+    }
+}
 
 
-.info-text {
-    font-family: "SansSerifFLF";
+
+
+
+.select__input-container css-19bb58m {
+    font-family: "SansSerifFLF", sans-serif !important;
     font-weight: normal;
     font-style: normal;
-    font-size: 12px;
-  }
+}

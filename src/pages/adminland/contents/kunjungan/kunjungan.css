@@ -62,6 +62,50 @@
   max-height: 400px;
 }
 
+/* Error notification */
+.kunjungan-container .error-notification {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin: 0 20px 15px 20px;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Success notification */
+.kunjungan-container .success-notification {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px 15px;
+  margin: 0 20px 15px 20px;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Warning notification */
+.kunjungan-container .warning-notification {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 10px 15px;
+  margin: 0 20px 15px 20px;
+  border: 1px solid #ffeeba;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Info notification */
+.kunjungan-container .info-notification {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  padding: 10px 15px;
+  margin: 0 20px 15px 20px;
+  border: 1px solid #bee5eb;
+  border-radius: 4px;
+  text-align: center;
+}
+
 /* Filter styling */
 .kunjungan-container .riwayat-filter-container {
   display: flex;
@@ -71,7 +115,7 @@
   background-color: #f2f2f2;
   padding: 5px;
   border-radius: 4px;
-  gap: 300px;
+  gap: 20px;
 }
 
 .kunjungan-container .riwayat-search-wrapper {
@@ -241,16 +285,57 @@
   color: #666;
 }
 
-/* Error message */
-.kunjungan-container .error-notification {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 10px 15px;
-  margin: 0 20px 15px 20px;
-  border: 1px solid #f5c6cb;
+/* Delete confirmation popup */
+.kunjungan-container .confirm-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.kunjungan-container .confirm-popup {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.kunjungan-container .confirm-popup h3 {
+  margin-top: 0;
+  color: #3F4254;
+}
+
+.kunjungan-container .confirm-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.kunjungan-container .confirm-cancel,
+.kunjungan-container .confirm-delete {
+  padding: 8px 16px;
+  border: none;
   border-radius: 4px;
-  text-align: center;
-  font-weight: 500;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.kunjungan-container .confirm-cancel {
+  background-color: #e5e7eb;
+  color: #4b5563;
+}
+
+.kunjungan-container .confirm-delete {
+  background-color: #ef4444;
+  color: white;
 }
 
 /* Modal styles */
@@ -331,8 +416,6 @@
   color: white;
 }
 
-/* Tambahkan kode CSS ini ke file kunjungan.css yang sudah ada */
-
 /* Styling untuk tombol tambah kunjungan */
 .kunjungan-container .tambah-kunjungan-button {
   background-color: #175451;
@@ -352,39 +435,4 @@
 
 .kunjungan-container .tambah-kunjungan-button:hover {
   background-color: #0e3d3b;
-}
-
-/* Pastikan riwayat-filter-container bisa menampung tombol tambah kunjungan */
-.kunjungan-container .riwayat-filter-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 20px;
-  background-color: #f2f2f2;
-  padding: 5px;
-  border-radius: 4px;
-  gap: 20px; /* Tambahkan gap untuk spacing antara elemen */
-}
-
-/* Styling untuk tombol yang di-disable */
-.kunjungan-container .disabled-button {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Jika Anda juga ingin menyesuaikan styling header seperti pada komponen Pengguna */
-.kunjungan-container .dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  width: 100%;
-  background-color: #d9d9d9;
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-top: 20px;
-  font-size: 14px;
-  font-family: "SansSerifFLF";
-  font-weight: bold;
-  font-style: normal;
 }
