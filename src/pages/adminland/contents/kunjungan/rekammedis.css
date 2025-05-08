@@ -59,10 +59,10 @@
   
   .rekammedis-container .rekammedis-columns {
     display: flex;
-    height: 100%;
+    max-height: 91%;
     gap: 20px;
 
-    max-height: 478px;
+    /* max-height: 478px; */
   }
   
   .rekammedis-container .rekammedis-column {
@@ -512,4 +512,30 @@
   padding: 8px 12px;
   color: #666;
   font-style: italic;
+}
+
+
+
+
+
+
+
+
+
+/* Error Message Component */ 
+.error-message { 
+  /* padding: 10px 15px; */
+  border: 1px solid #bee5eb;
+  border-radius: 4px;
+  text-align: center;
+  /* margin-top: 15px !important; */
+  margin-bottom: 0px !important;
+  padding: 0px;
+}
+.error-message span { 
+  flex-grow: 1; 
+  font-size: 18px; 
+  color: #ffffff;
+  padding: 0px;
+  margin: 0px;
 }

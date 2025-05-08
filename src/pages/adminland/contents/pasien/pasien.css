@@ -59,7 +59,8 @@
   text-align: left;
   color: #3F4254;
   overflow-y: auto;
-  max-height: 400px;
+  /* max-height: 400px; */
+  max-height: 64.5%;
 }
 
 /* Filter styling */
@@ -71,7 +72,7 @@
   background-color: #f2f2f2;
   padding: 5px;
   border-radius: 4px;
-  gap: 300px;
+  /* gap: 300px; */
 }
 
 .pasien-container .riwayat-search-wrapper {
@@ -80,6 +81,7 @@
   position: relative;
   max-width: 320px;
   gap: 0px;
+  margin-right: 300px;
 }
 
 .pasien-container .riwayat-search-label {

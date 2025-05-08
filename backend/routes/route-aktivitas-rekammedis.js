@@ -19,105 +19,272 @@ const router = express.Router();
  * POST /api/rekam-medis/create
  */
 router.post('/create', async (req, res) => {
-    try {
-      const {
-        diagnosa,
-        keluhan,
-        berat_badan,
-        suhu_badan,
-        pemeriksaan,
-        hasil,
-        tanggal = new Date(),
-        id_kunjungan,
-        status,
-        produks = [],
-        pelayanans2 = [],
-        dokters = []
-      } = req.body;
-  
-      // Validate id_kunjungan exists
-      if (!mongoose.Types.ObjectId.isValid(id_kunjungan)) {
-        return res.status(400).json({ message: 'ID kunjungan tidak valid' });
-      }
-  
-      // Check if kunjungan exists
-      const kunjunganExists = await Kunjungan.findById(id_kunjungan);
-      if (!kunjunganExists) {
-        return res.status(404).json({ message: 'Data kunjungan tidak ditemukan' });
-      }
-  
-      // Format decimal fields - Safely handle null/undefined values
-      let formattedBeratBadan = null;
-      let formattedSuhuBadan = null;
-  
-      if (berat_badan !== null && berat_badan !== undefined && berat_badan !== '') {
-        formattedBeratBadan = mongoose.Types.Decimal128.fromString(String(berat_badan));
-      }
+  try {
+    const {
+      diagnosa,
+      keluhan,
+      berat_badan,
+      suhu_badan,
+      pemeriksaan,
+      hasil,
+      tanggal = new Date(),
+      id_kunjungan,
+      status,
+      produks = [],
+      pelayanans2 = [],
+      dokters = []
+    } = req.body;
+
+    // Validate id_kunjungan exists
+    if (!mongoose.Types.ObjectId.isValid(id_kunjungan)) {
+      return res.status(400).json({ message: 'ID kunjungan tidak valid' });
+    }
+
+    // Check if kunjungan exists
+    const kunjunganExists = await Kunjungan.findById(id_kunjungan);
+    if (!kunjunganExists) {
+      return res.status(404).json({ message: 'Data kunjungan tidak ditemukan' });
+    }
+
+    // Format decimal fields - Safely handle null/undefined values
+    let formattedBeratBadan = null;
+    let formattedSuhuBadan = null;
+
+    if (berat_badan !== null && berat_badan !== undefined && berat_badan !== '') {
+      formattedBeratBadan = mongoose.Types.Decimal128.fromString(String(berat_badan));
+    }
+    
+    if (suhu_badan !== null && suhu_badan !== undefined && suhu_badan !== '') {
+      formattedSuhuBadan = mongoose.Types.Decimal128.fromString(String(suhu_badan));
+    }
+
+    // Format produks and pelayanans arrays for decimal values
+    const formattedProduks = produks.map(prod => {
+      console.log('Formatting produk for create:', prod);
       
-      if (suhu_badan !== null && suhu_badan !== undefined && suhu_badan !== '') {
-        formattedSuhuBadan = mongoose.Types.Decimal128.fromString(String(suhu_badan));
-      }
-  
-      // Format produks and pelayanans arrays for decimal values - Safely handle possible null values
-      const formattedProduks = produks.map(prod => ({
+      return {
         id_produk: prod.id_produk,
         jumlah: prod.jumlah,
         tanggal: prod.tanggal || new Date(),
         harga: mongoose.Types.Decimal128.fromString((prod.harga || 0).toString()),
-        subtotal_obat: mongoose.Types.Decimal128.fromString((prod.subtotal_obat || 0).toString())
-      }));
-  
-      const formattedPelayanans = pelayanans2.map(pel => ({
-        id_pelayanan: pel.id_pelayanan,
-        jumlah: pel.jumlah,
-        tanggal: pel.tanggal || new Date(),
-        harga: mongoose.Types.Decimal128.fromString((pel.harga || 0).toString()),
-        subtotal_pelayanan: mongoose.Types.Decimal128.fromString((pel.subtotal_pelayanan || 0).toString())
-      }));
-  
-      // Create new rekam medis document
-      const newRekamMedis = new RekamMedis({
-        diagnosa,
-        keluhan,
-        berat_badan: formattedBeratBadan,
-        suhu_badan: formattedSuhuBadan,
-        pemeriksaan,
-        hasil,
-        tanggal,
-        id_kunjungan,
-        produks: formattedProduks,
-        pelayanans2: formattedPelayanans,
-        dokters: dokters // Include the dokters array
-      });
-  
-      await newRekamMedis.save();
-  
-      // Update kunjungan status if provided
-      if (status) {
-        await Kunjungan.findByIdAndUpdate(id_kunjungan, { status });
-        
-        // Also update the booking status
-        // First, find the booking ID from the kunjungan
-        const kunjungan = await Kunjungan.findById(id_kunjungan);
-        if (kunjungan && kunjungan.id_booking) {
-          await Booking.findByIdAndUpdate(kunjungan.id_booking, { 
-            status_booking: status 
-          });
-        }
+        subtotal_obat: mongoose.Types.Decimal128.fromString((prod.subtotal_obat || 0).toString()),
+        kategori: prod.kategori || "obat", // Ensure kategori exists
+        jenis: prod.jenis || "-" // Ensure jenis exists
+      };
+    });
+
+    const formattedPelayanans = pelayanans2.map(pel => ({
+      id_pelayanan: pel.id_pelayanan,
+      jumlah: pel.jumlah,
+      tanggal: pel.tanggal || new Date(),
+      harga: mongoose.Types.Decimal128.fromString((pel.harga || 0).toString()),
+      subtotal_pelayanan: mongoose.Types.Decimal128.fromString((pel.subtotal_pelayanan || 0).toString()),
+      kategori: pel.kategori || "layanan medis" // Ensure kategori exists
+    }));
+
+    // Format dokters array - process each dokter entry to handle decimal values
+    const formattedDokters = dokters.map(dokter => {
+      const formattedDokter = { ...dokter };
+      
+      // Convert berat_badan and suhu_badan to Decimal128 if they exist
+      if (dokter.berat_badan !== null && dokter.berat_badan !== undefined) {
+        formattedDokter.berat_badan = mongoose.Types.Decimal128.fromString(String(dokter.berat_badan));
       }
-  
-      res.status(201).json({ 
-        message: 'Rekam medis berhasil disimpan', 
-        rekam_medis: newRekamMedis 
-      });
-    } catch (error) {
-      console.error('Error creating medical record:', error);
-      res.status(500).json({ 
-        message: 'Terjadi kesalahan saat menyimpan rekam medis',
-        error: error.message 
-      });
+      
+      if (dokter.suhu_badan !== null && dokter.suhu_badan !== undefined) {
+        formattedDokter.suhu_badan = mongoose.Types.Decimal128.fromString(String(dokter.suhu_badan));
+      }
+      
+      return formattedDokter;
+    });
+
+    // Create new rekam medis document
+    const newRekamMedis = new RekamMedis({
+      diagnosa,
+      keluhan,
+      berat_badan: formattedBeratBadan,
+      suhu_badan: formattedSuhuBadan,
+      pemeriksaan,
+      hasil,
+      tanggal,
+      id_kunjungan,
+      produks: formattedProduks,
+      pelayanans2: formattedPelayanans,
+      dokters: formattedDokters // Use the formatted dokters array
+    });
+
+    await newRekamMedis.save();
+
+    // Update kunjungan status if provided
+    if (status) {
+      await Kunjungan.findByIdAndUpdate(id_kunjungan, { status });
+      
+      // Also update the booking status
+      // First, find the booking ID from the kunjungan
+      const kunjungan = await Kunjungan.findById(id_kunjungan);
+      if (kunjungan && kunjungan.id_booking) {
+        await Booking.findByIdAndUpdate(kunjungan.id_booking, { 
+          status_booking: status 
+        });
+      }
     }
-  });
+
+    res.status(201).json({ 
+      message: 'Rekam medis berhasil disimpan', 
+      rekam_medis: newRekamMedis 
+    });
+  } catch (error) {
+    console.error('Error creating medical record:', error);
+    res.status(500).json({ 
+      message: 'Terjadi kesalahan saat menyimpan rekam medis',
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * Update a medical record
+ * PUT /api/rekam-medis/update/:id
+ */
+router.put('/update/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      diagnosa,
+      keluhan,
+      berat_badan,
+      suhu_badan,
+      pemeriksaan,
+      hasil,
+      status,
+      id_kunjungan,
+      produks = [],
+      pelayanans2 = [],
+      dokters = [],
+      replaceCollections = false
+    } = req.body;
+
+    // Log data yang diterima untuk debugging
+    console.log('Data update yang diterima:', {
+      id,
+      produks: produks.map(p => ({ id_produk: p.id_produk, jenis: p.jenis, kategori: p.kategori }))
+    });
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'ID rekam medis tidak valid' });
+    }
+
+    // Format decimal fields with proper null handling
+    let updateData = { diagnosa, keluhan, pemeriksaan, hasil };
+
+    if (berat_badan !== null && berat_badan !== undefined) {
+      updateData.berat_badan = mongoose.Types.Decimal128.fromString(berat_badan.toString());
+    }
+
+    if (suhu_badan !== null && suhu_badan !== undefined) {
+      updateData.suhu_badan = mongoose.Types.Decimal128.fromString(suhu_badan.toString());
+    }
+
+    // Format produks array dengan mempertahankan jenis dan kategori
+    const formattedProduks = produks.map(prod => {
+      // Log detail untuk debugging
+      console.log('Formatting produk for update:', prod);
+      
+      return {
+        id_produk: prod.id_produk,
+        jumlah: prod.jumlah,
+        tanggal: prod.tanggal || new Date(),
+        harga: mongoose.Types.Decimal128.fromString((prod.harga || 0).toString()),
+        subtotal_obat: mongoose.Types.Decimal128.fromString((prod.subtotal_obat || 0).toString()),
+        kategori: prod.kategori || "obat", // Pastikan kategori selalu ada
+        jenis: prod.jenis || "-" // Pastikan jenis selalu ada
+      };
+    });
+    
+    // Log hasil format produks
+    console.log('Produks setelah diformat:', formattedProduks);
+    
+    // Update data dengan produks yang telah diformat
+    updateData.produks = formattedProduks;
+    
+    const formattedPelayanans = pelayanans2.map(pel => ({
+      id_pelayanan: pel.id_pelayanan,
+      jumlah: pel.jumlah,
+      tanggal: pel.tanggal || new Date(),
+      harga: mongoose.Types.Decimal128.fromString((pel.harga || 0).toString()),
+      subtotal_pelayanan: mongoose.Types.Decimal128.fromString((pel.subtotal_pelayanan || 0).toString()),
+      kategori: pel.kategori || "layanan medis" // Add kategori field
+    }));
+    updateData.pelayanans2 = formattedPelayanans;
+    
+    // Find existing record to append to dokters array instead of overriding
+    let existingRecord = null;
+    if (dokters && dokters.length > 0) {
+      existingRecord = await RekamMedis.findById(id);
+      if (existingRecord) {
+        // Use $push to append new dokters rather than replacing the array
+        await RekamMedis.findByIdAndUpdate(id, {
+          $push: { dokters: { $each: dokters } }
+        });
+      }
+    }
+
+    // Jika replaceCollections = true, gunakan operasi update langsung
+    // Jika tidak, gunakan findByIdAndUpdate biasa
+    let updatedRekamMedis;
+    if (replaceCollections) {
+      // Karena kita menggunakan replaceCollections, kita perlu menggunakan update dengan $set
+      // untuk memastikan array produks dan pelayanans2 diganti seluruhnya
+      updatedRekamMedis = await RekamMedis.findByIdAndUpdate(
+        id,
+        { $set: updateData },
+        { new: true }
+      );
+    } else {
+      // Opsi regular update
+      updatedRekamMedis = await RekamMedis.findByIdAndUpdate(
+        id,
+        updateData,
+        { new: true }
+      );
+    }
+
+    if (!updatedRekamMedis) {
+      return res.status(404).json({ message: 'Rekam medis tidak ditemukan' });
+    }
+
+    // Update kunjungan status if provided
+    if (status && id_kunjungan) {
+      await Kunjungan.findByIdAndUpdate(id_kunjungan, { status });
+      
+      // Also update the booking status
+      // First, find the booking ID from the kunjungan
+      const kunjungan = await Kunjungan.findById(id_kunjungan);
+      if (kunjungan && kunjungan.id_booking) {
+        await Booking.findByIdAndUpdate(kunjungan.id_booking, { 
+          status_booking: status 
+        });
+      }
+    }
+
+    // Get the freshly updated record with the new dokters included
+    const finalRecord = await RekamMedis.findById(id);
+    
+    // Log hasil akhir untuk memastikan data terkirim dengan benar
+    console.log('Rekam medis setelah update:', finalRecord);
+
+    res.status(200).json({ 
+      message: 'Rekam medis berhasil diperbarui', 
+      rekam_medis: finalRecord
+    });
+  } catch (error) {
+    console.error('Error updating medical record:', error);
+    res.status(500).json({ 
+      message: 'Terjadi kesalahan saat memperbarui rekam medis',
+      error: error.message 
+    });
+  }
+});
 
 /**
  * Get medical record by kunjungan ID
@@ -148,114 +315,6 @@ router.get('/by-kunjungan/:kunjunganId', async (req, res) => {
       error: error.message 
     });
   }
-});
-
-/**
- * Update a medical record
- * PUT /api/rekam-medis/update/:id
- */
-router.put('/update/:id', async (req, res) => {
-    try {
-      const { id } = req.params;
-      const {
-        diagnosa,
-        keluhan,
-        berat_badan,
-        suhu_badan,
-        pemeriksaan,
-        hasil,
-        status,
-        id_kunjungan,
-        produks = [],
-        pelayanans2 = [],
-        dokters = [],
-        replaceCollections = false // Flag to indicate if we should replace collections entirely
-      } = req.body;
-  
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ message: 'ID rekam medis tidak valid' });
-      }
-  
-      // Format decimal fields with proper null handling
-      let updateData = { diagnosa, keluhan, pemeriksaan, hasil };
-  
-      if (berat_badan !== null && berat_badan !== undefined) {
-        updateData.berat_badan = mongoose.Types.Decimal128.fromString(berat_badan.toString());
-      }
-  
-      if (suhu_badan !== null && suhu_badan !== undefined) {
-        updateData.suhu_badan = mongoose.Types.Decimal128.fromString(suhu_badan.toString());
-      }
-  
-      // Format produks and pelayanans arrays for decimal values with proper null handling
-      const formattedProduks = produks.map(prod => ({
-        id_produk: prod.id_produk,
-        jumlah: prod.jumlah,
-        tanggal: prod.tanggal || new Date(),
-        harga: mongoose.Types.Decimal128.fromString((prod.harga || 0).toString()),
-        subtotal_obat: mongoose.Types.Decimal128.fromString((prod.subtotal_obat || 0).toString())
-      }));
-      updateData.produks = formattedProduks;
-      
-      const formattedPelayanans = pelayanans2.map(pel => ({
-        id_pelayanan: pel.id_pelayanan,
-        jumlah: pel.jumlah,
-        tanggal: pel.tanggal || new Date(),
-        harga: mongoose.Types.Decimal128.fromString((pel.harga || 0).toString()),
-        subtotal_pelayanan: mongoose.Types.Decimal128.fromString((pel.subtotal_pelayanan || 0).toString())
-      }));
-      updateData.pelayanans2 = formattedPelayanans;
-      
-      // Find existing record to append to dokters array instead of overriding
-      let existingRecord = null;
-      if (dokters && dokters.length > 0) {
-        existingRecord = await RekamMedis.findById(id);
-        if (existingRecord) {
-          // Use $push to append new dokters rather than replacing the array
-          await RekamMedis.findByIdAndUpdate(id, {
-            $push: { dokters: { $each: dokters } }
-          });
-        }
-      }
-  
-      const updatedRekamMedis = await RekamMedis.findByIdAndUpdate(
-        id,
-        updateData,
-        { new: true }
-      );
-  
-      if (!updatedRekamMedis) {
-        return res.status(404).json({ message: 'Rekam medis tidak ditemukan' });
-      }
-  
-      // Update kunjungan status if provided
-      if (status && id_kunjungan) {
-        await Kunjungan.findByIdAndUpdate(id_kunjungan, { status });
-        
-        // Also update the booking status
-        // First, find the booking ID from the kunjungan
-        const kunjungan = await Kunjungan.findById(id_kunjungan);
-        if (kunjungan && kunjungan.id_booking) {
-          await Booking.findByIdAndUpdate(kunjungan.id_booking, { 
-            status_booking: status 
-          });
-        }
-      }
-  
-      // Get the freshly updated record with the new dokters included
-      const finalRecord = await RekamMedis.findById(id);
-  
-      res.status(200).json({ 
-        message: 'Rekam medis berhasil diperbarui', 
-        rekam_medis: finalRecord
-      });
-    } catch (error) {
-      console.error('Error updating medical record:', error);
-      res.status(500).json({ 
-        message: 'Terjadi kesalahan saat memperbarui rekam medis',
-        error: error.message 
-      });
-    }
 });
 
 /**

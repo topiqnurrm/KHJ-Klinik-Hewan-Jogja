@@ -65,6 +65,33 @@ const RekamMedisSchema = new mongoose.Schema({
                 type: Date,
                 default: Date.now
             },
+            diagnosa: {
+                type: String,
+                required: false,
+                maxlength: 255
+            },
+            berat_badan: {
+                type: mongoose.Types.Decimal128,
+                required: false,
+                validate: {
+                    validator: function(value) {
+                        return /^\d{1,6}(\.\d{1,2})?$/.test(value.toString());
+                    },
+                    message: 'Berat badan harus berupa angka dengan maksimal 6 digit dan 2 digit desimal.'
+                },
+                default: 0
+            },
+            suhu_badan: {
+                type: mongoose.Types.Decimal128,
+                required: false,
+                validate: {
+                    validator: function(value) {
+                        return /^\d{1,5}(\.\d{1,2})?$/.test(value.toString());
+                    },
+                    message: 'Suhu badan harus berupa angka dengan maksimal 5 digit dan 2 digit desimal.'
+                },
+                default: 0
+            },
         }
     ],
     produks: [
@@ -73,6 +100,15 @@ const RekamMedisSchema = new mongoose.Schema({
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Produk',
                 required: false
+            },
+            kategori: {
+                type: String,
+                required: false,
+            },
+            jenis: {
+                type: String,
+                required: false,
+                default: "-"
             },
             jumlah: {
                 type: Number,
@@ -110,6 +146,10 @@ const RekamMedisSchema = new mongoose.Schema({
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Pelayanan',
                 required: false
+            },
+            kategori: {
+                type: String,
+                required: false,
             },
             jumlah: {
                 type: Number,

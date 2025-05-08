@@ -13,9 +13,28 @@ import Popup from '../../admin_nav/popup_nav/popup2';
 
 const Rekammedis = ({ kunjunganData, onBack }) => {
 
+    // Error Message Component
+    const ErrorMessage = ({ message, onClose }) => {
+        // Check if it's an error or success message based on content
+        const isError = message.toLowerCase().includes('gagal') || 
+                        message.toLowerCase().includes('error') || 
+                        message.toLowerCase().includes('tidak') || 
+                        message.toLowerCase().includes('silakan');
+        
+        const backgroundColor = isError ? 'rgba(244, 67, 54)' : 'rgba(244, 67, 54)';
+        
+        return (
+            <div className={`error-message ${message ? '' : 'fade-out'}`} style={{ backgroundColor }}>
+                <span>{message}</span>
+            </div>
+        );
+    };
+
     // console.log("Formatted kunjungan status data:", formatKunjunganStatusData());
 
     // Definisikan semua state variables di atas
+    const [errorMessage, setErrorMessage] = useState("");
+    const [showError, setShowError] = useState(false);
     const [isObatDropdownOpen, setIsObatDropdownOpen] = useState(false);
     const [isLayananDropdownOpen, setIsLayananDropdownOpen] = useState(false);
     const [searchObat, setSearchObat] = useState("");
@@ -49,6 +68,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
     };
 
     const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+    const [popupMessage, setPopupMessage] = useState("");
     
     // State untuk obat dan layanan
     const [obatOptions, setObatOptions] = useState([]);
@@ -83,6 +103,17 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
     // Tambahkan useRef untuk menangani klik di luar dropdown
     const obatDropdownRef = useRef(null);
     const layananDropdownRef = useRef(null);
+
+    // Helper function to display errors
+    const displayError = (message, isSuccess = false) => {
+        // If isSuccess is true, append "✓" at the beginning for success messages
+        if (isSuccess) {
+            message = `✓ ${message}`;
+        }
+        setErrorMessage(message);
+        setShowError(true);
+        setTimeout(() => setShowError(false), 2000);
+    };
 
     // Setelah semua state didefinsikan, kita bisa menggunakannya
     // Fungsi filter dan handle klik
@@ -152,33 +183,43 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         // Get current user from localStorage
         const currentUser = JSON.parse(localStorage.getItem('user')) || {};
         if (!currentUser._id) {
-            console.warn("User data not found in localStorage");
+          console.warn("User data not found in localStorage");
         }
-
+      
         const fetchData = async () => {
-            setIsLoading(true);
-            try {
-                // Ambil data produk
-                const produkData = await getAllProduk();
-                setObatOptions(produkData.map(item => ({
-                    id: item._id,
-                    nama: item.nama,
-                    harga: parseFloat(item.harga.$numberDecimal || 0)
-                })));
-                
-                // Ambil data pelayanan
-                const pelayananData = await getAllPelayanan();
-                setLayananOptions(pelayananData);
-                
-                setIsLoading(false);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                setIsLoading(false);
-            }
+          setIsLoading(true);
+          try {
+            // Ambil data produk
+            const produkData = await getAllProduk();
+            console.log("Raw produk data:", produkData);
+            
+            setObatOptions(produkData.map(item => ({
+              id: item._id,
+              nama: item.nama,
+              jenis: item.jenis || "-", // Make sure jenis field is captured
+              kategori: item.kategori || "obat", // Make sure kategori field is captured
+              harga: parseFloat(item.harga.$numberDecimal || 0)
+            })));
+            
+            // Ambil data pelayanan
+            const pelayananData = await getAllPelayanan();
+            console.log("Raw pelayanan data:", pelayananData);
+            
+            // Make sure each layanan has the kategori field
+            setLayananOptions(pelayananData.map(item => ({
+              ...item,
+              kategori: item.kategori || "layanan medis" // Ensure kategori is set
+            })));
+            
+            setIsLoading(false);
+          } catch (error) {
+            console.error("Error fetching data:", error);
+            setIsLoading(false);
+          }
         };
         
         fetchData();
-    }, []);
+      }, []);
 
     // Mengisi data pasien saat komponen dimuat atau kunjunganData berubah
     useEffect(() => {
@@ -284,19 +325,39 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                         
                         // Load medications from existing data
                         if (rekamMedisResponse.produks && rekamMedisResponse.produks.length > 0) {
+                            console.log("Data produk dari rekam medis:", rekamMedisResponse.produks);
+                            console.log("Data obatOptions yang tersedia:", obatOptions);
+                            
                             const formattedObatList = rekamMedisResponse.produks.map(produk => {
                                 // Handle case where id_produk is populated or just an ID
                                 const produkData = typeof produk.id_produk === 'object' ? produk.id_produk : null;
+                                const produkId = produkData ? produkData._id : produk.id_produk;
+                                
+                                // Cari jenis obat dari obatOptions jika tersedia
+                                let jenisObat = produk.jenis || "-";
+                                
+                                // Jika jenisObat masih "-", coba cari dari obatOptions
+                                if (jenisObat === "-" || !jenisObat) {
+                                    const matchedObat = obatOptions.find(o => o.id === produkId);
+                                    if (matchedObat && matchedObat.jenis) {
+                                        jenisObat = matchedObat.jenis;
+                                        console.log(`Menemukan jenis ${jenisObat} untuk obat ${matchedObat.nama}`);
+                                    } else {
+                                        console.log(`Tidak menemukan jenis untuk produk ID: ${produkId}`);
+                                    }
+                                }
                                 
                                 return {
                                     id: Date.now() + Math.random(), // Generate a unique ID
                                     namaObat: produkData ? produkData.nama : "Produk tidak tersedia",
+                                    jenis: jenisObat, // Tambahkan jenis obat
                                     qty: produk.jumlah,
                                     harga: parseFloat(produk.harga.$numberDecimal || 0),
                                     subtotal: parseFloat(produk.subtotal_obat.$numberDecimal || 0),
-                                    id_produk: produkData ? produkData._id : produk.id_produk
+                                    id_produk: produkId
                                 };
                             });
+                            console.log("Formatted obat list:", formattedObatList);
                             setObatList(formattedObatList);
                         }
                         
@@ -334,63 +395,90 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
 
     // Fungsi untuk menambah obat ke list
     const handleTambahObat = () => {
-        if (selectedObat) {
-            const obatData = obatOptions.find(o => o.id === selectedObat);
-            if (obatData) {
-                const newObat = {
-                    id: Date.now(), // Unique ID for the item
-                    namaObat: obatData.nama,
-                    qty: qtyObat,
-                    harga: obatData.harga,
-                    subtotal: obatData.harga * qtyObat,
-                    id_produk: obatData.id // Menyimpan ID MongoDB
-                };
-                setObatList([...obatList, newObat]);
-                setSelectedObat("");
-                setQtyObat(1);
-            }
+        if (!selectedObat) {
+            return;
+        }
+        
+        const obatData = obatOptions.find(o => o.id === selectedObat);
+        if (obatData) {
+            // Explicitly log these values to verify
+            console.log("Menambahkan obat:", obatData);
+            console.log("Jenis obat yang dipilih:", obatData.jenis || "-");
+            console.log("Kategori obat yang dipilih:", obatData.kategori || "obat");
+            
+            const newObat = {
+                id: Date.now(),
+                namaObat: obatData.nama,
+                jenis: obatData.jenis || "-", // Pastikan jenis ada
+                kategori: obatData.kategori || "obat", // Simpan kategori juga
+                qty: qtyObat,
+                harga: obatData.harga,
+                subtotal: obatData.harga * qtyObat,
+                id_produk: obatData.id
+            };
+            
+            console.log("Obat baru ditambahkan ke list:", newObat);
+            setObatList([newObat, ...obatList]);
+            setSelectedObat("");
+            setSearchObat("");
+            setQtyObat(1);
         }
     };
 
     // Fungsi untuk menambah layanan ke list
     const handleTambahLayanan = () => {
-        if (selectedLayanan) {
-            const layananData = layananOptions.find(l => l._id === selectedLayanan);
-            if (layananData) {
-                // Pilih harga berdasarkan kategori hewan
-                let harga = 0;
-                
-                if (kategoriHewanType === 'ternak') {
-                    harga = parseFloat(layananData.harga_ternak.$numberDecimal || 0);
-                } else if (kategoriHewanType === 'unggas') {
-                    harga = parseFloat(layananData.harga_unggas.$numberDecimal || 0);
-                } else {
-                    harga = parseFloat(layananData.harga_kesayangan_satwaliar.$numberDecimal || 0);
-                }
-                
-                const newLayanan = {
-                    id: Date.now(), // Unique ID for the item
-                    namaLayanan: layananData.nama,
-                    qty: qtyLayanan,
-                    harga: harga,
-                    subtotal: harga * qtyLayanan,
-                    id_pelayanan: layananData._id // Menyimpan ID MongoDB
-                };
-                setLayananList([...layananList, newLayanan]);
-                setSelectedLayanan("");
-                setQtyLayanan(1);
+        if (!selectedLayanan) {
+            // displayError("Silakan pilih layanan terlebih dahulu");
+            return;
+        }
+        
+        const layananData = layananOptions.find(l => l._id === selectedLayanan);
+        if (layananData) {
+            // Pilih harga berdasarkan kategori hewan
+            let harga = 0;
+            
+            if (kategoriHewanType === 'ternak') {
+                harga = parseFloat(layananData.harga_ternak.$numberDecimal || 0);
+            } else if (kategoriHewanType === 'unggas') {
+                harga = parseFloat(layananData.harga_unggas.$numberDecimal || 0);
+            } else {
+                harga = parseFloat(layananData.harga_kesayangan_satwaliar.$numberDecimal || 0);
             }
+            
+            const newLayanan = {
+                id: Date.now(), // Unique ID for the item
+                namaLayanan: layananData.nama,
+                qty: qtyLayanan,
+                harga: harga,
+                subtotal: harga * qtyLayanan,
+                id_pelayanan: layananData._id // Menyimpan ID MongoDB
+            };
+            // setLayananList([...layananList, newLayanan]);
+            setLayananList([newLayanan, ...layananList]);
+            setSelectedLayanan("");
+            setSearchLayanan(""); // Clear the search text
+            setQtyLayanan(1);
+            
+            // displayError(`Layanan ${layananData.nama} berhasil ditambahkan`);
         }
     };
 
     // Fungsi untuk menghapus obat dari list
     const handleHapusObat = (id) => {
-        setObatList(obatList.filter(item => item.id !== id));
+        const obatToDelete = obatList.find(item => item.id === id);
+        if (obatToDelete) {
+            setObatList(obatList.filter(item => item.id !== id));
+            displayError(`Obat ${obatToDelete.namaObat} berhasil dihapus`);
+        }
     };
 
     // Fungsi untuk menghapus layanan dari list
     const handleHapusLayanan = (id) => {
-        setLayananList(layananList.filter(item => item.id !== id));
+        const layananToDelete = layananList.find(item => item.id === id);
+        if (layananToDelete) {
+            setLayananList(layananList.filter(item => item.id !== id));
+            displayError(`Layanan ${layananToDelete.namaLayanan} berhasil dihapus`);
+        }
     };
 
     // Handle input changes for all fields except keluhan
@@ -486,23 +574,34 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                 }
             }
             
-            alert("Data rekam medis berhasil disimpan!");
+            // alert("Data rekam medis berhasil disimpan!");
             // Kembali ke halaman kunjungan
             onBack();
             
+        // Show success message before going back
+        setErrorMessage("Data rekam medis berhasil disimpan!");
+        setShowError(true);
+        setTimeout(() => {
+            setShowError(false);
+            // Kembali ke halaman kunjungan
+            onBack();
+        }, 2000);
+        
         } catch (error) {
             console.error("Error saat menyimpan rekam medis:", error);
             
             // Extract more helpful error messages if available
-            let errorMessage = "Gagal menyimpan data";
+            let message = "Gagal menyimpan data";
             if (error.response?.data?.message) {
-                errorMessage += ": " + error.response.data.message;
+                message += ": " + error.response.data.message;
             }
             if (error.response?.data?.error) {
-                errorMessage += "\nDetail: " + error.response.data.error;
+                message += " - " + error.response.data.error;
             }
             
-            alert(errorMessage);
+            setErrorMessage(message);
+            setShowError(true);
+            setTimeout(() => setShowError(false), 2000);
         } finally {
             setIsSaving(false);
             // Close popup if it was open
@@ -516,23 +615,59 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         const currentUser = JSON.parse(localStorage.getItem('user')) || {};
         const userId = currentUser._id;
     
-        // Map obat list to match produks schema
-        const formattedProduks = obatList.map(item => ({
-            id_produk: item.id_produk,
-            jumlah: item.qty,
-            harga: item.harga,
-            subtotal_obat: item.subtotal,
-            tanggal: new Date()
-        }));
+        // Safe conversion for numeric fields
+        let beratBadan = 0;
+        if (rekamMedisData.beratBadan && rekamMedisData.beratBadan.toString().trim() !== "") {
+            beratBadan = parseFloat(rekamMedisData.beratBadan) || 0;
+        }
+            
+        let suhuBadan = 0;
+        if (rekamMedisData.suhuBadan && rekamMedisData.suhuBadan.toString().trim() !== "") {
+            suhuBadan = parseFloat(rekamMedisData.suhuBadan) || 0;
+        }
+    
+        // Debug logs
+        console.log("obatOptions data:", obatOptions);
+        console.log("layananOptions data:", layananOptions);
+        console.log("obatList sebelum diformat:", JSON.stringify(obatList, null, 2));
+        
+        const formattedProduks = obatList.map(item => {
+            // Get jenis from item directly or from obatOptions as fallback
+            const jenis = item.jenis || obatOptions.find(o => o.id === item.id_produk)?.jenis || "-";
+            // Get kategori from obatOptions
+            const kategori = obatOptions.find(o => o.id === item.id_produk)?.kategori || "obat";
+            
+            console.log(`Memformat produk ${item.namaObat} dengan jenis: ${jenis} dan kategori: ${kategori}`);
+            
+            return {
+                id_produk: item.id_produk,
+                jumlah: item.qty,
+                harga: item.harga,
+                subtotal_obat: item.subtotal,
+                tanggal: new Date(),
+                kategori: kategori,
+                jenis: jenis // Pastikan jenis selalu disertakan
+            };
+        });
+        
+        console.log("Produks setelah diformat:", JSON.stringify(formattedProduks, null, 2));
     
         // Map layanan list to match pelayanans2 schema
-        const formattedPelayanans = layananList.map(item => ({
-            id_pelayanan: item.id_pelayanan,
-            jumlah: item.qty,
-            harga: item.harga,
-            subtotal_pelayanan: item.subtotal,
-            tanggal: new Date()
-        }));
+        const formattedPelayanans = layananList.map(item => {
+            const layananInfo = layananOptions.find(l => l._id === item.id_pelayanan) || {};
+            const kategori = layananInfo.kategori || "layanan medis";
+            
+            console.log(`Memformat layanan ${item.namaLayanan} dengan kategori: ${kategori}`);
+            
+            return {
+                id_pelayanan: item.id_pelayanan,
+                jumlah: item.qty,
+                harga: item.harga,
+                subtotal_pelayanan: item.subtotal,
+                tanggal: new Date(),
+                kategori: kategori
+            };
+        });
         
         // Mapping status pasien ke status kunjungan dan status dalam dokter
         let statusKunjungan = "";
@@ -554,22 +689,14 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
             id_user: userId,
             status: dokterStatus,
             hasil: rekamMedisData.hasil,
+            diagnosa: rekamMedisData.diagnosa || "",
+            berat_badan: beratBadan,
+            suhu_badan: suhuBadan,
             tanggal: new Date()
         };
     
-        // Safe conversion for numeric fields - ensure we use a non-null value if the field is empty
-        let beratBadan = 0;
-        if (rekamMedisData.beratBadan && rekamMedisData.beratBadan.toString().trim() !== "") {
-            beratBadan = parseFloat(rekamMedisData.beratBadan) || 0;
-        }
-            
-        let suhuBadan = 0;
-        if (rekamMedisData.suhuBadan && rekamMedisData.suhuBadan.toString().trim() !== "") {
-            suhuBadan = parseFloat(rekamMedisData.suhuBadan) || 0;
-        }
-            
         // Format main rekam medis data with proper handling for numeric fields
-        return {
+        const finalData = {
             diagnosa: rekamMedisData.diagnosa || "",
             keluhan: rekamMedisData.keluhan || "",
             berat_badan: beratBadan,  // Always send a number, not null
@@ -584,6 +711,11 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
             pelayanans2: formattedPelayanans,
             dokters: [dokterEntry]
         };
+        
+        // Final logging untuk memastikan data terformat dengan benar
+        console.log("Data rekam medis final yang akan dikirim:", finalData);
+        
+        return finalData;
     };
 
     const handleSubmit = () => {
@@ -592,8 +724,12 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
             return;
         }
         
-        // If status is "menunggu pembayaran" or "selesai", show popup confirmation
+        // Set appropriate message based on status
         if (statusPasien === "menunggu pembayaran" || statusPasien === "selesai") {
+            setPopupMessage("Apakah yakin ingin menyelesaikan dan memberi status pembayaran data kunjungan ini? Data akan hilang dari kunjungan dan akan ditambahkan di proses selanjutnya 'kasir'.");
+            setShowConfirmPopup(true);
+        } else if (statusPasien === "dirawat") {
+            setPopupMessage("Apakah yakin ingin menyimpan data rekam medis dan mengubah status pasien menjadi dirawat inap? ");
             setShowConfirmPopup(true);
         } else {
             // For other statuses, proceed with saving directly
@@ -605,14 +741,26 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
     const validateForm = () => {
         // Update validation - hasil is required instead of diagnosa
         if (!rekamMedisData.hasil.trim()) {
-            alert("Hasil tidak boleh kosong");
+            setErrorMessage("Hasil tidak boleh kosong");
+            setShowError(true);
+            setTimeout(() => setShowError(false), 2000);
+            return false;
+        }
+        
+        // Check if status is still "menunggu" (not changed)
+        if (statusPasien === "menunggu") {
+            setErrorMessage("Silahkan pilih status terlebih dahulu");
+            setShowError(true);
+            setTimeout(() => setShowError(false), 2000);
             return false;
         }
         
         // Check if user data is available
         const currentUser = JSON.parse(localStorage.getItem('user')) || {};
         if (!currentUser._id) {
-            alert("Data pengguna tidak ditemukan. Silakan login kembali.");
+            setErrorMessage("Data pengguna tidak ditemukan. Silakan login kembali.");
+            setShowError(true);
+            setTimeout(() => setShowError(false), 2000);
             return false;
         }
         
@@ -621,6 +769,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
 
     return (
         <div className='rekammedis-container'>
+            
             <div className="dashboard-header">
                 <div className="header-with-back">
                     <h1>
@@ -635,7 +784,12 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                     </button>
                 </div>
             </div>
-            
+            {showError && (
+                <ErrorMessage 
+                    message={errorMessage} 
+                    onClose={() => setShowError(false)} 
+                />
+            )}
             <div className="rekammedis-content">
                 {isLoading ? (
                     <div className="loading-indicator">Loading data...</div>
@@ -674,7 +828,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                         <span>{kunjunganData.ras || '-'}</span>
                                     </div>
                                     <div className="biodata-row">
-                                        <div className="biodata-label">Umur Hewan</div>
+                                        <div className="biodata-label">Umur Hewan (tahun)</div>
                                         <div className="biodata-separator">:</div>
                                         <span>{kunjunganData.umur || '-'}</span>
                                     </div>
@@ -707,7 +861,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                     </div>
                                     
                                     <div className="form-group">
-                                        <label>Berat Badan</label>
+                                        <label>Berat Badan (kg)</label>
                                         <input 
                                             type="number" 
                                             name="beratBadan"
@@ -720,7 +874,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                         />
                                     </div>
                                     <div className="form-group">
-                                        <label>Suhu Badan</label>
+                                        <label>Suhu Badan (°c)</label>
                                         <input 
                                             type="number" 
                                             name="suhuBadan"
@@ -751,12 +905,12 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                         ></textarea>
                                     </div> */}
                                     <div className="form-group">
-                                        <label>Hasil <span className="required">*</span></label>
+                                        <label>Hasil (berkala)<span className="required">*</span></label>
                                         <textarea 
                                             name="hasil"
                                             value={rekamMedisData.hasil}
                                             onChange={handleInputChange}
-                                            placeholder="Masukkan hasil..."
+                                            placeholder="Masukkan hasil... ke 1 .. ke 2 .."
                                             required
                                         ></textarea>
                                     </div>
@@ -774,22 +928,25 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                         <div className="status-label">Status Pasien</div>
                                         <div className="status-separator">:</div>
                                         <div className="status-icons">
-                                            <button 
+                                            {/* <button 
                                                 className={`status-icon ${statusPasien === "menunggu" ? "status-active" : ""}`}
                                                 onClick={() => setStatusPasien("menunggu")}
-                                            >
+                                                title="Menunggu"
+                                                >
                                                 <img src={menunggu} alt="Menunggu" />
-                                            </button>
+                                            </button> */}
                                             <button 
                                                 className={`status-icon ${statusPasien === "dirawat" ? "status-active" : ""}`}
                                                 onClick={() => setStatusPasien("dirawat")}
-                                            >
+                                                title="Dirawat"
+                                                >
                                                 <img src={dirawat} alt="Dirawat" />
                                             </button>
                                             <button 
                                                 className={`status-icon ${statusPasien === "menunggu pembayaran" || statusPasien === "selesai" ? "status-active" : ""}`}
                                                 onClick={() => setStatusPasien("menunggu pembayaran")}
-                                            >
+                                                title="selesai"
+                                                >
                                                 <img src={selesai} alt="Selesai" />
                                             </button>
                                         </div>
@@ -833,7 +990,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                                                 className="dropdown-item"
                                                                 onClick={() => handleObatSelect(obat.id, obat.nama)}
                                                             >
-                                                                {obat.nama}
+                                                                {obat.nama} {obat.jenis ? `(${obat.jenis})` : ''}
                                                             </div>
                                                         ))
                                                     ) : (
@@ -876,6 +1033,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                             <tr>
                                                 <th>No</th>
                                                 <th>Nama Obat</th>
+                                                <th>Jenis</th>
                                                 <th>Qty</th>
                                                 <th>Harga</th>
                                                 <th>Subtotal</th>
@@ -892,6 +1050,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                                     <tr key={item.id}>
                                                         <td>{index + 1}</td>
                                                         <td>{item.namaObat}</td>
+                                                        <td>{item.jenis}</td>
                                                         <td>{item.qty}</td>
                                                         <td>Rp {item.harga.toLocaleString()}</td>
                                                         <td>Rp {item.subtotal.toLocaleString()}</td>
@@ -942,7 +1101,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                                                 className="dropdown-item"
                                                                 onClick={() => handleLayananSelect(layanan._id, layanan.nama)}
                                                             >
-                                                                {layanan.nama}
+                                                                {layanan.nama} {layanan.kategori ? `(${layanan.kategori})` : ''}
                                                             </div>
                                                         ))
                                                     ) : (
@@ -1027,7 +1186,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                 isOpen={showConfirmPopup}
                 onClose={() => setShowConfirmPopup(false)}
                 title="Konfirmasi"
-                description="Apakah yakin ingin menyelesaikan dan memberi status pembayaran data kunjungan ini? Data akan hilang dari kunjungan dan akan ditambahkan di proses selanjutnya 'kasir'."
+                description={popupMessage}
                 onConfirm={handleSimpan}
             />
         </div>

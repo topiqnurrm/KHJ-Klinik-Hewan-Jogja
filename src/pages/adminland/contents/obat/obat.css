@@ -59,7 +59,8 @@
   text-align: left;
   color: #3F4254;
   overflow-y: auto;
-  max-height: 400px;
+  /* max-height: 400px; */
+  max-height: 64.5%;
 }
 
 /* Error notification styling */

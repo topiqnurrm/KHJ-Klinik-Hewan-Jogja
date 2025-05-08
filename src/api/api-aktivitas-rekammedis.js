@@ -33,6 +33,108 @@ export const getRekamMedisByKunjungan = async (kunjunganId) => {
       throw error;
     }
   };
+
+/**
+ * Save medical record - creates new or updates existing based on id_kunjungan
+ * Also updates booking status
+ * @param {Object} rekamMedisData - Medical record data to save
+ * @returns {Promise} - API response
+ */
+export const saveRekamMedis = async (rekamMedisData) => {
+  try {
+    // Log data original
+    console.log("Data rekam medis original:", JSON.stringify(rekamMedisData, null, 2));
+    
+    const formattedData = { ...rekamMedisData };
+    
+    if (formattedData.produks && formattedData.produks.length > 0) {
+      formattedData.produks = formattedData.produks.map(prod => {
+        console.log("Produk sebelum format:", JSON.stringify(prod, null, 2));
+        
+        const formatted = {
+          ...prod,
+          kategori: prod.kategori || "obat",
+          // PENTING: Selalu pertahankan nilai jenis yang sudah ada
+          jenis: prod.jenis || "-" // Pastikan ada nilai default jika tidak ada
+        };
+        
+        console.log("Produk setelah format:", JSON.stringify(formatted, null, 2));
+        return formatted;
+      });
+    }
+    
+    // Ensure pelayanans2 have kategori field
+    if (formattedData.pelayanans2 && formattedData.pelayanans2.length > 0) {
+      formattedData.pelayanans2 = formattedData.pelayanans2.map(pel => {
+        console.log("Layanan sebelum format:", JSON.stringify(pel, null, 2));
+        const formatted = {
+          ...pel,
+          kategori: pel.kategori || "layanan medis"
+        };
+        console.log("Layanan setelah format:", JSON.stringify(formatted, null, 2));
+        return formatted;
+      });
+    }
+    
+    // Format dokters properly for sending to API
+    if (formattedData.dokters && formattedData.dokters.length > 0) {
+      formattedData.dokters = formattedData.dokters.map(dokter => {
+        // Create a new object to avoid modifying the original
+        const formattedDokter = { ...dokter };
+        
+        // Make sure berat_badan and suhu_badan are not undefined/null before converting
+        if (formattedDokter.berat_badan !== undefined && formattedDokter.berat_badan !== null) {
+          formattedDokter.berat_badan = Number(formattedDokter.berat_badan);
+        }
+        
+        if (formattedDokter.suhu_badan !== undefined && formattedDokter.suhu_badan !== null) {
+          formattedDokter.suhu_badan = Number(formattedDokter.suhu_badan);
+        }
+        
+        return formattedDokter;
+      });
+    }
+    
+    // Log data setelah manipulasi
+    console.log("Sending to API - formatted data:", JSON.stringify(formattedData, null, 2));
+    
+    // Check if a record with this id_kunjungan already exists
+    const existingRecord = await getRekamMedisByKunjungan(formattedData.id_kunjungan)
+      .catch(error => {
+        // If it's a 404, it means no record exists
+        if (error.response && error.response.status === 404) {
+          return null;
+        }
+        throw error; // Re-throw other errors
+      });
+    
+    if (existingRecord && existingRecord._id) {
+      // Record exists, update it
+      const updateData = { ...formattedData };
+      
+      // Add a flag to indicate this is a full update (replace all produks and pelayanans)
+      updateData.replaceCollections = true;
+      
+      console.log("Updating existing record with ID:", existingRecord._id);
+      const updateResponse = await axios.put(
+        `${API_URL}/update/${existingRecord._id}`, 
+        updateData
+      );
+      return updateResponse.data;
+    } else {
+      // Record doesn't exist, create new one
+      console.log("Creating new record");
+      const createResponse = await axios.post(
+        `${API_URL}/create`, 
+        formattedData
+      );
+      return createResponse.data;
+    }
+  } catch (error) {
+    console.error('Gagal menyimpan rekam medis:', error.response?.data || error.message);
+    throw error;
+  }
+};
   
   /**
    * Get all medical records for a patient
@@ -64,55 +166,6 @@ export const getRekamMedisByKunjungan = async (kunjunganId) => {
     }
   };
   
-  /**
-   * Save medical record - creates new or updates existing based on id_kunjungan
-   * Also updates booking status
-   * @param {Object} rekamMedisData - Medical record data to save
-   * @returns {Promise} - API response
-   */
-  export const saveRekamMedis = async (rekamMedisData) => {
-    try {
-        // Check if a record with this id_kunjungan already exists
-        const existingRecord = await getRekamMedisByKunjungan(rekamMedisData.id_kunjungan)
-            .catch(error => {
-                // If it's a 404, it means no record exists
-                if (error.response && error.response.status === 404) {
-                    return null;
-                }
-                throw error; // Re-throw other errors
-            });
-        
-        if (existingRecord && existingRecord._id) {
-            // Record exists, update it
-            // Preserve existing data structure by removing dokters from the update if present
-            // The backend will handle appending them instead
-            const updateData = { ...rekamMedisData };
-            
-            // Add a flag to indicate this is a full update (replace all produks and pelayanans)
-            updateData.replaceCollections = true;
-            
-            // We'll still send dokters so they get appended, but we need to handle this properly
-            // on the backend side (which we've modified to append, not replace)
-            
-            const updateResponse = await axios.put(
-                `${API_URL}/update/${existingRecord._id}`, 
-                updateData
-            );
-            return updateResponse.data;
-        } else {
-            // Record doesn't exist, create new one
-            const createResponse = await axios.post(
-                `${API_URL}/create`, 
-                rekamMedisData
-            );
-            return createResponse.data;
-        }
-    } catch (error) {
-        console.error('Gagal menyimpan rekam medis:', error.response?.data || error.message);
-        throw error;
-    }
-};
-
 
 //----- api obat dan pelayanan
 // Fungsi untuk mengambil semua produk
