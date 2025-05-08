@@ -21,12 +21,14 @@ const PasienSchema = new mongoose.Schema({
     jenis_kelamin: {
         type: String,
         required: false,
-        enum: ['jantan', 'betina']
+        enum: ['jantan', 'betina', '-'],
+        default: '-',
     },
     ras: {
         type: String,
         trim: true,
-        maxlength: 250
+        maxlength: 250,
+        default: '-',
     },
     tanggal: {
         type: Date,
@@ -38,10 +40,11 @@ const PasienSchema = new mongoose.Schema({
         required: true
     },
     umur: {
-        type: Number,
-        required: false,
+        type: String,
+        required: true,
         min: 0,
-        max: 999 
+        max: 999,
+        default: '-',
     }
 }, { timestamps: true });
 

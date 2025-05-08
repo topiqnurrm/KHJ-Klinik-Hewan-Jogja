@@ -53,14 +53,17 @@ export const getAllKunjungan = async () => {
         tanggal_checkin_display: new Date(kunjungan.tanggal_checkin).toLocaleString(),
         keluhan: kunjungan.keluhan || 'N/A',
         kategori: kunjungan.kategori || 'kesayangan / satwa liar',
-        // Add new fields with default values if they don't exist
+        // Pastikan field ras, umur, dan jenis_kelamin menggunakan nama yang konsisten
         jenis_layanan: kunjungan.jenis_layanan || 'N/A',
         layanan: kunjungan.layanan || 'N/A',
-        jenis_kelamin: kunjungan.jenis_kelamin || 'N/A',
-        ras: kunjungan.ras || 'N/A',
-        umur: kunjungan.umur || 'N/A'
+        // Menggunakan nama field persis seperti yang dikirim dari backend
+        jenis_kelamin: kunjungan.jenis_kelamin || '-',
+        ras: kunjungan.ras || '-',
+        // Pastikan menggunakan field yang benar, bisa umur atau umur_hewan
+        umur: kunjungan.umur || '-'
       }));
     
+    console.log('Data kunjungan dari API:', formattedKunjungan);
     return formattedKunjungan;
   } catch (error) {
     console.error('Gagal mengambil data kunjungan:', error);
@@ -78,17 +81,21 @@ export const getKunjunganById = async (id) => {
       throw new Error('Kunjungan tidak tersedia atau tidak dalam status yang valid');
     }
     
+    // Tambahkan console.log untuk debugging
+    console.log('Data kunjungan detail dari API:', response.data);
+    
     return {
       ...response.data,
       tanggal_checkin_display: new Date(response.data.tanggal_checkin).toLocaleString(),
       keluhan: response.data.keluhan || 'N/A',
       kategori: response.data.kategori || 'kesayangan / satwa liar',
-      // Add new fields with default values if they don't exist
+      // Pastikan field ini menggunakan nama yang benar dan konsisten
       jenis_layanan: response.data.jenis_layanan || 'N/A',
       layanan: response.data.layanan || 'N/A',
-      jenis_kelamin: response.data.jenis_kelamin || 'N/A',
-      ras: response.data.ras || 'N/A',
-      umur: response.data.umur || 'N/A'
+      jenis_kelamin: response.data.jenis_kelamin || '-',
+      ras: response.data.ras || '-',
+      // Coba ambil dari umur_hewan jika umur tidak ada
+      umur: response.data.umur || response.data.umur_hewan || '-'
     };
   } catch (error) {
     console.error(`Gagal mengambil data kunjungan dengan ID ${id}:`, error);
@@ -238,9 +245,10 @@ export const getBookingsForKunjungan = async () => {
       jenis_layanan: booking.jenis_layanan || 'Layanan tidak diketahui',
       // Add new fields
       layanan: booking.pelayanans1 && booking.pelayanans1[0]?.nama ? booking.pelayanans1[0].nama : 'N/A',
-      jenis_kelamin: booking.jenis_kelamin || 'N/A',
-      ras: booking.ras || 'N/A',
-      umur: booking.umur || 'N/A'
+      jenis_kelamin: booking.jenis_kelamin || '-',
+      ras: booking.ras || '-',
+      // Coba ambil dari umur_hewan jika umur tidak ada
+      umur: booking.umur || booking.umur_hewan || '-'
     }));
     
     return enhancedBookings;

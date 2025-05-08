@@ -3,6 +3,7 @@ import Kunjungan from '../models/kunjungan.js';
 import Booking from '../models/booking.js';
 import User from '../models/user.js';
 import mongoose from 'mongoose';
+import Pasien from '../models/pasien.js'; // Add Pasien model import
 
 const router = express.Router();
 
@@ -13,12 +14,18 @@ router.get('/', async (req, res) => {
     const kunjungans = await Kunjungan.find()
       .populate({
         path: 'id_booking',
-        select: 'nama status_booking pilih_tanggal administrasis1 jenis_layanan kategori keluhan pelayanans1',
-        // Add additional populate if pelayanans1 has references
-        populate: {
-          path: 'pelayanans1',
-          select: 'nama'
-        }
+        select: 'nama status_booking pilih_tanggal administrasis1 jenis_layanan kategori keluhan pelayanans1 id_pasien',
+        // Add additional populate for the id_pasien reference
+        populate: [
+          {
+            path: 'pelayanans1',
+            select: 'nama'
+          },
+          {
+            path: 'id_pasien',
+            select: 'jenis_kelamin ras umur'
+          }
+        ]
       })
       .sort({ tanggal: -1 }); // Sort by check-in date in descending order
 
@@ -27,77 +34,91 @@ router.get('/', async (req, res) => {
 
     // Process each kunjungan to include client name and complete information
     for (const kunjungan of kunjungans) {
-      let klienName = 'N/A';
-      let namaHewan = 'N/A';
+      let klienName = '-';
+      let namaHewan = '-';
       let jenisLayanan = 'offline';
       let status = 'sedang diperiksa';
-      let keluhan = 'N/A';
+      let keluhan = '-';
       let kategori = 'kesayangan / satwa liar';  // Default value
       
-      // New fields
-    let layanan = 'N/A';
-    let jenisKelamin = 'N/A';
-    let ras = 'N/A';
-    let umur = 'N/A';
+      // Fields that need to be fixed
+      let jenisKelamin = '-';
+      let ras = '-';
+      let umur = '-';
 
-    // First check in kunjungan data
-    if (kunjungan.keluhan) {
-      keluhan = kunjungan.keluhan;
-    }
-    if (kunjungan.kategori) {
-      kategori = kunjungan.kategori;
-    }
-    
-    // Get the new fields from kunjungan data if available
-    if (kunjungan.jenis_kelamin) {
-      jenisKelamin = kunjungan.jenis_kelamin;
-    }
-    if (kunjungan.ras) {
-      ras = kunjungan.ras;
-    }
-    if (kunjungan.umur_hewan) {
-      umur = kunjungan.umur_hewan;
-    }
-
-    // Check for layanan in kunjungan.pelayanans1 first
-    if (kunjungan.pelayanans1 && kunjungan.pelayanans1.length > 0) {
-      // If pelayanans1 is populated object with nama
-      if (kunjungan.pelayanans1[0].nama) {
-        layanan = kunjungan.pelayanans1[0].nama;
-      } 
-      // If pelayanans1 is an array of strings or has a different structure
-      else if (typeof kunjungan.pelayanans1[0] === 'string') {
-        layanan = kunjungan.pelayanans1[0];
+      // First check in kunjungan data
+      if (kunjungan.keluhan) {
+        keluhan = kunjungan.keluhan;
       }
-      // If it's an object with id_pelayanan and nama
-      else if (kunjungan.pelayanans1[0] && kunjungan.pelayanans1[0].nama) {
-        layanan = kunjungan.pelayanans1[0].nama;
-      }
-    }
-
-    // Then check in booking data and override if present
-    if (kunjungan.id_booking) {
-      const booking = kunjungan.id_booking;
-      
-      if (booking.keluhan) {
-        keluhan = booking.keluhan;
-      }
-      if (booking.kategori) {
-        kategori = booking.kategori;
+      if (kunjungan.kategori) {
+        kategori = kunjungan.kategori;
       }
       
-      // Get the layanan name from booking.pelayanans1 if available and if kunjungan.pelayanans1 wasn't found
-      if (layanan === 'N/A' && booking.pelayanans1 && booking.pelayanans1.length > 0) {
+      // Get the fields from kunjungan data if available
+      if (kunjungan.jenis_kelamin && kunjungan.jenis_kelamin !== '-') {
+        jenisKelamin = kunjungan.jenis_kelamin;
+      }
+      if (kunjungan.ras && kunjungan.ras !== '-') {
+        ras = kunjungan.ras;
+      }
+      if (kunjungan.umur_hewan && kunjungan.umur_hewan > 0) {
+        umur = kunjungan.umur_hewan;
+      }
+
+      // Check for layanan in kunjungan.pelayanans1 first
+      let layanan = '-';
+      if (kunjungan.pelayanans1 && kunjungan.pelayanans1.length > 0) {
         // If pelayanans1 is populated object with nama
-        if (booking.pelayanans1[0].nama) {
-          layanan = booking.pelayanans1[0].nama;
+        if (kunjungan.pelayanans1[0].nama) {
+          layanan = kunjungan.pelayanans1[0].nama;
         } 
         // If pelayanans1 is an array of strings or has a different structure
-        else if (typeof booking.pelayanans1[0] === 'string') {
-          layanan = booking.pelayanans1[0];
+        else if (typeof kunjungan.pelayanans1[0] === 'string') {
+          layanan = kunjungan.pelayanans1[0];
+        }
+        // If it's an object with id_pelayanan and nama
+        else if (kunjungan.pelayanans1[0] && kunjungan.pelayanans1[0].nama) {
+          layanan = kunjungan.pelayanans1[0].nama;
         }
       }
-    }
+
+      // Try to get data from the booking and pasien
+      if (kunjungan.id_booking) {
+        const booking = kunjungan.id_booking;
+        
+        if (booking.keluhan) {
+          keluhan = booking.keluhan;
+        }
+        if (booking.kategori) {
+          kategori = booking.kategori;
+        }
+        
+        // Get the layanan name from booking.pelayanans1 if available and if kunjungan.pelayanans1 wasn't found
+        if (layanan === '-' && booking.pelayanans1 && booking.pelayanans1.length > 0) {
+          // If pelayanans1 is populated object with nama
+          if (booking.pelayanans1[0].nama) {
+            layanan = booking.pelayanans1[0].nama;
+          } 
+          // If pelayanans1 is an array of strings or has a different structure
+          else if (typeof booking.pelayanans1[0] === 'string') {
+            layanan = booking.pelayanans1[0];
+          }
+        }
+        
+        // Check if we have pasien data through the booking
+        if (booking.id_pasien) {
+          // Try to use pasien data for jenis_kelamin, ras, and umur if not already set
+          if (jenisKelamin === '-' && booking.id_pasien.jenis_kelamin) {
+            jenisKelamin = booking.id_pasien.jenis_kelamin;
+          }
+          if (ras === '-' && booking.id_pasien.ras) {
+            ras = booking.id_pasien.ras;
+          }
+          if (umur === '-' && booking.id_pasien.umur) {
+            umur = booking.id_pasien.umur;
+          }
+        }
+      }
       
       // First try to get data from the kunjungan record itself
       if (kunjungan.nama_klein) {
@@ -175,7 +196,7 @@ router.get('/', async (req, res) => {
         id_booking: kunjungan.id_booking ? kunjungan.id_booking._id : null,
         keluhan: keluhan,
         kategori: kategori,
-        // Add new fields
+        // Add fixed fields
         layanan: layanan, 
         jenis_kelamin: jenisKelamin,
         ras: ras,
@@ -196,30 +217,35 @@ router.get('/:id', async (req, res) => {
     const kunjungan = await Kunjungan.findById(req.params.id)
       .populate({
         path: 'id_booking',
-        select: 'nama status_booking pilih_tanggal administrasis1 jenis_layanan kategori keluhan pelayanans1',
-        // Add additional populate if pelayanans1 has references
-        populate: {
-          path: 'pelayanans1',
-          select: 'nama'
-        }
+        select: 'nama status_booking pilih_tanggal administrasis1 jenis_layanan kategori keluhan pelayanans1 id_pasien',
+        // Add population for id_pasien to get the additional fields
+        populate: [
+          {
+            path: 'pelayanans1',
+            select: 'nama'
+          },
+          {
+            path: 'id_pasien',
+            select: 'jenis_kelamin ras umur'
+          }
+        ]
       });
     
     if (!kunjungan) {
       return res.status(404).json({ message: 'Kunjungan tidak ditemukan' });
     }
 
-    let klienName = 'N/A';
-    let namaHewan = 'N/A';
+    let klienName = '-';
+    let namaHewan = '-';
     let jenisLayanan = 'offline';
     let status = 'sedang diperiksa';
-    let keluhan = 'N/A';
+    let keluhan = '-';
     let kategori = 'kesayangan / satwa liar';  // Default value
     
-    // New fields
-    let layanan = 'N/A';
-    let jenisKelamin = 'N/A';
-    let ras = 'N/A';
-    let umur = 'N/A';
+    // Initialize fields with default values
+    let jenisKelamin = '-';
+    let ras = '-';
+    let umur = '-';
 
     // First check in kunjungan data
     if (kunjungan.keluhan) {
@@ -228,19 +254,20 @@ router.get('/:id', async (req, res) => {
     if (kunjungan.kategori) {
       kategori = kunjungan.kategori;
     }
-    
-    // Get the new fields from kunjungan data if available
-    if (kunjungan.jenis_kelamin) {
+
+    // Check for jenis_kelamin, ras, and umur_hewan in kunjungan data first
+    if (kunjungan.jenis_kelamin && kunjungan.jenis_kelamin !== '-') {
       jenisKelamin = kunjungan.jenis_kelamin;
     }
-    if (kunjungan.ras) {
+    if (kunjungan.ras && kunjungan.ras !== '-') {
       ras = kunjungan.ras;
     }
-    if (kunjungan.umur_hewan) {
+    if (kunjungan.umur_hewan && kunjungan.umur_hewan > 0) {
       umur = kunjungan.umur_hewan;
     }
 
     // Check for layanan in kunjungan.pelayanans1 first
+    let layanan = '-';
     if (kunjungan.pelayanans1 && kunjungan.pelayanans1.length > 0) {
       // If pelayanans1 is populated object with nama
       if (kunjungan.pelayanans1[0].nama) {
@@ -256,7 +283,7 @@ router.get('/:id', async (req, res) => {
       }
     }
 
-    // Then check in booking data and override if present
+    // Then check in booking and pasien data
     if (kunjungan.id_booking) {
       const booking = kunjungan.id_booking;
       
@@ -267,8 +294,8 @@ router.get('/:id', async (req, res) => {
         kategori = booking.kategori;
       }
       
-      // Get the layanan name from booking.pelayanans1 if available and if kunjungan.pelayanans1 wasn't found
-      if (layanan === 'N/A' && booking.pelayanans1 && booking.pelayanans1.length > 0) {
+      // Get the layanan name from booking.pelayanans1 if available
+      if (layanan === '-' && booking.pelayanans1 && booking.pelayanans1.length > 0) {
         // If pelayanans1 is populated object with nama
         if (booking.pelayanans1[0].nama) {
           layanan = booking.pelayanans1[0].nama;
@@ -276,6 +303,19 @@ router.get('/:id', async (req, res) => {
         // If pelayanans1 is an array of strings or has a different structure
         else if (typeof booking.pelayanans1[0] === 'string') {
           layanan = booking.pelayanans1[0];
+        }
+      }
+      
+      // Check if we have pasien data and use it if fields are still -
+      if (booking.id_pasien) {
+        if (jenisKelamin === '-' && booking.id_pasien.jenis_kelamin) {
+          jenisKelamin = booking.id_pasien.jenis_kelamin;
+        }
+        if (ras === '-' && booking.id_pasien.ras) {
+          ras = booking.id_pasien.ras;
+        }
+        if (umur === '-' && booking.id_pasien.umur) {
+          umur = booking.id_pasien.umur;
         }
       }
     }
@@ -356,7 +396,7 @@ router.get('/:id', async (req, res) => {
       id_booking: kunjungan.id_booking ? kunjungan.id_booking._id : null,
       keluhan: keluhan,
       kategori: kategori,
-      // Add new fields
+      // Include fixed fields
       layanan: layanan,
       jenis_kelamin: jenisKelamin,
       ras: ras,
@@ -372,7 +412,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update kunjungan status (via updating booking)
+// Rest of the code remains unchanged
 router.put('/:id/status', async (req, res) => {
   try {
     const { status } = req.body;

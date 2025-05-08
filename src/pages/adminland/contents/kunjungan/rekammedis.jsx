@@ -705,15 +705,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                             className="readonly-textarea"
                                         ></textarea>
                                     </div>
-                                    <div className="form-group">
-                                        <label>Diagnosa</label>
-                                        <textarea 
-                                            name="diagnosa" 
-                                            value={rekamMedisData.diagnosa}
-                                            onChange={handleInputChange}
-                                            placeholder="Masukkan diagnosa..."
-                                        ></textarea>
-                                    </div>
+                                    
                                     <div className="form-group">
                                         <label>Berat Badan</label>
                                         <input 
@@ -741,6 +733,15 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                         />
                                     </div>
                                     <div className="form-group">
+                                        <label>Diagnosa</label>
+                                        <textarea 
+                                            name="diagnosa" 
+                                            value={rekamMedisData.diagnosa}
+                                            onChange={handleInputChange}
+                                            placeholder="Masukkan diagnosa..."
+                                        ></textarea>
+                                    </div>
+                                    {/* <div className="form-group">
                                         <label>Pemeriksaan</label>
                                         <textarea 
                                             name="pemeriksaan"
@@ -748,7 +749,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                             onChange={handleInputChange}
                                             placeholder="Masukkan hasil pemeriksaan..."
                                         ></textarea>
-                                    </div>
+                                    </div> */}
                                     <div className="form-group">
                                         <label>Hasil <span className="required">*</span></label>
                                         <textarea 

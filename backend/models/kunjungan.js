@@ -58,7 +58,8 @@ const KunjunganSchema = new mongoose.Schema({
     jenis_kelamin : {
         type: String,
         enum: ['jantan', 'betina', '-'],
-        required: false,
+        required: true,
+        default: '-',
     },
     jenis: {
         type: String,
@@ -67,14 +68,16 @@ const KunjunganSchema = new mongoose.Schema({
     },
     ras: {
         type: String,
-        required: false,
-        maxlength: 250
+        required: true,
+        maxlength: 250,
+        default: '-',
     },
     umur_hewan: {
-        type: Number,
-        required: false,
+        type: String,
+        required: true,
         min: 0,
-        max: 999 
+        max: 999 ,
+        default: '-',
     },
     kategori: {
         type: String,
