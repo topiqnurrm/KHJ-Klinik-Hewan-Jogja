@@ -56,7 +56,7 @@ function Hp1() {
               Mudah diakses untuk pemeriksaan, vaksinasi, <br />
               dan layanan kesehatan hewan lainnya.
             </p>
-            <p className="noted">Hanya melayani booking online.</p>
+            <p className="noted">Booking Onsite dan House Call.</p>
             <a
               href="#"
               className="cta-button"

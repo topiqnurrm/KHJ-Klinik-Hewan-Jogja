@@ -641,12 +641,13 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
             
             return {
                 id_produk: item.id_produk,
+                nama: item.namaObat, // Tambahkan nama obat
                 jumlah: item.qty,
                 harga: item.harga,
                 subtotal_obat: item.subtotal,
                 tanggal: new Date(),
                 kategori: kategori,
-                jenis: jenis // Pastikan jenis selalu disertakan
+                jenis: jenis
             };
         });
         
@@ -661,6 +662,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
             
             return {
                 id_pelayanan: item.id_pelayanan,
+                nama: item.namaLayanan, // Tambahkan nama layanan
                 jumlah: item.qty,
                 harga: item.harga,
                 subtotal_pelayanan: item.subtotal,

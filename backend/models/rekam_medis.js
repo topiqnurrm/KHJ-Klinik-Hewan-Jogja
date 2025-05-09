@@ -101,6 +101,10 @@ const RekamMedisSchema = new mongoose.Schema({
                 ref: 'Produk',
                 required: false
             },
+            nama: {
+                type: String,
+                required: false
+            },
             kategori: {
                 type: String,
                 required: false,
@@ -145,6 +149,10 @@ const RekamMedisSchema = new mongoose.Schema({
             id_pelayanan: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Pelayanan',
+                required: false
+            },
+            nama: {
+                type: String,
                 required: false
             },
             kategori: {

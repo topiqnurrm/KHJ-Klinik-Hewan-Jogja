@@ -582,24 +582,24 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                             </div>
                         </div>
 
-                        <div className="edit-actions">
-                            <button 
-                                type="button" 
-                                className="batal-button" 
-                                onClick={onClose}
-                                disabled={isLoading}
-                            >
-                                Batal
-                            </button>
-                            <button 
-                                type="submit" 
-                                className="simpan-button"
-                                disabled={isLoading || !isFormValid()}
-                            >
-                                {isLoading ? 'Memproses...' : 'Tambah'}
-                            </button>
-                        </div>
                     </form>
+                </div>
+                <div className="edit-actions">
+                    <button 
+                        type="button" 
+                        className="batal-button" 
+                        onClick={onClose}
+                        disabled={isLoading}
+                    >
+                        Batal
+                    </button>
+                    <button 
+                        type="submit" 
+                        className="simpan-button"
+                        disabled={isLoading || !isFormValid()}
+                    >
+                        {isLoading ? 'Memproses...' : 'Tambah'}
+                    </button>
                 </div>
             </div>
         </div>

@@ -64,22 +64,24 @@ router.post('/create', async (req, res) => {
       
       return {
         id_produk: prod.id_produk,
+        nama: prod.nama || "Tidak ada nama", // Tambahkan nama obat
         jumlah: prod.jumlah,
         tanggal: prod.tanggal || new Date(),
         harga: mongoose.Types.Decimal128.fromString((prod.harga || 0).toString()),
         subtotal_obat: mongoose.Types.Decimal128.fromString((prod.subtotal_obat || 0).toString()),
-        kategori: prod.kategori || "obat", // Ensure kategori exists
-        jenis: prod.jenis || "-" // Ensure jenis exists
+        kategori: prod.kategori || "obat",
+        jenis: prod.jenis || "-"
       };
     });
-
+    
     const formattedPelayanans = pelayanans2.map(pel => ({
       id_pelayanan: pel.id_pelayanan,
+      nama: pel.nama || "Tidak ada nama", // Tambahkan nama layanan
       jumlah: pel.jumlah,
       tanggal: pel.tanggal || new Date(),
       harga: mongoose.Types.Decimal128.fromString((pel.harga || 0).toString()),
       subtotal_pelayanan: mongoose.Types.Decimal128.fromString((pel.subtotal_pelayanan || 0).toString()),
-      kategori: pel.kategori || "layanan medis" // Ensure kategori exists
+      kategori: pel.kategori || "layanan medis"
     }));
 
     // Format dokters array - process each dokter entry to handle decimal values
@@ -192,12 +194,13 @@ router.put('/update/:id', async (req, res) => {
       
       return {
         id_produk: prod.id_produk,
+        nama: prod.nama || "Tidak ada nama", // Tambahkan nama obat
         jumlah: prod.jumlah,
         tanggal: prod.tanggal || new Date(),
         harga: mongoose.Types.Decimal128.fromString((prod.harga || 0).toString()),
         subtotal_obat: mongoose.Types.Decimal128.fromString((prod.subtotal_obat || 0).toString()),
-        kategori: prod.kategori || "obat", // Pastikan kategori selalu ada
-        jenis: prod.jenis || "-" // Pastikan jenis selalu ada
+        kategori: prod.kategori || "obat",
+        jenis: prod.jenis || "-"
       };
     });
     
@@ -209,11 +212,12 @@ router.put('/update/:id', async (req, res) => {
     
     const formattedPelayanans = pelayanans2.map(pel => ({
       id_pelayanan: pel.id_pelayanan,
+      nama: pel.nama || "Tidak ada nama", // Tambahkan nama layanan
       jumlah: pel.jumlah,
       tanggal: pel.tanggal || new Date(),
       harga: mongoose.Types.Decimal128.fromString((pel.harga || 0).toString()),
       subtotal_pelayanan: mongoose.Types.Decimal128.fromString((pel.subtotal_pelayanan || 0).toString()),
-      kategori: pel.kategori || "layanan medis" // Add kategori field
+      kategori: pel.kategori || "layanan medis"
     }));
     updateData.pelayanans2 = formattedPelayanans;
     

@@ -161,8 +161,11 @@ const Dashboard = ({ setActiveMenu }) => {
     
     getBookingWithRetribusi()
       .then((data) => {
-        setBookings(data);
-        // Initial filtering happens in the useEffect below
+        // Sort bookings by createdAt field in descending order (newest first)
+        const sortedData = [...data].sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setBookings(sortedData);
         setIsLoading(false);
       })
       .catch((err) => {
@@ -325,7 +328,8 @@ const Dashboard = ({ setActiveMenu }) => {
           .map(a => a.catatan)
           .filter(Boolean)
           .join(", ");
-        const userName = booking.administrasis1?.[0]?.user_name || "Tidak diketahui";
+        const latestAdmin = getLatestAdministrasi(booking.administrasis1);
+  const userName = latestAdmin?.user_name || "Tidak diketahui";
         const kategoriStr = booking.kategori || "";
         
         const allFields = `
@@ -343,12 +347,12 @@ const Dashboard = ({ setActiveMenu }) => {
           ${booking.jenis_layanan || ""}
           ${kategoriStr}
         `.toLowerCase();
-
+  
         return allFields.includes(lower);
       });
     }
     
-    // Apply sorting
+    // Apply sorting (if selected by user) or maintain default newest-first order
     if (sortBy) {
       result = result.sort((a, b) => {
         let valueA, valueB;
@@ -376,10 +380,15 @@ const Dashboard = ({ setActiveMenu }) => {
           valueA = (a.kategori || "").toLowerCase();
           valueB = (b.kategori || "").toLowerCase();
         }
-
+  
         if (sortOrder === "asc") return valueA > valueB ? 1 : -1;
         return valueA < valueB ? 1 : -1;
       });
+    } else {
+      // If no sorting is selected by user, maintain newest bookings first
+      result = result.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
     }
     
     setFilteredBookings(result);
@@ -453,6 +462,16 @@ const Dashboard = ({ setActiveMenu }) => {
   if (activeView === 'laporan') {
     return <Laporan {...getLaporanParams()} setActiveView={setActiveView} />;
   }
+
+  // 4. Helper function to get the latest administration note
+  const getLatestAdministrasi = (administrasis) => {
+    if (!administrasis || administrasis.length === 0) return null;
+    
+    // Sort administrasis by date descending (newest first)
+    return [...administrasis].sort((a, b) => 
+      new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime()
+    )[0];
+  };
 
   return (
     <div className="dashboard-container">
@@ -554,20 +573,20 @@ const Dashboard = ({ setActiveMenu }) => {
 
                 <div className="table-sort-wrapper">
                     <select
-                    className="table-sort-select"
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
+                      className="table-sort-select"
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
                     >
-                    <option value="">Urutkan...</option>
-                    <option value="createdAt">Tanggal Buat</option>
-                    <option value="updatedAt">Terakhir Update</option>
-                    <option value="pilih_tanggal">Tanggal Booking</option>
-                    <option value="nama_hewan">Nama Hewan</option>
-                    <option value="user_name">Nama Pemilik</option>
-                    <option value="biaya">Biaya</option>
-                    <option value="alamat">Alamat</option>
-                    <option value="jenis_layanan">Jenis Layanan</option>
-                    <option value="kategori">Kategori</option>
+                      <option value="">Terbaru</option>
+                      <option value="createdAt">Tanggal Buat</option>
+                      <option value="updatedAt">Terakhir Update</option>
+                      <option value="pilih_tanggal">Tanggal Booking</option>
+                      <option value="nama_hewan">Nama Hewan</option>
+                      <option value="user_name">Nama Pemilik</option>
+                      <option value="biaya">Biaya</option>
+                      <option value="alamat">Alamat</option>
+                      <option value="jenis_layanan">Jenis Layanan</option>
+                      <option value="kategori">Kategori</option>
                     </select>
 
                     <select
@@ -627,7 +646,8 @@ const Dashboard = ({ setActiveMenu }) => {
                                 .filter(Boolean)
                                 .join(", ") || "-"}
                             </td>
-                            <td>{booking.administrasis1?.[0]?.catatan || "-"}</td>
+                            {/* <td>{booking.administrasis1?.[0]?.catatan || "-"}</td> */}
+                            <td>{getLatestAdministrasi(booking.administrasis1)?.catatan || "-"}</td>
                             <td>
                                 <span className={`status-label ${getStatusClass(booking.status_booking)}`}>
                                 {booking.status_booking}

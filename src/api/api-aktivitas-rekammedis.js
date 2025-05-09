@@ -53,9 +53,9 @@ export const saveRekamMedis = async (rekamMedisData) => {
         
         const formatted = {
           ...prod,
+          nama: prod.nama || "Tidak ada nama", // Pastikan field nama ada
           kategori: prod.kategori || "obat",
-          // PENTING: Selalu pertahankan nilai jenis yang sudah ada
-          jenis: prod.jenis || "-" // Pastikan ada nilai default jika tidak ada
+          jenis: prod.jenis || "-"
         };
         
         console.log("Produk setelah format:", JSON.stringify(formatted, null, 2));
@@ -69,6 +69,7 @@ export const saveRekamMedis = async (rekamMedisData) => {
         console.log("Layanan sebelum format:", JSON.stringify(pel, null, 2));
         const formatted = {
           ...pel,
+          nama: pel.nama || "Tidak ada nama", // Pastikan field nama ada
           kategori: pel.kategori || "layanan medis"
         };
         console.log("Layanan setelah format:", JSON.stringify(formatted, null, 2));

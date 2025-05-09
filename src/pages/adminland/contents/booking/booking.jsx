@@ -21,6 +21,9 @@ const Booking = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [showError, setShowError] = useState(false);
 
+    // Status yang tidak ditampilkan
+    const hiddenStatuses = ["ditolak administrasi", "dibatalkan administrasi"];
+
     const showErrorMessage = (message) => {
         setErrorMessage(message);
         setShowError(true);
@@ -35,8 +38,10 @@ const Booking = () => {
         setIsLoading(true);
         try {
             const allData = await getAllBookings();
-            setBookings(allData);
-            setFilteredBookings(allData);
+            // Filter out the hidden statuses from the original data
+            const filteredData = allData.filter(booking => !hiddenStatuses.includes(booking.status));
+            setBookings(filteredData);
+            setFilteredBookings(filteredData);
         } catch (error) {
             console.error('Gagal fetch data booking:', error);
             showErrorMessage("Gagal memuat data booking: " + (error.response?.data?.message || error.message));
@@ -56,6 +61,7 @@ const Booking = () => {
     useEffect(() => {
         const lower = searchTerm.toLowerCase();
         let result = bookings.filter((item) => {
+            // Sudah terfilter dari hiddenStatuses karena kita sudah filter saat fetchAllBookings
             const allFields = `
                 ${item.nama_hewan || ""}
                 ${item.klien || ""}
@@ -134,12 +140,16 @@ const Booking = () => {
 
     const handleUpdateBooking = (updatedBooking) => {
         // Update booking list dengan data yang sudah diupdate
-        setBookings(prev => 
-            prev.map(b => b._id === updatedBooking._id ? updatedBooking : b)
-        );
-        
-        // Refresh semua data untuk memastikan konsistensi
-        fetchAllBookings();
+        // Jika status yang diupdate termasuk dalam hiddenStatuses, refresh langsung
+        if (hiddenStatuses.includes(updatedBooking.status)) {
+            fetchAllBookings();
+        } else {
+            setBookings(prev => 
+                prev.map(b => b._id === updatedBooking._id ? updatedBooking : b)
+            );
+            // Refresh juga untuk memastikan konsistensi
+            fetchAllBookings();
+        }
     };
 
     const closeEditModal = () => {
