@@ -801,3 +801,89 @@ router.post('/produk/update-stock', async (req, res) => {
     });
   }
 });
+
+
+
+//----- rout biaya kunjungan dan booking
+// Add this to your booking routes file
+// 🔄 Update booking biaya
+router.put('/booking/update-biaya/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { biaya } = req.body;
+    
+    // Validate biaya format
+    if (!/^\d{1,10}(\.\d{1,2})?$/.test(biaya.toString())) {
+      return res.status(400).json({ message: 'Format biaya tidak valid' });
+    }
+    
+    // Find and update the booking
+    const booking = await Booking.findById(id);
+    
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking tidak ditemukan' });
+    }
+    
+    booking.biaya = biaya;
+    await booking.save();
+    
+    res.status(200).json({ message: 'Biaya booking berhasil diupdate', booking });
+  } catch (error) {
+    console.error('Gagal mengupdate biaya booking:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan saat mengupdate biaya booking' });
+  }
+});
+
+// Add this to your kunjungan routes file
+// 🔄 Update kunjungan biaya
+router.put('/kunjungan/update-biaya/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { biaya } = req.body;
+    
+    // Validate biaya format
+    if (!/^\d{1,10}(\.\d{1,2})?$/.test(biaya.toString())) {
+      return res.status(400).json({ message: 'Format biaya tidak valid' });
+    }
+    
+    // Find and update the kunjungan
+    const kunjungan = await Kunjungan.findById(id);
+    
+    if (!kunjungan) {
+      return res.status(404).json({ message: 'Kunjungan tidak ditemukan' });
+    }
+    
+    kunjungan.biaya = biaya;
+    await kunjungan.save();
+    
+    res.status(200).json({ message: 'Biaya kunjungan berhasil diupdate', kunjungan });
+  } catch (error) {
+    console.error('Gagal mengupdate biaya kunjungan:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan saat mengupdate biaya kunjungan' });
+  }
+});
+
+// 🔄 Get booking ID by kunjungan ID
+router.get('/kunjungan/get-booking/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Find the kunjungan
+    const kunjungan = await Kunjungan.findById(id);
+    
+    if (!kunjungan) {
+      return res.status(404).json({ message: 'Kunjungan tidak ditemukan' });
+    }
+    
+    // Get the booking ID from kunjungan
+    if (!kunjungan.id_booking) {
+      return res.status(404).json({ message: 'Booking ID tidak ditemukan untuk kunjungan ini' });
+    }
+    
+    res.status(200).json({ bookingId: kunjungan.id_booking });
+  } catch (error) {
+    console.error('Gagal mendapatkan booking ID:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan saat mendapatkan booking ID' });
+  }
+});
+

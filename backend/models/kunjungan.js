@@ -23,6 +23,17 @@ const KunjunganSchema = new mongoose.Schema({
             },
         }
     ],
+    biaya: {
+        type: mongoose.Types.Decimal128,
+        required: false,
+        validate: {
+            validator: function(value) {
+                return /^\d{1,10}(\.\d{1,2})?$/.test(value.toString());
+            },
+            message: 'Grand total harus berupa angka dengan maksimal 10 digit dan 2 digit desimal.'
+        },
+        // default: "0",
+    },
     id_booking: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Booking',

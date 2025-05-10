@@ -6,7 +6,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import './rekammedis.css';
 import {saveRekamMedis, getAllProduk, getAllPelayanan, getRekamMedisByKunjungan,
     createRetribusiPembayaran, updateRetribusiPembayaran, getRetribusiPembayaranByKunjungan,
-    updateKunjunganStatus, checkStockSufficiency
+    updateKunjunganStatus, checkStockSufficiency,
+    updateBookingBiaya, updateKunjunganBiaya, getBookingIdByKunjungan
 } from '../../../../api/api-aktivitas-rekammedis';
 
 import Popup from '../../admin_nav/popup_nav/popup2';
@@ -636,13 +637,71 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
             // alert("Data rekam medis berhasil disimpan!");
             // Kembali ke halaman kunjungan
             onBack();
-            
-        // Show success message before going back
+                    
+        // Update kunjungan status
+        try {
+            const kunjunganStatusData = formatKunjunganStatusData();
+            await updateKunjunganStatus(kunjunganData._id, kunjunganStatusData);
+        } catch (kunjunganError) {
+            console.error("Error saat mengupdate status kunjungan:", kunjunganError);
+        }
+        
+        // Handle retribusi pembayaran and update biaya fields if status is "menunggu pembayaran" or "selesai"
+        if (statusPasien === "menunggu pembayaran" || statusPasien === "selesai") {
+            try {
+                // Calculate grand total
+                const totalObat = obatList.reduce((sum, item) => sum + item.subtotal, 0);
+                const totalLayanan = layananList.reduce((sum, item) => sum + item.subtotal, 0);
+                const grandTotal = totalObat + totalLayanan;
+                
+                // Format data for retribusi pembayaran
+                const retribusiData = formatRetribusiPembayaranData(rekamMedisForDB, kunjunganData._id);
+                
+                // Update or create retribusi pembayaran
+                const existingRetribusi = await getRetribusiPembayaranByKunjungan(kunjunganData._id);
+                if (existingRetribusi) {
+                    await updateRetribusiPembayaran(retribusiData);
+                } else {
+                    await createRetribusiPembayaran(retribusiData);
+                }
+                
+                // Update kunjungan biaya field
+                try {
+                    console.log("Updating kunjungan biaya for ID:", kunjunganData._id, "with amount:", grandTotal);
+                    await updateKunjunganBiaya(kunjunganData._id, grandTotal);
+                    console.log("Successfully updated kunjungan biaya");
+                } catch (kunjunganError) {
+                    console.error("Error saat mengupdate biaya kunjungan:", kunjunganError);
+                    // Continue with next operations
+                }
+                
+                // Update booking biaya field if available
+                try {
+                    // First check if this kunjungan has an associated booking ID
+                    const bookingId = await getBookingIdByKunjungan(kunjunganData._id);
+                    if (bookingId) {
+                        console.log("Found booking ID:", bookingId, "- updating biaya");
+                        await updateBookingBiaya(bookingId, grandTotal);
+                        console.log("Successfully updated booking biaya");
+                    } else {
+                        console.log("No booking ID found for this kunjungan - skipping booking biaya update");
+                    }
+                } catch (bookingError) {
+                    console.error("Error saat mengupdate biaya booking:", bookingError);
+                    // Continue with success message even if updating booking fails
+                }
+                
+            } catch (error) {
+                console.error("Error saat memperbarui biaya:", error);
+                // Continue with success message
+            }
+        }
+        
+        // Success message and return to previous page
         setErrorMessage("Data rekam medis berhasil disimpan!");
         setShowError(true);
         setTimeout(() => {
             setShowError(false);
-            // Kembali ke halaman kunjungan
             onBack();
         }, 2000);
         

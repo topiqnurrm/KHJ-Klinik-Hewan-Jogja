@@ -361,3 +361,39 @@ export const updateProductStock = async (products) => {
     throw error;
   }
 };
+
+
+
+//----- api biaya kunjungan dan booking
+export const updateBookingBiaya = async (bookingId, biaya) => {
+  try {
+    const response = await axios.put(`${API_URL}/booking/update-biaya/${bookingId}`, { biaya });
+    return response.data;
+  } catch (error) {
+    console.error('Gagal memperbarui biaya booking:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const updateKunjunganBiaya = async (kunjunganId, biaya) => {
+  try {
+    const response = await axios.put(`${API_URL}/kunjungan/update-biaya/${kunjunganId}`, { biaya });
+    return response.data;
+  } catch (error) {
+    console.error('Gagal memperbarui biaya kunjungan:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const getBookingIdByKunjungan = async (kunjunganId) => {
+  try {
+    const response = await axios.get(`${API_URL}/kunjungan/get-booking/${kunjunganId}`);
+    return response.data.bookingId;
+  } catch (error) {
+    console.error('Gagal mendapatkan ID booking:', error.response?.data || error.message);
+    if (error.response && error.response.status === 404) {
+      return null; // Return null if no booking is found
+    }
+    throw error;
+  }
+};
