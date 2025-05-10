@@ -15,6 +15,7 @@ export const getRekamMedisByKunjungan = async (kunjunganId) => {
     } catch (error) {
       console.error('Gagal mengambil rekam medis:', error.response?.data || error.message);
       throw error;
+      // return null;
     }
   };
   
@@ -36,54 +37,76 @@ export const getRekamMedisByKunjungan = async (kunjunganId) => {
 
 /**
  * Save medical record - creates new or updates existing based on id_kunjungan
- * Also updates booking status
+ * Also validates and updates product stock
  * @param {Object} rekamMedisData - Medical record data to save
  * @returns {Promise} - API response
  */
 export const saveRekamMedis = async (rekamMedisData) => {
   try {
     // Log data original
-    console.log("Data rekam medis original:", JSON.stringify(rekamMedisData, null, 2));
+    // console.log("Data rekam medis original:", JSON.stringify(rekamMedisData, null, 2));
     
     const formattedData = { ...rekamMedisData };
     
+    // Format produks
     if (formattedData.produks && formattedData.produks.length > 0) {
       formattedData.produks = formattedData.produks.map(prod => {
-        console.log("Produk sebelum format:", JSON.stringify(prod, null, 2));
+        // console.log("Produk sebelum format:", JSON.stringify(prod, null, 2));
         
         const formatted = {
           ...prod,
-          nama: prod.nama || "Tidak ada nama", // Pastikan field nama ada
+          nama: prod.nama || "Tidak ada nama",
           kategori: prod.kategori || "obat",
           jenis: prod.jenis || "-"
         };
         
-        console.log("Produk setelah format:", JSON.stringify(formatted, null, 2));
+        // console.log("Produk setelah format:", JSON.stringify(formatted, null, 2));
         return formatted;
       });
+      
+      // MODIFICATION: Only check stock for NEW products (isExisting = false)
+      const productsToCheck = formattedData.produks
+        .filter(prod => prod.isExisting === false)
+        .map(prod => ({
+          id_produk: prod.id_produk,
+          jumlah: prod.jumlah
+        }));
+      
+      // Skip if no new products
+      if (productsToCheck.length > 0) {
+        // Check stock sufficiency
+        const stockCheck = await checkStockSufficiency(productsToCheck);
+        
+        if (!stockCheck.semua_mencukupi) {
+          // Stock insufficient
+          const detailKekurangan = stockCheck.detail
+            .filter(item => !item.mencukupi)
+            .map(item => `${item.nama}: Tersedia ${item.stok_tersedia}, Diminta ${item.jumlah_diminta}`);
+          
+          throw new Error(`Stok tidak mencukupi untuk: ${detailKekurangan.join('; ')}`);
+        }
+      }
     }
     
-    // Ensure pelayanans2 have kategori field
+    // Lanjutkan dengan format data lainnya
     if (formattedData.pelayanans2 && formattedData.pelayanans2.length > 0) {
       formattedData.pelayanans2 = formattedData.pelayanans2.map(pel => {
-        console.log("Layanan sebelum format:", JSON.stringify(pel, null, 2));
+        // console.log("Layanan sebelum format:", JSON.stringify(pel, null, 2));
         const formatted = {
           ...pel,
-          nama: pel.nama || "Tidak ada nama", // Pastikan field nama ada
+          nama: pel.nama || "Tidak ada nama",
           kategori: pel.kategori || "layanan medis"
         };
-        console.log("Layanan setelah format:", JSON.stringify(formatted, null, 2));
+        // console.log("Layanan setelah format:", JSON.stringify(formatted, null, 2));
         return formatted;
       });
     }
     
-    // Format dokters properly for sending to API
+    // Format dokters
     if (formattedData.dokters && formattedData.dokters.length > 0) {
       formattedData.dokters = formattedData.dokters.map(dokter => {
-        // Create a new object to avoid modifying the original
         const formattedDokter = { ...dokter };
         
-        // Make sure berat_badan and suhu_badan are not undefined/null before converting
         if (formattedDokter.berat_badan !== undefined && formattedDokter.berat_badan !== null) {
           formattedDokter.berat_badan = Number(formattedDokter.berat_badan);
         }
@@ -96,41 +119,53 @@ export const saveRekamMedis = async (rekamMedisData) => {
       });
     }
     
-    // Log data setelah manipulasi
-    console.log("Sending to API - formatted data:", JSON.stringify(formattedData, null, 2));
+    // console.log("Sending to API - formatted data:", JSON.stringify(formattedData, null, 2));
     
-    // Check if a record with this id_kunjungan already exists
+    // Check if record exists or create new
     const existingRecord = await getRekamMedisByKunjungan(formattedData.id_kunjungan)
       .catch(error => {
-        // If it's a 404, it means no record exists
         if (error.response && error.response.status === 404) {
           return null;
         }
-        throw error; // Re-throw other errors
+        throw error;
       });
+    
+    let saveResponse;
     
     if (existingRecord && existingRecord._id) {
       // Record exists, update it
       const updateData = { ...formattedData };
-      
-      // Add a flag to indicate this is a full update (replace all produks and pelayanans)
       updateData.replaceCollections = true;
       
-      console.log("Updating existing record with ID:", existingRecord._id);
-      const updateResponse = await axios.put(
+      // console.log("Updating existing record with ID:", existingRecord._id);
+      saveResponse = await axios.put(
         `${API_URL}/update/${existingRecord._id}`, 
         updateData
       );
-      return updateResponse.data;
     } else {
       // Record doesn't exist, create new one
-      console.log("Creating new record");
-      const createResponse = await axios.post(
+      // console.log("Creating new record");
+      saveResponse = await axios.post(
         `${API_URL}/create`, 
         formattedData
       );
-      return createResponse.data;
     }
+    
+    // Update product stock after successful save
+    if (formattedData.produks && formattedData.produks.length > 0) {
+      const productsToUpdate = formattedData.produks
+        .filter(prod => prod.isExisting === false) // Only update stock for new products
+        .map(prod => ({
+          id_produk: prod.id_produk,
+          jumlah: prod.jumlah
+        }));
+      
+      if (productsToUpdate.length > 0) {
+        await updateProductStock(productsToUpdate);
+      }
+    }
+    
+    return saveResponse.data;
   } catch (error) {
     console.error('Gagal menyimpan rekam medis:', error.response?.data || error.message);
     throw error;
@@ -274,3 +309,55 @@ export const getAllProduk = async () => {
       throw error;
     }
   };
+
+
+
+
+
+  //----- stok 
+  // Tambahkan fungsi-fungsi ini ke file api-aktivitas-rekammedis.js Anda
+
+/**
+ * Get current stock for a specific product
+ * @param {String} productId - Product ID
+ * @returns {Promise} - API response with current stock
+ */
+export const getProductStock = async (productId) => {
+  try {
+    const response = await axios.get(`${API_URL}/produk/stock/${productId}`);
+    return parseFloat(response.data.stok.$numberDecimal || 0);
+  } catch (error) {
+    console.error("Error fetching product stock:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+/**
+ * Check if stock is sufficient for a list of products
+ * @param {Array} products - List of products with id_produk and jumlah
+ * @returns {Promise} - API response with stock check results
+ */
+export const checkStockSufficiency = async (products) => {
+  try {
+    const response = await axios.post(`${API_URL}/produk/check-stock`, { products });
+    return response.data;
+  } catch (error) {
+    console.error("Error checking stock sufficiency:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+/**
+ * Update stock after medical record is saved
+ * @param {Array} products - List of products with id_produk and jumlah
+ * @returns {Promise} - API response with updated stock info
+ */
+export const updateProductStock = async (products) => {
+  try {
+    const response = await axios.post(`${API_URL}/produk/update-stock`, { products });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating product stock:", error.response?.data || error.message);
+    throw error;
+  }
+};

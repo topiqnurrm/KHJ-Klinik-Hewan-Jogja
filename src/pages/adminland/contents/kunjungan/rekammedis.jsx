@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './rekammedis.css';
 import {saveRekamMedis, getAllProduk, getAllPelayanan, getRekamMedisByKunjungan,
     createRetribusiPembayaran, updateRetribusiPembayaran, getRetribusiPembayaranByKunjungan,
-    updateKunjunganStatus
+    updateKunjunganStatus, checkStockSufficiency
 } from '../../../../api/api-aktivitas-rekammedis';
 
 import Popup from '../../admin_nav/popup_nav/popup2';
@@ -125,15 +125,19 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         layanan.nama.toLowerCase().includes(searchLayanan.toLowerCase())
     );
 
-    const handleObatSelect = (obatId, obatName) => {
+    const handleObatSelect = (obatId, obatData) => {
         setSelectedObat(obatId);
-        setSearchObat(obatName);
+        // Create a formatted string that matches the dropdown display
+        const displayText = `${obatData.nama} ${obatData.jenis ? `(${obatData.jenis})` : ''} - Stok: ${obatData.stok}`;
+        setSearchObat(displayText);
         setIsObatDropdownOpen(false);
     };
 
-    const handleLayananSelect = (layananId, layananName) => {
+    const handleLayananSelect = (layananId, layananData) => {
         setSelectedLayanan(layananId);
-        setSearchLayanan(layananName);
+        // Create a formatted string that matches the dropdown display
+        const displayText = `${layananData.nama} ${layananData.kategori ? `(${layananData.kategori})` : ''}`;
+        setSearchLayanan(displayText);
         setIsLayananDropdownOpen(false);
     };
 
@@ -191,19 +195,20 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
           try {
             // Ambil data produk
             const produkData = await getAllProduk();
-            console.log("Raw produk data:", produkData);
+            // console.log("Raw produk data:", produkData);
             
             setObatOptions(produkData.map(item => ({
               id: item._id,
               nama: item.nama,
               jenis: item.jenis || "-", // Make sure jenis field is captured
               kategori: item.kategori || "obat", // Make sure kategori field is captured
-              harga: parseFloat(item.harga.$numberDecimal || 0)
+              harga: parseFloat(item.harga.$numberDecimal || 0),
+              stok: parseFloat(item.stok.$numberDecimal || 0) // Tambahkan stok
             })));
             
             // Ambil data pelayanan
             const pelayananData = await getAllPelayanan();
-            console.log("Raw pelayanan data:", pelayananData);
+            // console.log("Raw pelayanan data:", pelayananData);
             
             // Make sure each layanan has the kategori field
             setLayananOptions(pelayananData.map(item => ({
@@ -224,7 +229,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
     // Mengisi data pasien saat komponen dimuat atau kunjunganData berubah
     useEffect(() => {
         if (kunjunganData) {
-            console.log("Data kunjungan diterima:", kunjunganData); // Log untuk debugging
+            // console.log("Data kunjungan diterima:", kunjunganData); // Log untuk debugging
             
             // Format nama hewan dengan jenis jika tersedia
             let formattedNamaHewan = kunjunganData.nama_hewan || "-";
@@ -262,13 +267,13 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
 
             // Pre-fill keluhan if available in kunjunganData and make it read-only
             if (kunjunganData.keluhan) {
-                console.log("Mengisi keluhan:", kunjunganData.keluhan); // Log untuk debugging
+                // console.log("Mengisi keluhan:", kunjunganData.keluhan); // Log untuk debugging
                 setRekamMedisData(prev => ({
                     ...prev,
                     keluhan: kunjunganData.keluhan
                 }));
             } else {
-                console.log("Tidak ada data keluhan"); // Log untuk debugging
+                // console.log("Tidak ada data keluhan"); // Log untuk debugging
             }
             
             // Set status pasien berdasarkan status kunjungan
@@ -297,7 +302,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                     
                     // If data exists, populate form fields
                     if (rekamMedisResponse) {
-                        console.log("Fetched rekam medis data:", rekamMedisResponse);
+                        // console.log("Fetched rekam medis data:", rekamMedisResponse);
                         
                         // Format values for form fields
                         setRekamMedisData({
@@ -325,8 +330,8 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                         
                         // Load medications from existing data
                         if (rekamMedisResponse.produks && rekamMedisResponse.produks.length > 0) {
-                            console.log("Data produk dari rekam medis:", rekamMedisResponse.produks);
-                            console.log("Data obatOptions yang tersedia:", obatOptions);
+                            // console.log("Data produk dari rekam medis:", rekamMedisResponse.produks);
+                            // console.log("Data obatOptions yang tersedia:", obatOptions);
                             
                             const formattedObatList = rekamMedisResponse.produks.map(produk => {
                                 // Handle case where id_produk is populated or just an ID
@@ -341,24 +346,26 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                     const matchedObat = obatOptions.find(o => o.id === produkId);
                                     if (matchedObat && matchedObat.jenis) {
                                         jenisObat = matchedObat.jenis;
-                                        console.log(`Menemukan jenis ${jenisObat} untuk obat ${matchedObat.nama}`);
+                                        // console.log(`Menemukan jenis ${jenisObat} untuk obat ${matchedObat.nama}`);
                                     } else {
-                                        console.log(`Tidak menemukan jenis untuk produk ID: ${produkId}`);
+                                        // console.log(`Tidak menemukan jenis untuk produk ID: ${produkId}`);
                                     }
                                 }
                                 
                                 return {
-                                    id: Date.now() + Math.random(), // Generate a unique ID
+                                    id: Date.now() + Math.random(),
                                     namaObat: produkData ? produkData.nama : "Produk tidak tersedia",
-                                    jenis: jenisObat, // Tambahkan jenis obat
+                                    jenis: jenisObat,
                                     qty: produk.jumlah,
                                     harga: parseFloat(produk.harga.$numberDecimal || 0),
                                     subtotal: parseFloat(produk.subtotal_obat.$numberDecimal || 0),
-                                    id_produk: produkId
+                                    id_produk: produkId,
+                                    isExisting: true, // Flag ini penting untuk pengecekan stok
+                                    stok_tersedia: null // Tidak perlu stok untuk item yang sudah ada
                                 };
                             });
-                            console.log("Formatted obat list:", formattedObatList);
-                            setObatList(formattedObatList);
+                            // console.log("Formatted obat list with isExisting flag:", formattedObatList);
+                            setObatList(formattedObatList.reverse());
                         }
                         
                         // Load services from existing data
@@ -382,9 +389,9 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                 } catch (error) {
                     // If 404, it means there's no existing rekam medis for this visit
                     if (error.response && error.response.status === 404) {
-                        console.log("No existing rekam medis found for this visit");
+                        // console.log("No existing rekam medis found for this visit");
                     } else {
-                        console.error("Error fetching rekam medis data:", error);
+                        // console.error("Error fetching rekam medis data:", error);
                     }
                 }
             }
@@ -401,23 +408,33 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         
         const obatData = obatOptions.find(o => o.id === selectedObat);
         if (obatData) {
+            // Validasi stok
+            if (obatData.stok < qtyObat) {
+                displayError(`Stok untuk ${obatData.nama} tidak mencukupi. Tersedia: ${obatData.stok}, Diminta: ${qtyObat}`);
+                return;
+            }
+
             // Explicitly log these values to verify
-            console.log("Menambahkan obat:", obatData);
-            console.log("Jenis obat yang dipilih:", obatData.jenis || "-");
-            console.log("Kategori obat yang dipilih:", obatData.kategori || "obat");
+            // console.log("Menambahkan obat:", obatData);
+            // console.log("Jenis obat yang dipilih:", obatData.jenis || "-");
+            // console.log("Kategori obat yang dipilih:", obatData.kategori || "obat");
             
             const newObat = {
                 id: Date.now(),
                 namaObat: obatData.nama,
-                jenis: obatData.jenis || "-", // Pastikan jenis ada
-                kategori: obatData.kategori || "obat", // Simpan kategori juga
+                jenis: obatData.jenis || "-",
+                kategori: obatData.kategori || "obat",
                 qty: qtyObat,
+                jumlah: qtyObat,
                 harga: obatData.harga,
                 subtotal: obatData.harga * qtyObat,
-                id_produk: obatData.id
+                subtotal_obat: obatData.harga * qtyObat,
+                id_produk: obatData.id,
+                stok_tersedia: obatData.stok,
+                isExisting: false // Pastikan ini selalu false untuk item baru
             };
             
-            console.log("Obat baru ditambahkan ke list:", newObat);
+            // console.log("Obat baru ditambahkan ke list (isExisting=false):", newObat);
             setObatList([newObat, ...obatList]);
             setSelectedObat("");
             setSearchObat("");
@@ -526,14 +543,56 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
     const handleSimpan = async () => {
         try {
             setIsSaving(true);
+            
+            // Hanya validasi obat baru, bukan yang sudah ada di DB
+            const newObatItems = obatList.filter(item => item.isExisting === false);
+            
+            // Jika ada obat baru, validasi stok menggunakan API
+            if (newObatItems.length > 0) {
+                try {
+                    // Format untuk API cek stok
+                    const productsForStockCheck = newObatItems.map(item => ({
+                        id_produk: item.id_produk,
+                        jumlah: item.qty
+                    }));
+                    
+                    // console.log("Memeriksa stok untuk produk baru:", productsForStockCheck);
+                    
+                    // Periksa stok via API
+                    const stockCheckResult = await checkStockSufficiency(productsForStockCheck);
+                    
+                    if (!stockCheckResult.semua_mencukupi) {
+                        // Tampilkan error untuk stok yang tidak mencukupi
+                        const insufficientItems = stockCheckResult.detail.filter(item => !item.mencukupi);
+                        
+                        if (insufficientItems.length > 0) {
+                            const errorMsg = `Stok tidak mencukupi untuk: ${insufficientItems[0].nama}: Tersedia ${insufficientItems[0].stok_tersedia}, Diminta ${insufficientItems[0].jumlah_diminta}`;
+                            setErrorMessage(errorMsg);
+                            setShowError(true);
+                            setTimeout(() => setShowError(false), 2000);
+                            setIsSaving(false);
+                            return;
+                        }
+                    }
+                } catch (stockError) {
+                    console.error("Error checking stock via API:", stockError);
+                    // Lanjutkan dengan validasi client-side sebagai fallback
+                    if (!validateStockLevels()) {
+                        setIsSaving(false);
+                        return;
+                    }
+                }
+            }
+            
+            // Jika tidak ada obat baru atau validasi stok berhasil, lanjutkan menyimpan data
             const rekamMedisForDB = formatDataForDB();
             
-            console.log("Data rekam medis yang akan disimpan:", rekamMedisForDB);
+            // console.log("Data rekam medis yang akan disimpan:", rekamMedisForDB);
             
             // Save rekam medis data
             const response = await saveRekamMedis(rekamMedisForDB);
             
-            console.log("Respon dari server:", response);
+            // console.log("Respon dari server:", response);
             
             // Update kunjungan status
             try {
@@ -542,7 +601,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                 
                 // Update the kunjungan status
                 await updateKunjunganStatus(kunjunganData._id, kunjunganStatusData);
-                console.log("Status kunjungan berhasil diperbarui");
+                // console.log("Status kunjungan berhasil diperbarui");
             } catch (kunjunganError) {
                 console.error("Error saat mengupdate status kunjungan:", kunjunganError);
                 // Continue with other operations
@@ -554,7 +613,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                     // Format data for retribusi pembayaran
                     const retribusiData = formatRetribusiPembayaranData(rekamMedisForDB, kunjunganData._id);
                     
-                    console.log("Data retribusi pembayaran yang akan disimpan:", retribusiData);
+                    // console.log("Data retribusi pembayaran yang akan disimpan:", retribusiData);
                     
                     // Check if retribusi pembayaran already exists for this kunjungan
                     const existingRetribusi = await getRetribusiPembayaranByKunjungan(kunjunganData._id);
@@ -562,11 +621,11 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                     if (existingRetribusi) {
                         // Update existing retribusi pembayaran
                         await updateRetribusiPembayaran(retribusiData);
-                        console.log("Retribusi pembayaran berhasil diperbarui");
+                        // console.log("Retribusi pembayaran berhasil diperbarui");
                     } else {
                         // Create new retribusi pembayaran
                         await createRetribusiPembayaran(retribusiData);
-                        console.log("Retribusi pembayaran berhasil dibuat");
+                        // console.log("Retribusi pembayaran berhasil dibuat");
                     }
                 } catch (retribusiError) {
                     console.error("Error saat menyimpan retribusi pembayaran:", retribusiError);
@@ -626,39 +685,62 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
             suhuBadan = parseFloat(rekamMedisData.suhuBadan) || 0;
         }
     
-        // Debug logs
-        console.log("obatOptions data:", obatOptions);
-        console.log("layananOptions data:", layananOptions);
-        console.log("obatList sebelum diformat:", JSON.stringify(obatList, null, 2));
+        // console.log("obatList sebelum diformat:", JSON.stringify(obatList, null, 2));
+    
+        // Pisahkan obat yang sudah ada (isExisting=true) dan yang baru (isExisting=false)
+        const existingProduks = obatList.filter(item => item.isExisting === true);
+        const newProduks = obatList.filter(item => item.isExisting === false);
         
-        const formattedProduks = obatList.map(item => {
-            // Get jenis from item directly or from obatOptions as fallback
-            const jenis = item.jenis || obatOptions.find(o => o.id === item.id_produk)?.jenis || "-";
-            // Get kategori from obatOptions
-            const kategori = obatOptions.find(o => o.id === item.id_produk)?.kategori || "obat";
-            
-            console.log(`Memformat produk ${item.namaObat} dengan jenis: ${jenis} dan kategori: ${kategori}`);
+        // console.log("Produk yang sudah ada:", existingProduks.length);
+        // console.log("Produk baru:", newProduks.length);
+        
+        // Format produk yang sudah ada
+        const formattedExistingProduks = existingProduks.map(item => {
+            const jenis = item.jenis || "-";
+            const kategori = item.kategori || "obat";
             
             return {
                 id_produk: item.id_produk,
-                nama: item.namaObat, // Tambahkan nama obat
+                nama: item.namaObat,
                 jumlah: item.qty,
                 harga: item.harga,
                 subtotal_obat: item.subtotal,
                 tanggal: new Date(),
                 kategori: kategori,
-                jenis: jenis
+                jenis: jenis,
+                isExisting: true // Tandai bahwa ini adalah produk yang sudah ada
             };
         });
+
+        // Format produk baru
+        const formattedNewProduks = newProduks.map(item => {
+            const jenis = item.jenis || obatOptions.find(o => o.id === item.id_produk)?.jenis || "-";
+            const kategori = obatOptions.find(o => o.id === item.id_produk)?.kategori || "obat";
+            
+            return {
+                id_produk: item.id_produk,
+                nama: item.namaObat,
+                jumlah: item.qty,
+                harga: item.harga,
+                subtotal_obat: item.subtotal,
+                tanggal: new Date(),
+                kategori: kategori,
+                jenis: jenis,
+                isExisting: false // Tandai bahwa ini adalah produk baru
+            };
+        });
+
+        // Gabungkan kembali
+        const formattedProduks = [...formattedExistingProduks, ...formattedNewProduks];
         
-        console.log("Produks setelah diformat:", JSON.stringify(formattedProduks, null, 2));
+        // console.log("Produks setelah diformat:", JSON.stringify(formattedProduks, null, 2));    
     
         // Map layanan list to match pelayanans2 schema
         const formattedPelayanans = layananList.map(item => {
             const layananInfo = layananOptions.find(l => l._id === item.id_pelayanan) || {};
             const kategori = layananInfo.kategori || "layanan medis";
             
-            console.log(`Memformat layanan ${item.namaLayanan} dengan kategori: ${kategori}`);
+            // console.log(`Memformat layanan ${item.namaLayanan} dengan kategori: ${kategori}`);
             
             return {
                 id_pelayanan: item.id_pelayanan,
@@ -711,17 +793,20 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
             status_booking: statusKunjungan,
             produks: formattedProduks,
             pelayanans2: formattedPelayanans,
-            dokters: [dokterEntry]
+            dokters: [dokterEntry],
         };
         
         // Final logging untuk memastikan data terformat dengan benar
-        console.log("Data rekam medis final yang akan dikirim:", finalData);
+        // console.log("Data rekam medis final yang akan dikirim:", finalData);
         
         return finalData;
     };
 
     const handleSubmit = () => {
         // First validate the form
+        if (!validateStockLevels()) {
+            return; // Stop submission if stock validation fails
+        }
         if (!validateForm()) {
             return;
         }
@@ -767,6 +852,25 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         }
         
         return true;
+    };
+
+    const validateStockLevels = () => {
+        let stockValid = true;
+        let newItems = obatList.filter(item => item.isExisting === false);
+        
+        // console.log("Validasi stok hanya untuk item baru:", newItems);
+        
+        // Hanya validasi stok untuk item BARU (bukan yang sudah ada di DB)
+        newItems.forEach(item => {
+            const obatData = obatOptions.find(o => o.id === item.id_produk);
+            if (obatData && obatData.stok < item.qty) {
+                displayError(`Stok untuk ${item.namaObat} tidak mencukupi. Tersedia: ${obatData.stok}, Diminta: ${item.qty}`);
+                stockValid = false;
+            }
+        });
+        
+        // console.log("Hasil validasi stok:", stockValid);
+        return stockValid;
     };
 
     return (
@@ -971,34 +1075,52 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                     
                                     <div className="obat-selection">
                                         <div className="dropdown-container" ref={obatDropdownRef}>
-                                            <input
-                                                type="text"
-                                                placeholder="Cari obat..."
-                                                value={searchObat}
-                                                onChange={(e) => {
-                                                    setSearchObat(e.target.value);
-                                                    setIsObatDropdownOpen(true);
-                                                }}
-                                                onClick={() => setIsObatDropdownOpen(true)}
-                                                className="dropdown-input"
-                                            />
+                                            <div className="input-with-clear">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Cari obat..."
+                                                    value={searchObat}
+                                                    onChange={(e) => {
+                                                        setSearchObat(e.target.value);
+                                                        setIsObatDropdownOpen(true);
+                                                    }}
+                                                    onClick={() => setIsObatDropdownOpen(true)}
+                                                    className="dropdown-input"
+                                                />
+                                                {searchObat && (
+                                                    <button 
+                                                        className="clear-input-btn" 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // Prevent opening dropdown
+                                                            setSearchObat("");
+                                                            setSelectedObat("");
+                                                        }}
+                                                        type="button"
+                                                    >
+                                                        ✖
+                                                    </button>
+                                                )}
+                                            </div>
                                             
                                             {isObatDropdownOpen && (
-                                                <div className="dropdown-list">
-                                                    {filteredObatOptions.length > 0 ? (
-                                                        filteredObatOptions.map(obat => (
-                                                            <div 
-                                                                key={obat.id} 
-                                                                className="dropdown-item"
-                                                                onClick={() => handleObatSelect(obat.id, obat.nama)}
-                                                            >
-                                                                {obat.nama} {obat.jenis ? `(${obat.jenis})` : ''}
-                                                            </div>
-                                                        ))
-                                                    ) : (
-                                                        <div className="no-results">Tidak ada hasil</div>
-                                                    )}
-                                                </div>
+                                            <div className="dropdown-list">
+                                                {filteredObatOptions.length > 0 ? (
+                                                filteredObatOptions.map(obat => (
+                                                    <div 
+                                                        key={obat.id} 
+                                                        className={`dropdown-item ${obat.stok < 5 ? 'low-stock' : ''}`}
+                                                        onClick={() => handleObatSelect(obat.id, obat)}
+                                                    >
+                                                        {obat.nama} {obat.jenis ? `(${obat.jenis})` : ''} - 
+                                                        <span className={obat.stok < 5 ? 'stock-warning' : ''}>
+                                                            Stok: {obat.stok}
+                                                        </span>
+                                                    </div>
+                                                ))
+                                                ) : (
+                                                <div className="no-results">Tidak ada hasil</div>
+                                                )}
+                                            </div>
                                             )}
                                         </div>
                                         
@@ -1082,17 +1204,32 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                     
                                     <div className="layanan-selection">
                                         <div className="dropdown-container" ref={layananDropdownRef}>
-                                            <input
-                                                type="text"
-                                                placeholder="Cari layanan..."
-                                                value={searchLayanan}
-                                                onChange={(e) => {
-                                                    setSearchLayanan(e.target.value);
-                                                    setIsLayananDropdownOpen(true);
-                                                }}
-                                                onClick={() => setIsLayananDropdownOpen(true)}
-                                                className="dropdown-input"
-                                            />
+                                            <div className="input-with-clear">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Cari layanan..."
+                                                    value={searchLayanan}
+                                                    onChange={(e) => {
+                                                        setSearchLayanan(e.target.value);
+                                                        setIsLayananDropdownOpen(true);
+                                                    }}
+                                                    onClick={() => setIsLayananDropdownOpen(true)}
+                                                    className="dropdown-input"
+                                                />
+                                                {searchLayanan && (
+                                                    <button 
+                                                        className="clear-input-btn" 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // Prevent opening dropdown
+                                                            setSearchLayanan("");
+                                                            setSelectedLayanan("");
+                                                        }}
+                                                        type="button"
+                                                    >
+                                                        ✖
+                                                    </button>
+                                                )}
+                                            </div>
                                             
                                             {isLayananDropdownOpen && (
                                                 <div className="dropdown-list">
@@ -1101,7 +1238,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                                             <div 
                                                                 key={layanan._id} 
                                                                 className="dropdown-item"
-                                                                onClick={() => handleLayananSelect(layanan._id, layanan.nama)}
+                                                                onClick={() => handleLayananSelect(layanan._id, layanan)}
                                                             >
                                                                 {layanan.nama} {layanan.kategori ? `(${layanan.kategori})` : ''}
                                                             </div>

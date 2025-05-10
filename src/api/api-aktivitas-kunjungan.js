@@ -63,7 +63,7 @@ export const getAllKunjungan = async () => {
         umur: kunjungan.umur || '-'
       }));
     
-    console.log('Data kunjungan dari API:', formattedKunjungan);
+    // console.log('Data kunjungan dari API:', formattedKunjungan);
     return formattedKunjungan;
   } catch (error) {
     console.error('Gagal mengambil data kunjungan:', error);
@@ -82,7 +82,7 @@ export const getKunjunganById = async (id) => {
     }
     
     // Tambahkan console.log untuk debugging
-    console.log('Data kunjungan detail dari API:', response.data);
+    // console.log('Data kunjungan detail dari API:', response.data);
     
     return {
       ...response.data,
@@ -312,7 +312,7 @@ export const createDirectKunjungan = async (kunjunganData) => {
     };
     
     // For debugging - log the request payload
-    console.log('Sending data to API:', completeData);
+    // console.log('Sending data to API:', completeData);
     
     // Make sure the API endpoint matches exactly what's configured on the server
     const response = await axios.post(`${AKTIVITAS_KUNJUNGAN_API_URL}/direct`, completeData);

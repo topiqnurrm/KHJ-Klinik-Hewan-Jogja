@@ -84,7 +84,8 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
             '&:hover': {
                 borderColor: validation.id_pelayanan ? '#ff3b30' : '#adb5bd',
             },
-            backgroundColor: '#e9e9e9'
+            // backgroundColor: '#e9e9e9'
+            backgroundColor: '#f5f5f5 !important'
         }),
         placeholder: (base) => ({
             ...base,
@@ -343,7 +344,7 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                 pelayanans1: pelayanans1
             };
             
-            console.log('Sending data to API:', dataToSubmit);
+            // console.log('Sending data to API:', dataToSubmit);
             
             // Send data to API
             const result = await createDirectKunjungan(dataToSubmit);
@@ -576,6 +577,7 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                                     className={validation.keluhan ? 'input-error' : ''}
                                     placeholder="Masukkan keluhan"
                                     rows="4"
+                                    style={{ backgroundColor: '#f5f5f5' }}
                                 ></textarea>
                                 {validation.keluhan && <span className="error-text">{validation.keluhan}</span>}
                                 <span className="info-text">Maksimal 250 kata</span>
@@ -596,6 +598,7 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                     <button 
                         type="submit" 
                         className="simpan-button"
+                        onClick={handleSubmit}
                         disabled={isLoading || !isFormValid()}
                     >
                         {isLoading ? 'Memproses...' : 'Tambah'}

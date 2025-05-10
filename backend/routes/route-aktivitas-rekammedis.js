@@ -60,7 +60,7 @@ router.post('/create', async (req, res) => {
 
     // Format produks and pelayanans arrays for decimal values
     const formattedProduks = produks.map(prod => {
-      console.log('Formatting produk for create:', prod);
+      // console.log('Formatting produk for create:', prod);
       
       return {
         id_produk: prod.id_produk,
@@ -167,10 +167,10 @@ router.put('/update/:id', async (req, res) => {
     } = req.body;
 
     // Log data yang diterima untuk debugging
-    console.log('Data update yang diterima:', {
-      id,
-      produks: produks.map(p => ({ id_produk: p.id_produk, jenis: p.jenis, kategori: p.kategori }))
-    });
+    // console.log('Data update yang diterima:', {
+    //   id,
+    //   produks: produks.map(p => ({ id_produk: p.id_produk, jenis: p.jenis, kategori: p.kategori }))
+    // });
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: 'ID rekam medis tidak valid' });
@@ -190,7 +190,7 @@ router.put('/update/:id', async (req, res) => {
     // Format produks array dengan mempertahankan jenis dan kategori
     const formattedProduks = produks.map(prod => {
       // Log detail untuk debugging
-      console.log('Formatting produk for update:', prod);
+      // console.log('Formatting produk for update:', prod);
       
       return {
         id_produk: prod.id_produk,
@@ -205,7 +205,7 @@ router.put('/update/:id', async (req, res) => {
     });
     
     // Log hasil format produks
-    console.log('Produks setelah diformat:', formattedProduks);
+    // console.log('Produks setelah diformat:', formattedProduks);
     
     // Update data dengan produks yang telah diformat
     updateData.produks = formattedProduks;
@@ -275,7 +275,7 @@ router.put('/update/:id', async (req, res) => {
     const finalRecord = await RekamMedis.findById(id);
     
     // Log hasil akhir untuk memastikan data terkirim dengan benar
-    console.log('Rekam medis setelah update:', finalRecord);
+    // console.log('Rekam medis setelah update:', finalRecord);
 
     res.status(200).json({ 
       message: 'Rekam medis berhasil diperbarui', 
@@ -636,3 +636,168 @@ router.put('/update-status/:id', async (req, res) => {
       res.status(500).json({ message: 'Terjadi kesalahan saat mengupdate status kunjungan' });
     }
   });
+
+
+
+
+
+
+
+  //----- stok 
+  // Tambahkan endpoint baru ini di file router.js Anda
+// Sebelum export default router;
+
+/**
+ * Get current stock for a specific product
+ * GET /api/rekam-medis/produk/stock/:id
+ */
+router.get('/produk/stock/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'ID produk tidak valid' });
+    }
+    
+    const produk = await Produk.findById(id);
+    if (!produk) {
+      return res.status(404).json({ message: 'Produk tidak ditemukan' });
+    }
+    
+    res.status(200).json({ stok: produk.stok });
+  } catch (error) {
+    console.error('Error getting product stock:', error);
+    res.status(500).json({ 
+      message: 'Terjadi kesalahan saat mengambil stok produk',
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * Check if stock is sufficient for a list of products
+ * POST /api/rekam-medis/produk/check-stock
+ */
+router.post('/produk/check-stock', async (req, res) => {
+  try {
+    const { products } = req.body;
+    
+    if (!products || !Array.isArray(products)) {
+      return res.status(400).json({ message: 'Format data produk tidak valid' });
+    }
+    
+    const results = [];
+    let allSufficient = true;
+    
+    for (const product of products) {
+      const { id_produk, jumlah } = product;
+      
+      // Validasi data
+      if (!mongoose.Types.ObjectId.isValid(id_produk)) {
+        return res.status(400).json({ message: `ID produk tidak valid: ${id_produk}` });
+      }
+      
+      // Cek produk
+      const produk = await Produk.findById(id_produk);
+      if (!produk) {
+        return res.status(404).json({ message: `Produk tidak ditemukan: ${id_produk}` });
+      }
+      
+      // Konversi stok ke number
+      const stok = parseFloat(produk.stok.$numberDecimal || produk.stok || 0);
+      
+      // Cek kecukupan stok
+      const isSufficient = stok >= jumlah;
+      if (!isSufficient) {
+        allSufficient = false;
+      }
+      
+      results.push({
+        id_produk,
+        nama: produk.nama,
+        stok_tersedia: stok,
+        jumlah_diminta: jumlah,
+        mencukupi: isSufficient
+      });
+    }
+    
+    res.status(200).json({
+      semua_mencukupi: allSufficient,
+      detail: results
+    });
+  } catch (error) {
+    console.error('Error checking stock sufficiency:', error);
+    res.status(500).json({ 
+      message: 'Terjadi kesalahan saat memeriksa kecukupan stok',
+      error: error.message 
+    });
+  }
+});
+
+/**
+ * Update stock after medical record is saved
+ * POST /api/rekam-medis/produk/update-stock
+ */
+router.post('/produk/update-stock', async (req, res) => {
+  try {
+    const { products } = req.body;
+    
+    if (!products || !Array.isArray(products)) {
+      return res.status(400).json({ message: 'Format data produk tidak valid' });
+    }
+    
+    // Note: We assume the frontend is already filtering out existing products
+    // so only new products are passed to this endpoint
+    
+    const results = [];
+    
+    for (const product of products) {
+      const { id_produk, jumlah } = product;
+      
+      // Validasi data
+      if (!mongoose.Types.ObjectId.isValid(id_produk)) {
+        return res.status(400).json({ message: `ID produk tidak valid: ${id_produk}` });
+      }
+      
+      // Cek produk
+      const produk = await Produk.findById(id_produk);
+      if (!produk) {
+        return res.status(404).json({ message: `Produk tidak ditemukan: ${id_produk}` });
+      }
+      
+      // Konversi stok ke number
+      const stokSekarang = parseFloat(produk.stok.$numberDecimal || produk.stok || 0);
+      
+      // Cek kecukupan stok
+      if (stokSekarang < jumlah) {
+        return res.status(400).json({ 
+          message: `Stok tidak mencukupi untuk produk: ${produk.nama}. Tersedia: ${stokSekarang}, Diminta: ${jumlah}` 
+        });
+      }
+      
+      // Update stok
+      const stokBaru = stokSekarang - jumlah;
+      produk.stok = mongoose.Types.Decimal128.fromString(stokBaru.toString());
+      await produk.save();
+      
+      results.push({
+        id_produk,
+        nama: produk.nama,
+        stok_lama: stokSekarang,
+        jumlah_digunakan: jumlah,
+        stok_baru: stokBaru
+      });
+    }
+    
+    res.status(200).json({
+      message: 'Stok produk berhasil diperbarui',
+      detail: results
+    });
+  } catch (error) {
+    console.error('Error updating product stock:', error);
+    res.status(500).json({ 
+      message: 'Terjadi kesalahan saat memperbarui stok produk',
+      error: error.message 
+    });
+  }
+});

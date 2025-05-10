@@ -72,7 +72,7 @@
   background-color: #f2f2f2;
   padding: 5px;
   border-radius: 4px;
-  gap: 300px;
+  gap: 30px;
 }
 
 .booking-container .riwayat-search-wrapper {
@@ -80,6 +80,7 @@
   align-items: center;
   position: relative;
   max-width: 320px;
+  margin-right: 280px;
   gap: 0px;
 }
 

@@ -539,3 +539,50 @@
   padding: 0px;
   margin: 0px;
 }
+
+
+
+
+/* Tambahkan CSS untuk peringatan stok rendah */
+.low-stock {
+  background-color: rgba(255, 235, 235, 0.5);
+}
+
+.stock-warning {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+
+
+
+.input-with-clear {
+  position: relative;
+  width: 100%;
+}
+
+.input-with-clear .dropdown-input {
+  width: 100%;
+  padding-right: 30px; /* Make room for the clear button */
+}
+
+.clear-input-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.clear-input-btn:hover {
+  color: #f44336;
+}
