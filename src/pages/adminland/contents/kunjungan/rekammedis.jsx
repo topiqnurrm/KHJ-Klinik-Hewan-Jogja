@@ -342,14 +342,26 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                 // Cari jenis obat dari obatOptions jika tersedia
                                 let jenisObat = produk.jenis || "-";
                                 
+                                // IMPORTANT: Explicitly get kategori from database data
+                                let kategoriObat = produk.kategori || null;
+                                
                                 // Jika jenisObat masih "-", coba cari dari obatOptions
                                 if (jenisObat === "-" || !jenisObat) {
                                     const matchedObat = obatOptions.find(o => o.id === produkId);
                                     if (matchedObat && matchedObat.jenis) {
                                         jenisObat = matchedObat.jenis;
                                         // console.log(`Menemukan jenis ${jenisObat} untuk obat ${matchedObat.nama}`);
+                                    }
+                                }
+                                
+                                // If kategoriObat is still null, try to find it from obatOptions
+                                if (!kategoriObat) {
+                                    const matchedObat = obatOptions.find(o => o.id === produkId);
+                                    if (matchedObat && matchedObat.kategori) {
+                                        kategoriObat = matchedObat.kategori;
+                                        // console.log(`Menemukan kategori ${kategoriObat} untuk obat ${matchedObat.nama}`);
                                     } else {
-                                        // console.log(`Tidak menemukan jenis untuk produk ID: ${produkId}`);
+                                        kategoriObat = "obat"; // Default only if no other source is available
                                     }
                                 }
                                 
@@ -357,6 +369,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                     id: Date.now() + Math.random(),
                                     namaObat: produkData ? produkData.nama : "Produk tidak tersedia",
                                     jenis: jenisObat,
+                                    kategori: kategoriObat, // Make sure to include the kategori field
                                     qty: produk.jumlah,
                                     harga: parseFloat(produk.harga.$numberDecimal || 0),
                                     subtotal: parseFloat(produk.subtotal_obat.$numberDecimal || 0),
@@ -365,7 +378,8 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                     stok_tersedia: null // Tidak perlu stok untuk item yang sudah ada
                                 };
                             });
-                            // console.log("Formatted obat list with isExisting flag:", formattedObatList);
+                            
+                            // console.log("Formatted obat list with kategori:", formattedObatList);
                             setObatList(formattedObatList.reverse());
                         }
                         
@@ -667,9 +681,9 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                 
                 // Update kunjungan biaya field
                 try {
-                    console.log("Updating kunjungan biaya for ID:", kunjunganData._id, "with amount:", grandTotal);
+                    // console.log("Updating kunjungan biaya for ID:", kunjunganData._id, "with amount:", grandTotal);
                     await updateKunjunganBiaya(kunjunganData._id, grandTotal);
-                    console.log("Successfully updated kunjungan biaya");
+                    // console.log("Successfully updated kunjungan biaya");
                 } catch (kunjunganError) {
                     console.error("Error saat mengupdate biaya kunjungan:", kunjunganError);
                     // Continue with next operations
@@ -680,11 +694,11 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                     // First check if this kunjungan has an associated booking ID
                     const bookingId = await getBookingIdByKunjungan(kunjunganData._id);
                     if (bookingId) {
-                        console.log("Found booking ID:", bookingId, "- updating biaya");
+                        // console.log("Found booking ID:", bookingId, "- updating biaya");
                         await updateBookingBiaya(bookingId, grandTotal);
-                        console.log("Successfully updated booking biaya");
+                        // console.log("Successfully updated booking biaya");
                     } else {
-                        console.log("No booking ID found for this kunjungan - skipping booking biaya update");
+                        // console.log("No booking ID found for this kunjungan - skipping booking biaya update");
                     }
                 } catch (bookingError) {
                     console.error("Error saat mengupdate biaya booking:", bookingError);
@@ -732,7 +746,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         // Get the current logged in user ID from localStorage
         const currentUser = JSON.parse(localStorage.getItem('user')) || {};
         const userId = currentUser._id;
-    
+
         // Safe conversion for numeric fields
         let beratBadan = 0;
         if (rekamMedisData.beratBadan && rekamMedisData.beratBadan.toString().trim() !== "") {
@@ -743,9 +757,9 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         if (rekamMedisData.suhuBadan && rekamMedisData.suhuBadan.toString().trim() !== "") {
             suhuBadan = parseFloat(rekamMedisData.suhuBadan) || 0;
         }
-    
+
         // console.log("obatList sebelum diformat:", JSON.stringify(obatList, null, 2));
-    
+
         // Pisahkan obat yang sudah ada (isExisting=true) dan yang baru (isExisting=false)
         const existingProduks = obatList.filter(item => item.isExisting === true);
         const newProduks = obatList.filter(item => item.isExisting === false);
@@ -753,10 +767,19 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         // console.log("Produk yang sudah ada:", existingProduks.length);
         // console.log("Produk baru:", newProduks.length);
         
-        // Format produk yang sudah ada
+        // Format produk yang sudah ada - MODIFIED to preserve kategori
         const formattedExistingProduks = existingProduks.map(item => {
+            // Make sure to use the item's kategori directly, not falling back to "obat" yet
             const jenis = item.jenis || "-";
+            
+            // IMPORTANT CHANGE: Preserve the kategori from the item
+            // Only use default "obat" if no kategori is found
             const kategori = item.kategori || "obat";
+            
+            // For debugging, log items with no kategori
+            if (!item.kategori) {
+                console.log("Warning: No kategori found for existing item:", item.namaObat);
+            }
             
             return {
                 id_produk: item.id_produk,
@@ -771,10 +794,17 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
             };
         });
 
-        // Format produk baru
+        // Format produk baru - MODIFIED to handle kategori better
         const formattedNewProduks = newProduks.map(item => {
-            const jenis = item.jenis || obatOptions.find(o => o.id === item.id_produk)?.jenis || "-";
-            const kategori = obatOptions.find(o => o.id === item.id_produk)?.kategori || "obat";
+            const matchedObat = obatOptions.find(o => o.id === item.id_produk);
+            
+            const jenis = item.jenis || (matchedObat?.jenis || "-");
+            
+            // For new items, get kategori from the item itself first,
+            // then from obatOptions, and only use "obat" as a last resort
+            const kategori = item.kategori || 
+                            (matchedObat?.kategori) || 
+                            "obat";
             
             return {
                 id_produk: item.id_produk,
@@ -792,8 +822,11 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         // Gabungkan kembali
         const formattedProduks = [...formattedExistingProduks, ...formattedNewProduks];
         
-        // console.log("Produks setelah diformat:", JSON.stringify(formattedProduks, null, 2));    
-    
+        // Debug logging
+        // console.log("Produks setelah diformat (with kategori preserved):", JSON.stringify(formattedProduks, null, 2));    
+
+        // [Rest of your existing formatDataForDB function...]
+        
         // Map layanan list to match pelayanans2 schema
         const formattedPelayanans = layananList.map(item => {
             const layananInfo = layananOptions.find(l => l._id === item.id_pelayanan) || {};
@@ -1070,12 +1103,12 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                         ></textarea>
                                     </div> */}
                                     <div className="form-group">
-                                        <label>Hasil (berkala)<span className="required">*</span></label>
+                                        <label>Hasil<span className="required">*</span></label>
                                         <textarea 
                                             name="hasil"
                                             value={rekamMedisData.hasil}
                                             onChange={handleInputChange}
-                                            placeholder="Masukkan hasil... ke 1 .. ke 2 .."
+                                            placeholder="Masukkan hasil..."
                                             required
                                         ></textarea>
                                     </div>

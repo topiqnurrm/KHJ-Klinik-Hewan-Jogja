@@ -14,7 +14,7 @@ const KunjunganSchema = new mongoose.Schema({
             },
             status_kunjungan: {
                 type: String,
-                enum: ['sedang diperiksa', 'dirawat inap', 'dibatalkan administrasi', 'menunggu pembayaran'],
+                enum: ['sedang diperiksa', 'dirawat inap', 'dibatalkan administrasi', 'menunggu pembayaran', 'mengambil obat', 'selesai'],
                 required: false
             },
             tanggal: {
