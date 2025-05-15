@@ -325,25 +325,113 @@ router.get('/detail/:id', async (req, res) => {
       return res.status(404).json({ message: 'Detail pembayaran tidak ditemukan' });
     }
     
-    // Ambil data rekam medis berdasarkan id_kunjungan
+    // FIXED: Enhanced rekamMedis query with better population of dokters data
     const rekamMedis = await RekamMedis.findOne({ id_kunjungan: pembayaranDetail.id_kunjungan })
       .populate({
         path: 'dokters.id_user',
         select: 'nama user_id aktor'
       });
     
-    // Filter hanya dokter dengan aktor "dokter"
-    if (rekamMedis && rekamMedis.dokters) {
-      rekamMedis.dokters = rekamMedis.dokters.filter(dokter => 
-        dokter.id_user && dokter.id_user.aktor === 'dokter'
-      );
-    }
-    
-    // Gabungkan data untuk response
+    // Create a response object that will be easier to work with
     const responseData = {
       ...pembayaranDetail.toObject(),
       rekam_medis: rekamMedis ? rekamMedis.toObject() : null
     };
+    
+    // FIXED: Ensure jenis_layanan is properly included from kunjungan if available
+    if (pembayaranDetail.id_kunjungan && pembayaranDetail.id_kunjungan.jenis_layanan) {
+      responseData.jenis_layanan = pembayaranDetail.id_kunjungan.jenis_layanan;
+    } else if (pembayaranDetail.id_kunjungan && pembayaranDetail.id_kunjungan.id_booking && 
+               pembayaranDetail.id_kunjungan.id_booking.jenis_layanan) {
+      responseData.jenis_layanan = pembayaranDetail.id_kunjungan.id_booking.jenis_layanan;
+    }
+    
+    // IMPROVED: Better handling of dokters data and ensuring names are always available
+    if (rekamMedis && rekamMedis.dokters && Array.isArray(rekamMedis.dokters)) {
+      // Log what we're starting with to help troubleshoot
+      console.log("Raw doctors data:", JSON.stringify(rekamMedis.dokters.map(d => ({
+        nama: d.nama,
+        id_user: d.id_user
+      }))));
+      
+      // Process each doctor to ensure name availability
+      responseData.rekam_medis.dokters = rekamMedis.dokters.map(dokter => {
+        const dokterObj = dokter.toObject ? dokter.toObject() : dokter;
+        
+        // Make sure we have some form of name for each doctor
+        if (!dokterObj.nama || dokterObj.nama === '') {
+          // If nama is empty, try to get it from id_user
+          if (dokterObj.id_user && dokterObj.id_user.nama) {
+            dokterObj.nama = dokterObj.id_user.nama;
+          } else {
+            // Fallback name if nothing is available
+            dokterObj.nama = 'Dokter';
+          }
+        }
+        
+        // Ensure id_user exists and has the needed properties
+        if (dokterObj.id_user) {
+          // Keep existing id_user properties and ensure nama exists
+          dokterObj.id_user = {
+            ...dokterObj.id_user,
+            nama: dokterObj.id_user.nama || dokterObj.nama || 'Dokter',
+            aktor: dokterObj.id_user.aktor || 'dokter'
+          };
+        } else {
+          // Create a minimal id_user if it doesn't exist
+          dokterObj.id_user = {
+            nama: dokterObj.nama || 'Dokter',
+            aktor: 'dokter'
+          };
+        }
+        
+        return dokterObj;
+      });
+      
+      // Additional logging to help troubleshoot
+      console.log("Processed doctors data:", 
+        responseData.rekam_medis.dokters.map(d => ({
+          nama: d.nama,
+          id_user_nama: d.id_user ? d.id_user.nama : null
+        }))
+      );
+    } else {
+      console.log("No doctors data found or invalid structure");
+    }
+    
+    // FIXED: Handle Decimal128 values for berat_badan and suhu_badan
+    if (rekamMedis && rekamMedis.dokters) {
+      responseData.rekam_medis.dokters = responseData.rekam_medis.dokters.map(dokter => {
+        const result = { ...dokter };
+        
+        // Convert Decimal128 berat_badan to plain number if needed
+        if (dokter.berat_badan) {
+          if (dokter.berat_badan.$numberDecimal) {
+            result.berat_badan = parseFloat(dokter.berat_badan.$numberDecimal);
+          }
+        }
+        
+        // Convert Decimal128 suhu_badan to plain number if needed
+        if (dokter.suhu_badan) {
+          if (dokter.suhu_badan.$numberDecimal) {
+            result.suhu_badan = parseFloat(dokter.suhu_badan.$numberDecimal);
+          }
+        }
+        
+        return result;
+      });
+    }
+    
+    // Also handle the root-level berat_badan and suhu_badan if they exist
+    if (responseData.rekam_medis) {
+      if (responseData.rekam_medis.berat_badan && responseData.rekam_medis.berat_badan.$numberDecimal) {
+        responseData.rekam_medis.berat_badan = parseFloat(responseData.rekam_medis.berat_badan.$numberDecimal);
+      }
+      
+      if (responseData.rekam_medis.suhu_badan && responseData.rekam_medis.suhu_badan.$numberDecimal) {
+        responseData.rekam_medis.suhu_badan = parseFloat(responseData.rekam_medis.suhu_badan.$numberDecimal);
+      }
+    }
     
     res.status(200).json(responseData);
   } catch (error) {

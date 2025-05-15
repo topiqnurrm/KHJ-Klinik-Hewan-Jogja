@@ -105,7 +105,11 @@ export const saveRekamMedis = async (rekamMedisData) => {
     // Format dokters
     if (formattedData.dokters && formattedData.dokters.length > 0) {
       formattedData.dokters = formattedData.dokters.map(dokter => {
-        const formattedDokter = { ...dokter };
+        const formattedDokter = { 
+          ...dokter,
+          // Ensure nama is preserved or use a default value
+          nama: dokter.nama || "Unknown"
+        };
         
         if (formattedDokter.berat_badan !== undefined && formattedDokter.berat_badan !== null) {
           formattedDokter.berat_badan = Number(formattedDokter.berat_badan);
@@ -117,6 +121,9 @@ export const saveRekamMedis = async (rekamMedisData) => {
         
         return formattedDokter;
       });
+
+      // Log to verify dokters data includes nama
+      console.log("Dokters data being sent:", formattedData.dokters);
     }
     
     // console.log("Sending to API - formatted data:", JSON.stringify(formattedData, null, 2));

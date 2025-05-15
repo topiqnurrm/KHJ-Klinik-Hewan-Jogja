@@ -746,6 +746,10 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         // Get the current logged in user ID from localStorage
         const currentUser = JSON.parse(localStorage.getItem('user')) || {};
         const userId = currentUser._id;
+        const userName = currentUser.nama || ""; // Get the user's name from localStorage
+
+        // Add logging to verify we're getting the user name
+        console.log("Current user from localStorage:", { userId, userName });
 
         // Safe conversion for numeric fields
         let beratBadan = 0;
@@ -863,6 +867,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         // Create dokters entry with the current user
         const dokterEntry = {
             id_user: userId,
+            nama: userName, // Add the user's name here
             status: dokterStatus,
             hasil: rekamMedisData.hasil,
             diagnosa: rekamMedisData.diagnosa || "",

@@ -52,6 +52,10 @@ const RekamMedisSchema = new mongoose.Schema({
                 ref: 'User',
                 required: false
             },
+            nama: {
+                type: String,
+                require: false
+            },
             status: {
                 type: String,
                 enum: ['sedang diperiksa', 'dirawat inap', 'menunggu pembayaran'],

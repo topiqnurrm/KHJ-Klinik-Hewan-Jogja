@@ -220,15 +220,37 @@ router.put('/update/:id', async (req, res) => {
       kategori: pel.kategori || "layanan medis"
     }));
     updateData.pelayanans2 = formattedPelayanans;
+
+    // Format dokters array - ensure nama is preserved
+    const formattedDokters = dokters.map(dokter => {
+      const formattedDokter = { ...dokter };
+      
+      // Ensure nama field is preserved
+      if (!formattedDokter.nama) {
+        console.warn("Dokter entry missing nama field:", dokter);
+        formattedDokter.nama = "Unknown";
+      }
+      
+      // Convert berat_badan and suhu_badan to Decimal128 if they exist
+      if (dokter.berat_badan !== null && dokter.berat_badan !== undefined) {
+        formattedDokter.berat_badan = mongoose.Types.Decimal128.fromString(String(dokter.berat_badan));
+      }
+      
+      if (dokter.suhu_badan !== null && dokter.suhu_badan !== undefined) {
+        formattedDokter.suhu_badan = mongoose.Types.Decimal128.fromString(String(dokter.suhu_badan));
+      }
+      
+      return formattedDokter;
+    });
     
     // Find existing record to append to dokters array instead of overriding
     let existingRecord = null;
     if (dokters && dokters.length > 0) {
       existingRecord = await RekamMedis.findById(id);
       if (existingRecord) {
-        // Use $push to append new dokters rather than replacing the array
+        // Use $push to append new dokters using the formatted dokters array
         await RekamMedis.findByIdAndUpdate(id, {
-          $push: { dokters: { $each: dokters } }
+          $push: { dokters: { $each: formattedDokters } }
         });
       }
     }

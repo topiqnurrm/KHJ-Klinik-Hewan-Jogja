@@ -307,9 +307,10 @@
     font-family: "SansSerifFLF", sans-serif;
 }
 
-.editretribusi-popup-overlay .print-button {
-    background-color: #f0f9ff;
-    border: 1px solid #93c5fd;
+.editretribusi-popup-overlay .print-button,
+.editretribusi-popup-overlay .print-button2 {
+    background-color: #34d399;
+    border: 1px solid #2b976f;
     border-radius: 4px;
     padding: 10px;
     cursor: pointer;
@@ -317,19 +318,27 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 53px;
 }
 
-.editretribusi-popup-overlay .print-button:hover {
-    background-color: #bfdbfe;
+.editretribusi-popup-overlay .print-button:hover,
+.editretribusi-popup-overlay .print-button2:hover {
+    background-color: #2cb784;
 }
 
-.editretribusi-popup-overlay .print-button:disabled {
+.editretribusi-popup-overlay .print-button:disabled,
+.editretribusi-popup-overlay .print-button2:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
 .editretribusi-popup-overlay .print-button img {
     width: 32px;
+    height: 32px;
+}
+
+.editretribusi-popup-overlay .print-button2 img {
+    width: 25px;
     height: 32px;
 }
 
