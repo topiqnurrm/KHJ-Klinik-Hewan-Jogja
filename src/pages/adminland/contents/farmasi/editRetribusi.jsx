@@ -709,9 +709,10 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
         return null;
     }
 
+
     // Konten modal yang akan di-render ke portal
     const modalContent = (
-        <div className="editretribusi-popup-overlay">
+        <div className="editretribusi-popup-overlay2">
             <div className="edit-retribusi-popup">
                 <div className="edit-header">
                     <h2>Pembayaran {pembayaranItem?.nama_klien || 'Pasien'}</h2>
@@ -733,17 +734,6 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                                     <div><span className="label">Nama Pemilik:</span> {pembayaranItem.nama_klien}</div>
                                     <div><span className="label">Tanggal:</span> {currentDateTime}</div>
                                     <div><span className="label">Nama Pasien:</span> {pembayaranItem.nama_hewan}</div>
-                                    
-                                    {/* {dokters.length > 0 && (
-                                        <div className="dokter-section">
-                                            <span className="label">Dokter:</span>
-                                            {dokters.map((dokter, idx) => (
-                                                <div key={idx} className="dokter-item">
-                                                    {dokter.id_user?.nama || 'Dokter'}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )} */}
                                 </div>
 
                                 <div className="retribusi-section-title">PEMAKAIAN OBAT</div>
@@ -796,76 +786,6 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                                 </div>
                             </div>
 
-                            {/* Kolom Tengah - Form Input */}
-                            <div className="retribusi-section retribusi-center">
-                                <form onSubmit={handleSubmit}>
-                                    <div className="input-section">
-                                        <label>Total Tagihan:</label>
-                                        <input 
-                                            type="text" 
-                                            value={formatCurrency(grandTotal)}
-                                            readOnly
-                                            className="currency-input disabled"
-                                        />
-                                    </div>
-
-                                    <div className="input-section">
-                                        <label>Jumlah Pembayaran Klien:</label>
-                                        <input 
-                                            type="number" 
-                                            name="jumlah_pembayaran"
-                                            value={formData.jumlah_pembayaran}
-                                            onChange={handleChange}
-                                            min={grandTotal}
-                                            className="currency-input"
-                                            required
-                                            disabled={isConfirmed}
-                                        />
-                                    </div>
-
-                                    <div className="input-section">
-                                        <label>Kembalian:</label>
-                                        <input 
-                                            type="text" 
-                                            value={formatCurrency(formData.kembali)}
-                                            readOnly
-                                            className="currency-input disabled"
-                                        />
-                                    </div>
-
-                                    <div className="input-section">
-                                        <label>Metode Pembayaran:</label>
-                                        <select 
-                                            name="metode_bayar" 
-                                            value={formData.metode_bayar}
-                                            onChange={handleChange}
-                                            required
-                                            disabled={isConfirmed}
-                                        >
-                                            <option value="cash">Cash</option>
-                                            <option value="debit">Debit</option>
-                                            <option value="kredit">Kredit</option>
-                                            <option value="transfer">Transfer</option>
-                                            <option value="qris">QRIS</option>
-                                            <option value="ovo">OVO</option>
-                                            <option value="gopay">GoPay</option>
-                                            <option value="dana">DANA</option>
-                                            <option value="linkaja">LinkAja</option>
-                                        </select>
-                                    </div>
-
-                                    <div className="action-buttons">
-                                        <button 
-                                            type="submit" 
-                                            className="simpan-button"
-                                            disabled={isLoading || isConfirmed || parseFloat(formData.jumlah_pembayaran) < grandTotal}
-                                        >
-                                            {isLoading ? 'Memproses...' : 'Simpan'}
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-
                             {/* Kolom Kanan - Hasil Pembayaran dan Print */}
                             <div className="retribusi-section retribusi-right">
                                 <div className="receipt-section">
@@ -875,14 +795,12 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                                     </div>
 
                                     <div className="print-section">
-                                        {/* ini masalahnya */}
                                         <div className="print-title">Print Retribusi Pembayaran:</div>
                                         <button 
                                             className="print-button" 
                                             onClick={handlePrintRetribusi}
                                             disabled={!isConfirmed}
                                         >
-                                            {/* <img src="./images/retribusi.png" alt="Print Retribusi" /> */}
                                             <img src={retribusiImg} alt="Print Retribusi" />
                                         </button>
                                     </div>
@@ -894,7 +812,6 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                                             onClick={handlePrintRekamMedis}
                                             disabled={!isConfirmed}
                                         >
-                                            {/* <img src="./images/rekammedis.png" alt="Print Rekam Medis" /> */}
                                             <img src={rekamMedisImg} alt="Print Rekam Medis" />
                                         </button>
                                     </div>
@@ -939,9 +856,12 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
             )}
         </div>
     );
-    
+
     // Gunakan ReactDOM.createPortal untuk me-render modal ke elemen portal
     return ReactDOM.createPortal(modalContent, portalElement);
+
+// Gunakan ReactDOM.createPortal untuk me-render modal ke elemen portal
+return ReactDOM.createPortal(modalContent, portalElement);
 };
 
 export default EditRetribusi;

@@ -63,6 +63,50 @@
   max-height: 64.5%;
 }
 
+/* Error notification */
+.kasir-container .error-notification {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px 15px;
+  margin: 0 20px 15px 20px;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Success notification */
+.kasir-container .success-notification {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px 15px;
+  margin: 0 20px 15px 20px;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Warning notification */
+.kasir-container .warning-notification {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 10px 15px;
+  margin: 0 20px 15px 20px;
+  border: 1px solid #ffeeba;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Info notification */
+.kasir-container .info-notification {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  padding: 10px 15px;
+  margin: 0 20px 15px 20px;
+  border: 1px solid #bee5eb;
+  border-radius: 4px;
+  text-align: center;
+}
+
 /* Filter styling */
 .kasir-container .riwayat-filter-container {
   display: flex;
@@ -219,7 +263,7 @@
 }
 
 .kasir-container .btn-blue {
-  background-color: #3690ff;
+  background-color: #34d399;
 }
 
 .kasir-container .btn-green img,
@@ -243,16 +287,13 @@
   color: #666;
 }
 
-/* Error message */
-.kasir-container .error-notification {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 10px 15px;
-  margin: 0 20px 15px 20px;
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
-  text-align: center;
-  font-weight: 500;
+/* Modified catatan cell styling to allow text wrapping */
+.kasir-container .catatan-cell {
+  max-width: 200px;
+  /* Remove text overflow properties to allow text to wrap */
+  white-space: normal; /* Changed from nowrap to normal */
+  word-wrap: break-word; /* Added for better word breaking */
+  overflow-wrap: break-word; /* Added for better word breaking */
 }
 
 /* Delete confirmation popup */
@@ -307,21 +348,6 @@
   background-color: #ef4444;
   color: white;
 }
-
-/* Modified catatan cell styling to allow text wrapping */
-.kasir-container .catatan-cell {
-  max-width: 200px;
-  /* Remove text overflow properties to allow text to wrap */
-  white-space: normal; /* Changed from nowrap to normal */
-  word-wrap: break-word; /* Added for better word breaking */
-  overflow-wrap: break-word; /* Added for better word breaking */
-}
-
-
-
-
-
-
 
 /* Modal styles */
 .modal-overlay {
@@ -399,9 +425,4 @@
 .submit-button {
   background-color: #175451;
   color: white;
-}
-
-
-.kasir-container .btn-blue {
-  background-color: #34d399;
 }

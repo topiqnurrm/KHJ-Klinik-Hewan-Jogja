@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './kasir.css';
 import editIcon from "../../../../components/riwayat/gambar/edit.png";
-import { getAllPembayaran } from '../../../../api/api-aktivitas-kasir';
+import { getAllPembayaran, hasEditPermission, getCurrentUser } from '../../../../api/api-aktivitas-kasir';
 import EditRetribusi from './editRetribusi';
 
 const Kasir = () => {
@@ -17,6 +17,48 @@ const Kasir = () => {
     // State for edit functionality
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingPembayaran, setEditingPembayaran] = useState(null);
+    
+    // State for current user and permissions
+    const [currentUser, setCurrentUser] = useState(null);
+    const [canEdit, setCanEdit] = useState(false);
+    
+    // State for notifications
+    const [notification, setNotification] = useState({
+        show: false,
+        message: "",
+        type: "error" // error, success, warning, info
+    });
+
+    // Show notification function
+    const showNotification = (message, type = "error") => {
+        setNotification({
+            show: true,
+            message: message,
+            type: type
+        });
+        
+        // Hapus notifikasi setelah 3 detik
+        setTimeout(() => {
+            setNotification({
+                ...notification,
+                show: false
+            });
+        }, 3000);
+    };
+    
+    // Fetch user data and permissions on mount
+    useEffect(() => {
+        const user = getCurrentUser();
+        setCurrentUser(user);
+        
+        // Set permission flag
+        setCanEdit(hasEditPermission());
+        
+        // If no user or invalid permissions, show error
+        if (!user) {
+            showNotification("Silakan login untuk mengakses halaman ini", "error");
+        }
+    }, []);
 
     // Fetch data on component mount
     useEffect(() => {
@@ -34,7 +76,9 @@ const Kasir = () => {
             setLoading(true);
             const data = await getAllPembayaran();
             setPembayaranList(data);
-            setFilteredPembayaranList(data);
+            setFilteredPembayaranList(data.filter(item => 
+                item.status_retribusi.toLowerCase() === "menunggu pembayaran"
+            ));
             setLoading(false);
         } catch (err) {
             setError('Gagal mengambil data pembayaran');
@@ -47,14 +91,18 @@ const Kasir = () => {
     const filterAndSortData = () => {
         let filtered = [...pembayaranList];
         
+        // Filter hanya status "menunggu pembayaran"
+        filtered = filtered.filter(item => 
+            item.status_retribusi.toLowerCase() === "menunggu pembayaran"
+        );
+        
         // Apply search filter if exists
         if (searchTerm) {
             filtered = filtered.filter(item => 
                 item.nama_klien.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 item.nama_hewan.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 item.nomor_antri.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.total_tagihan.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.status_retribusi.toLowerCase().includes(searchTerm.toLowerCase())
+                item.total_tagihan.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
         
@@ -101,6 +149,7 @@ const Kasir = () => {
     // Update data after edit
     const handleUpdateAfterEdit = () => {
         fetchPembayaranData(); // Refresh data
+        showNotification("Data pembayaran berhasil diperbarui", "success");
     };
 
     // Get CSS class for status display
@@ -125,6 +174,20 @@ const Kasir = () => {
             minimumFractionDigits: 0
         }).format(amount);
     };
+    
+    // Get notification class based on type
+    const getNotificationClass = () => {
+        switch (notification.type) {
+            case "success":
+                return "success-notification";
+            case "warning":
+                return "warning-notification";
+            case "info":
+                return "info-notification";
+            default:
+                return "error-notification";
+        }
+    };
 
     return (
         <div className='kasir-container'>
@@ -132,7 +195,12 @@ const Kasir = () => {
                 <h1>Aktivitas &gt; Kasir</h1>
             </div>
             
-            {error && <div className="error-message">{error}</div>}
+            {/* Notification system */}
+            {notification.show && (
+                <div className={getNotificationClass()}>
+                    {notification.message}
+                </div>
+            )}
             
             <div className="riwayat-filter-container">
                 <div className="riwayat-search-wrapper">
@@ -160,7 +228,6 @@ const Kasir = () => {
                         <option value="nama_hewan">Nama Hewan</option>
                         <option value="nomor_antri">Nomor Antri</option>
                         <option value="total_tagihan">Total Tagihan</option>
-                        <option value="status_retribusi">Status</option>
                     </select>
 
                     <select
@@ -176,7 +243,7 @@ const Kasir = () => {
             
             <div className="dashboard-content">
                 {loading ? (
-                    <div className="loading">Memuat data...</div>
+                    <div className="loading-indicator">Memuat data...</div>
                 ) : (
                     <table className="riwayat-table">
                         <thead>
@@ -202,15 +269,21 @@ const Kasir = () => {
                                         <td>{item.nomor_antri}</td>
                                         <td>{formatCurrency(item.total_tagihan)}</td>
                                         <td>
-                                            <span className={`status-label ${getStatusClass(item.status_retribusi)}`}>
+                                            <span className="status-label status-kuning">
                                                 {item.status_retribusi}
                                             </span>
                                         </td>
                                         <td className="riwayat-actions">
                                             <button 
-                                                className="btn-blue" 
+                                                className={`btn-blue ${!canEdit ? 'disabled-button' : ''}`}
                                                 title="Edit" 
-                                                onClick={() => handleEdit(item)}
+                                                onClick={() => {
+                                                    if (!canEdit) {
+                                                        showNotification("Anda tidak memiliki izin untuk mengedit pembayaran. Hanya kasir dan Superadmin yang diizinkan.", "error");
+                                                    } else {
+                                                        handleEdit(item);
+                                                    }
+                                                }}
                                             >
                                                 <img src={editIcon} alt="edit" />
                                             </button>
@@ -219,7 +292,7 @@ const Kasir = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="8" className="no-data">Tidak ada data pembayaran yang ditemukan</td>
+                                    <td colSpan="8" className="no-data">Tidak ada data pembayaran yang menunggu pembayaran</td>
                                 </tr>
                             )}
                         </tbody>
