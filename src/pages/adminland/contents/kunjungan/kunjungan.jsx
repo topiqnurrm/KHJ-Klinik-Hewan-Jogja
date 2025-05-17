@@ -307,7 +307,7 @@ const Kunjungan = () => {
                                 <th>Jenis Layanan</th>
                                 <th>Nomor Antri</th>
                                 <th>Status</th>
-                                <th>Edited At</th>
+                                <th>tanggal edit</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>

@@ -123,7 +123,7 @@ export const saveRekamMedis = async (rekamMedisData) => {
       });
 
       // Log to verify dokters data includes nama
-      console.log("Dokters data being sent:", formattedData.dokters);
+      // console.log("Dokters data being sent:", formattedData.dokters);
     }
     
     // console.log("Sending to API - formatted data:", JSON.stringify(formattedData, null, 2));

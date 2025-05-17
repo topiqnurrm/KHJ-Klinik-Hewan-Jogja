@@ -749,7 +749,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         const userName = currentUser.nama || ""; // Get the user's name from localStorage
 
         // Add logging to verify we're getting the user name
-        console.log("Current user from localStorage:", { userId, userName });
+        // console.log("Current user from localStorage:", { userId, userName });
 
         // Safe conversion for numeric fields
         let beratBadan = 0;
@@ -782,7 +782,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
             
             // For debugging, log items with no kategori
             if (!item.kategori) {
-                console.log("Warning: No kategori found for existing item:", item.namaObat);
+                // console.log("Warning: No kategori found for existing item:", item.namaObat);
             }
             
             return {
@@ -1098,15 +1098,15 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                                             placeholder="Masukkan diagnosa..."
                                         ></textarea>
                                     </div>
-                                    {/* <div className="form-group">
-                                        <label>Pemeriksaan</label>
+                                    <div className="form-group">
+                                        <label>Catatan Obat Yang Diambil (tulis nomor, contoh :1,2,4)</label>
                                         <textarea 
                                             name="pemeriksaan"
                                             value={rekamMedisData.pemeriksaan}
                                             onChange={handleInputChange}
                                             placeholder="Masukkan hasil pemeriksaan..."
                                         ></textarea>
-                                    </div> */}
+                                    </div>
                                     <div className="form-group">
                                         <label>Hasil<span className="required">*</span></label>
                                         <textarea 

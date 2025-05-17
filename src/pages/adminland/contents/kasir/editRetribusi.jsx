@@ -274,7 +274,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
         setShowConfirmation(true);
     };
 
-    // Actual save function after confirmation - NOW SAVES PAYMENT DATA
+    // Revised handleConfirmSave function to refresh data after saving
     const handleConfirmSave = async () => {
         try {
             setIsLoading(true);
@@ -300,24 +300,24 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                 jumlah_pembayaran: formData.jumlah_pembayaran.toString(),
             };
             
-            // Log the data being sent for debugging
-            // console.log('Sending payment data with data:', dataToBeSent);
-            
             // Now actually send to the API
             await updateStatusPembayaran(pembayaranItem._id, dataToBeSent);
             
             // Mark as confirmed in the UI
             setIsConfirmed(true);
             setShowConfirmation(false);
-            setIsLoading(false);
+            
+            // NEW: Refresh the data after successful save
+            await fetchPembayaranDetail();
             
             // Clear any previous errors
             setError('');
             
         } catch (err) {
             setError('Gagal mengupdate pembayaran');
-            setIsLoading(false);
             console.error('Error updating payment:', err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -423,7 +423,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                             <thead>
                                 <tr>
                                     <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Nama Obat</th>
-                                    <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Jml</th>
+                                    <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Qty</th>
                                     <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Subtotal</th>
                                 </tr>
                             </thead>
@@ -448,7 +448,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                             <thead>
                                 <tr>
                                     <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Tindakan</th>
-                                    <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Jml</th>
+                                    <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Qty</th>
                                     <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Subtotal</th>
                                 </tr>
                             </thead>
@@ -619,7 +619,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                     
                     <div style="margin-bottom: 3px;"><strong>Jenis Kelamin:</strong> ${detailData.id_kunjungan?.jenis_kelamin || '-'}</div>
                     <div style="margin-bottom: 3px;"><strong>Ras:</strong> ${detailData.id_kunjungan?.ras || '-'}</div>
-                    <div style="margin-bottom: 3px;"><strong>Umur:</strong> ${detailData.id_kunjungan?.umur_hewan || '-'}</div>
+                    <div style="margin-bottom: 3px;"><strong>Umur (tahun):</strong> ${detailData.id_kunjungan?.umur_hewan || '-'}</div>
                     <div style="margin-bottom: 3px;"><strong>Dokter:</strong> ${doctorsText}</div>
                 </div>
                 
@@ -628,8 +628,8 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                     <div style="display: grid; grid-template-columns: 1fr; gap: 5px; margin-bottom: 10px; font-size: 11px;">
                         <div style="margin-bottom: 3px;"><strong>Keluhan:</strong> ${mainDoctor.hasil || rekamMedis.hasil || '-'}</div>
                         <div style="margin-bottom: 3px;"><strong>Diagnosa:</strong> ${mainDoctor.diagnosa || rekamMedis.diagnosa || '-'}</div>
-                        <div style="margin-bottom: 3px;"><strong>Berat Badan:</strong> ${formatDecimal128Value(mainDoctor.berat_badan || rekamMedis.berat_badan)}</div>
-                        <div style="margin-bottom: 3px;"><strong>Suhu Badan:</strong> ${formatDecimal128Value(mainDoctor.suhu_badan || rekamMedis.suhu_badan)}</div>
+                        <div style="margin-bottom: 3px;"><strong>Berat Badan (Kg):</strong> ${formatDecimal128Value(mainDoctor.berat_badan || rekamMedis.berat_badan)}</div>
+                        <div style="margin-bottom: 3px;"><strong>Suhu Badan (°C):</strong> ${formatDecimal128Value(mainDoctor.suhu_badan || rekamMedis.suhu_badan)}</div>
                         
                         <div style="margin-bottom: 3px;"><strong>Hasil:</strong> ${rekamMedis.hasil || '-'}</div>
                     </div>

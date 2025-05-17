@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './farmasi.css';
 import editIcon from "../../../../components/riwayat/gambar/edit.png";
-import { getAllPembayaran, hasEditPermission, getCurrentUser } from '../../../../api/api-aktivitas-kasir';
+import { getAllPembayaran, getCurrentUser } from '../../../../api/api-aktivitas-farmasi';
 import EditRetribusi from './editRetribusi';
 
 const Kasir = () => {
@@ -39,11 +39,31 @@ const Kasir = () => {
         
         // Hapus notifikasi setelah 3 detik
         setTimeout(() => {
-            setNotification({
-                ...notification,
+            setNotification(prev => ({
+                ...prev,
                 show: false
-            });
+            }));
         }, 3000);
+    };
+    
+    // Check if user has edit permission (only superadmin and paramedis)
+    const checkEditPermission = (user) => {
+        if (!user) return false;
+        
+        // Cek baik dari role maupun aktor
+        if (typeof user.role === 'string') {
+            if (user.role.toLowerCase() === 'superadmin' || user.role.toLowerCase() === 'paramedis') {
+                return true;
+            }
+        }
+        
+        if (typeof user.aktor === 'string') {
+            if (user.aktor.toLowerCase() === 'superadmin' || user.aktor.toLowerCase() === 'paramedis') {
+                return true;
+            }
+        }
+        
+        return false;
     };
     
     // Fetch user data and permissions on mount
@@ -51,8 +71,13 @@ const Kasir = () => {
         const user = getCurrentUser();
         setCurrentUser(user);
         
-        // Set permission flag
-        setCanEdit(hasEditPermission());
+        // Set permission flag based on user role/aktor
+        const hasPermission = checkEditPermission(user);
+        setCanEdit(hasPermission);
+        
+        // Log for debugging
+        // console.log('Current user:', user);
+        // console.log('Has edit permission:', hasPermission);
         
         // If no user or invalid permissions, show error
         if (!user) {
@@ -101,25 +126,44 @@ const Kasir = () => {
         // Apply search filter if exists
         if (searchTerm) {
             filtered = filtered.filter(item => 
-                item.nama_klien.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.nama_hewan.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.nomor_antri.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                item.total_tagihan.toLowerCase().includes(searchTerm.toLowerCase())
+                (item.nama_klien && item.nama_klien.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (item.nama_hewan && item.nama_hewan.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (item.nomor_antri && item.nomor_antri.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (item.total_tagihan && item.total_tagihan.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (item.status_retribusi && item.status_retribusi.toLowerCase().includes(searchTerm.toLowerCase()))
             );
         }
         
         // Apply sorting
         filtered.sort((a, b) => {
+            // Helper function to safely get date for comparison
+            const getSortDate = (item) => {
+                if (item.updatedAt) return new Date(item.updatedAt);
+                if (item.last_edited_date) return new Date(item.last_edited_date);
+                if (item.tanggal_raw) return new Date(item.tanggal_raw);
+                return new Date(0); // fallback to epoch
+            };
+            
             if (sortBy === 'tanggal_raw') {
-                return sortOrder === 'asc' 
-                    ? new Date(a.tanggal_raw) - new Date(b.tanggal_raw)
-                    : new Date(b.tanggal_raw) - new Date(a.tanggal_raw);
+                const dateA = getSortDate(a);
+                const dateB = getSortDate(b);
+                
+                // Handle invalid dates
+                const isValidA = !isNaN(dateA.getTime());
+                const isValidB = !isNaN(dateB.getTime());
+                
+                if (!isValidA && !isValidB) return 0;
+                if (!isValidA) return sortOrder === 'asc' ? -1 : 1;
+                if (!isValidB) return sortOrder === 'asc' ? 1 : -1;
+                
+                return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
             }
             
             if (sortBy === 'total_tagihan') {
-                return sortOrder === 'asc'
-                    ? parseFloat(a.total_tagihan) - parseFloat(b.total_tagihan)
-                    : parseFloat(b.total_tagihan) - parseFloat(a.total_tagihan);
+                // Parse numbers safely
+                const numA = parseFloat(a.total_tagihan || '0');
+                const numB = parseFloat(b.total_tagihan || '0');
+                return sortOrder === 'asc' ? numA - numB : numB - numA;
             }
             
             // For text-based sorting
@@ -138,6 +182,11 @@ const Kasir = () => {
 
     // Handle edit button click
     const handleEdit = (pembayaranItem) => {
+        if (!canEdit) {
+            showNotification("Anda tidak memiliki izin untuk mengedit pembayaran. Hanya superadmin dan paramedis yang diizinkan.", "error");
+            return;
+        }
+        
         setEditingPembayaran(pembayaranItem);
         setShowEditModal(true);
     };
@@ -156,7 +205,7 @@ const Kasir = () => {
 
     // Get CSS class for status display
     const getStatusClass = (status) => {
-        switch (status) {
+        switch (status.toLowerCase()) {
             case "menunggu pembayaran":
                 return "status-kuning";
             case "mengambil obat":
@@ -170,11 +219,16 @@ const Kasir = () => {
 
     // Format currency (IDR)
     const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
-        }).format(amount);
+        try {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        } catch (error) {
+            console.error('Format currency error:', error);
+            return amount; // Return original amount if there's an error
+        }
     };
     
     // Get notification class based on type
@@ -189,6 +243,46 @@ const Kasir = () => {
             default:
                 return "error-notification";
         }
+    };
+
+    // Get display date (prioritize updatedAt over tanggal_selesai)
+    const getDisplayDate = (item) => {
+        // Helper function to safely parse dates
+        const safeParseDate = (dateInput) => {
+            if (!dateInput) return null;
+            
+            try {
+                const date = new Date(dateInput);
+                // Check if date is valid
+                if (isNaN(date.getTime())) return null;
+                
+                return date.toLocaleString('id-ID', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (err) {
+                console.error('Date parsing error:', err, dateInput);
+                return null;
+            }
+        };
+        
+        // Try each date field in priority order
+        const updatedAtDate = safeParseDate(item.updatedAt);
+        if (updatedAtDate) return updatedAtDate;
+        
+        const lastEditedDate = safeParseDate(item.last_edited_date);
+        if (lastEditedDate) return lastEditedDate;
+        
+        const tanggalSelesaiDate = safeParseDate(item.tanggal_selesai);
+        if (tanggalSelesaiDate) return tanggalSelesaiDate;
+        
+        const tanggalDate = safeParseDate(item.tanggal);
+        if (tanggalDate) return tanggalDate;
+        
+        return '-';
     };
 
     return (
@@ -246,12 +340,14 @@ const Kasir = () => {
             <div className="dashboard-content">
                 {loading ? (
                     <div className="loading-indicator">Memuat data...</div>
+                ) : error ? (
+                    <div className="error-message">{error}</div>
                 ) : (
                     <table className="riwayat-table">
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Tanggal Selesai Periksa</th>
+                                <th>Tanggal selesai pembayaran</th>
                                 <th>Nama Klien</th>
                                 <th>Nama Hewan</th>
                                 <th>Nomor Antri</th>
@@ -265,27 +361,21 @@ const Kasir = () => {
                                 filteredPembayaranList.map((item, index) => (
                                     <tr key={item._id}>
                                         <td>{index + 1}</td>
-                                        <td>{item.tanggal_selesai}</td>
-                                        <td>{item.nama_klien}</td>
-                                        <td>{item.nama_hewan}</td>
-                                        <td>{item.nomor_antri}</td>
+                                        <td>{getDisplayDate(item)}</td>
+                                        <td>{item.nama_klien || '-'}</td>
+                                        <td>{item.nama_hewan || '-'}</td>
+                                        <td>{item.nomor_antri || '-'}</td>
                                         <td>{formatCurrency(item.total_tagihan)}</td>
                                         <td>
-                                            <span className={`status-label ${getStatusClass(item.status_retribusi.toLowerCase())}`}>
+                                            <span className={`status-label ${getStatusClass(item.status_retribusi)}`}>
                                                 {item.status_retribusi}
                                             </span>
                                         </td>
                                         <td className="riwayat-actions">
                                             <button 
                                                 className={`btn-blue ${!canEdit ? 'disabled-button' : ''}`}
-                                                title="Edit" 
-                                                onClick={() => {
-                                                    if (!canEdit) {
-                                                        showNotification("Anda tidak memiliki izin untuk mengedit pembayaran. Hanya kasir dan Superadmin yang diizinkan.", "error");
-                                                    } else {
-                                                        handleEdit(item);
-                                                    }
-                                                }}
+                                                title={canEdit ? "Edit" : "Anda tidak memiliki izin untuk mengedit"} 
+                                                onClick={() => handleEdit(item)}
                                             >
                                                 <img src={editIcon} alt="edit" />
                                             </button>

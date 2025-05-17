@@ -308,3 +308,56 @@
         margin-top: 15px;
     }
 }
+
+
+
+
+
+/* CSS Update for Produk Item Section */
+.produk-item {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 10px 0;
+  margin-bottom: 10px;
+}
+
+.produk-item:last-child {
+  border-bottom: none;
+}
+
+.produk-item .label {
+  font-weight: 600;
+  min-width: 100px;
+  display: inline-block;
+}
+
+.produk-item .labell {
+  font-weight: 600;
+  min-width: 100px;
+  background-color: #1754514d;
+  display: inline-block;
+}
+
+/* Additional styling for kategori and jenis */
+.produk-item div {
+  margin-bottom: 4px;
+}
+
+
+
+
+.pemeriksaan-section {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #ccc;
+}
+
+.label-section {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.pemeriksaan-text {
+    white-space: pre-wrap;
+    margin-left: 10px;
+    font-style: italic;
+}

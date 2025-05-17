@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import './EditRetribusi.css';
-import { updateStatusPembayaran, getPembayaranDetail } from '../../../../api/api-aktivitas-kasir';
+import { updateStatusPembayaran, getPembayaranDetail } from '../../../../api/api-aktivitas-farmasi';
 import Popup2 from '../../admin_nav/popup_nav/popup2';
 
 import printJS from 'print-js'; // Add this import
@@ -108,6 +108,16 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                         0
                     );
                     setTotalObat(totalHargaObat);
+                    
+                    // Console log for debugging purposes
+                    // console.log("Produks data with kategori and jenis:", 
+                    //     data.rekam_medis.produks.map(produk => ({
+                    //         nama: produk.nama,
+                    //         kategori: produk.kategori,
+                    //         jenis: produk.jenis,
+                    //         jumlah: produk.jumlah
+                    //     }))
+                    // );
                 }
                 
                 if (data.rekam_medis.pelayanans2 && Array.isArray(data.rekam_medis.pelayanans2)) {
@@ -223,7 +233,10 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
             setIsConfirmed(hasPaymentAmount || hasNonWaitingStatus || (hasChangeAmount && hasMetodeBayar));
 
             // Add this logging to help debug
-            // console.log("isConfirmed status:", {
+            // console.log("Payment status details:", {
+            //     status_retribusi: data.status_retribusi,
+            //     pembayaran: pembayaran,
+            //     kembalian: kembalian,
             //     hasPaymentAmount,
             //     hasChangeAmount,
             //     hasNonWaitingStatus,
@@ -321,63 +334,65 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
         }
     };
 
-    // Handle selesai button click
     const handleSelesaiClick = () => {
+        // Show confirmation dialog regardless of current status
+        // Previously it was only showing for 'mengambil obat' status
         setShowSelesaiConfirmation(true);
+        // console.log("Selesai button clicked, showing confirmation dialog");
     };
 
     // Handle final confirmation for selesai - NOW ONLY UPDATES STATUS
     const handleConfirmSelesai = async () => {
         try {
-            setIsLoading(true);
-            
-            // Get user data from localStorage correctly
-            let userId = null;
-            const userStr = localStorage.getItem('user');
-            if (userStr) {
-                try {
-                    const userData = JSON.parse(userStr);
-                    userId = userData._id; // Extract the _id from the user object
-                } catch (e) {
-                    console.error('Error parsing user data from localStorage:', e);
-                }
+        setIsLoading(true);
+        
+        // Get user data from localStorage correctly
+        let userId = null;
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
+            const userData = JSON.parse(userStr);
+            userId = userData._id; // Extract the _id from the user object
+            } catch (e) {
+            console.error('Error parsing user data from localStorage:', e);
             }
+        }
+        
+        // Make sure we're sending both payment data and status updates
+        const dataToBeSent = {
+            status_retribusi: 'selesai', // Change status to 'selesai'
+            // Include these fields to maintain consistency with previous data
+            metode_bayar: formData.metode_bayar,
+            kembali: formData.kembali.toString(),
+            jumlah_pembayaran: formData.jumlah_pembayaran.toString(),
             
-            // Make sure we're sending both payment data and status updates
-            const dataToBeSent = {
-                status_retribusi: 'mengambil obat', // Change status to 'mengambil obat'
-                // Include these fields to maintain consistency with previous data
-                metode_bayar: formData.metode_bayar,
-                kembali: formData.kembali.toString(),
-                jumlah_pembayaran: formData.jumlah_pembayaran.toString(),
-                
-                // Add data to update booking status and ensure kunjungan data is complete
-                update_booking: true,
-                booking_data: {
-                    status_booking: 'mengambil obat',
-                },
-                // Update kunjungan with status and user ID
-                update_kunjungan: true,
-                kunjungan_data: {
-                    id_user: userId,
-                    catatan: `Kembalian: ${formData.kembali}`,
-                    status_kunjungan: 'mengambil obat'
-                }
-            };
-            
-            // Log the data being sent for debugging
-            // console.log('Sending status update with data:', dataToBeSent);
-            
-            // Now actually send to the API
-            await updateStatusPembayaran(pembayaranItem._id, dataToBeSent);
-            
-            setIsLoading(false);
-            onUpdate(); // Refresh data in parent component
-            onClose(); // Close the modal
+            // Add data to update booking status and ensure kunjungan data is complete
+            update_booking: true,
+            booking_data: {
+            status_booking: 'selesai', // This is the key change needed
+            },
+            // Update kunjungan with status and user ID
+            update_kunjungan: true,
+            kunjungan_data: {
+            id_user: userId,
+            catatan: `Kembalian: ${formData.kembali}`,
+            status_kunjungan: 'selesai'
+            }
+        };
+        
+        // console.log('Sending status update with data:', dataToBeSent);
+        
+        // Now actually send to the API
+        await updateStatusPembayaran(pembayaranItem._id, dataToBeSent);
+        
+        setIsLoading(false);
+        setShowSelesaiConfirmation(false); // Make sure to close the confirmation popup
+        onUpdate(); // Refresh data in parent component
+        onClose(); // Close the modal
         } catch (err) {
-            setError('Gagal mengupdate pembayaran');
-            setIsLoading(false);
-            console.error('Error updating payment:', err);
+        setError('Gagal mengupdate pembayaran');
+        setIsLoading(false);
+        console.error('Error updating payment:', err);
         }
     };
 
@@ -423,7 +438,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                             <thead>
                                 <tr>
                                     <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Nama Obat</th>
-                                    <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Jml</th>
+                                    <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Qty</th>
                                     <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Subtotal</th>
                                 </tr>
                             </thead>
@@ -448,7 +463,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                             <thead>
                                 <tr>
                                     <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Tindakan</th>
-                                    <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Jml</th>
+                                    <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Qty</th>
                                     <th style="border: 1px solid #ddd; padding: 4px; text-align: left; background-color: #f2f2f2;">Subtotal</th>
                                 </tr>
                             </thead>
@@ -619,7 +634,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                     
                     <div style="margin-bottom: 3px;"><strong>Jenis Kelamin:</strong> ${detailData.id_kunjungan?.jenis_kelamin || '-'}</div>
                     <div style="margin-bottom: 3px;"><strong>Ras:</strong> ${detailData.id_kunjungan?.ras || '-'}</div>
-                    <div style="margin-bottom: 3px;"><strong>Umur:</strong> ${detailData.id_kunjungan?.umur_hewan || '-'}</div>
+                    <div style="margin-bottom: 3px;"><strong>Umur (tahun):</strong> ${detailData.id_kunjungan?.umur_hewan || '-'}</div>
                     <div style="margin-bottom: 3px;"><strong>Dokter:</strong> ${doctorsText}</div>
                 </div>
                 
@@ -628,8 +643,8 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                     <div style="display: grid; grid-template-columns: 1fr; gap: 5px; margin-bottom: 10px; font-size: 11px;">
                         <div style="margin-bottom: 3px;"><strong>Keluhan:</strong> ${mainDoctor.hasil || rekamMedis.hasil || '-'}</div>
                         <div style="margin-bottom: 3px;"><strong>Diagnosa:</strong> ${mainDoctor.diagnosa || rekamMedis.diagnosa || '-'}</div>
-                        <div style="margin-bottom: 3px;"><strong>Berat Badan:</strong> ${formatDecimal128Value(mainDoctor.berat_badan || rekamMedis.berat_badan)}</div>
-                        <div style="margin-bottom: 3px;"><strong>Suhu Badan:</strong> ${formatDecimal128Value(mainDoctor.suhu_badan || rekamMedis.suhu_badan)}</div>
+                        <div style="margin-bottom: 3px;"><strong>Berat Badan (Kg):</strong> ${formatDecimal128Value(mainDoctor.berat_badan || rekamMedis.berat_badan)}</div>
+                        <div style="margin-bottom: 3px;"><strong>Suhu Badan (°C):</strong> ${formatDecimal128Value(mainDoctor.suhu_badan || rekamMedis.suhu_badan)}</div>
                         
                         <div style="margin-bottom: 3px;"><strong>Hasil:</strong> ${rekamMedis.hasil || '-'}</div>
                     </div>
@@ -728,62 +743,44 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                         <div className="retribusi-container">
                             {/* Kolom Kiri - Data Retribusi */}
                             <div className="retribusi-section retribusi-left">
-                                <div className="retribusi-section-title">RETRIBUSI PEMBAYARAN</div>
+                                <div className="retribusi-section-title">FARMASI</div>
                                 <div className="retribusi-data">
                                     <div><span className="label">ID:</span> {pembayaranItem._id}</div>
                                     <div><span className="label">Nama Pemilik:</span> {pembayaranItem.nama_klien}</div>
                                     <div><span className="label">Tanggal:</span> {currentDateTime}</div>
                                     <div><span className="label">Nama Pasien:</span> {pembayaranItem.nama_hewan}</div>
+                                    
+                                    {/* Pemeriksaan data from rekam_medis */}
+                                    {detailData?.rekam_medis?.pemeriksaan && (
+                                        <div className="pemeriksaan-section">
+                                            <div className="label-section">No Obat yang Ditebus:</div>
+                                            <div className="pemeriksaan-text">{detailData.rekam_medis.pemeriksaan}</div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="retribusi-section-title">PEMAKAIAN OBAT</div>
                                 <div className="retribusi-data">
                                     {produks.length > 0 ? (
-                                        produks.map((produk, idx) => (
+                                        [...produks].reverse().map((produk, idx) => (
                                             <div key={idx} className="produk-item">
+                                                <div className="label"><span>No:</span> {idx + 1}</div>
                                                 <div><span className="label">Nama Obat:</span> {produk.nama}</div>
+                                                <div><span className="label">Kategori:</span> {produk.kategori || '-'}</div>
+                                                <div><span className="label">Jenis:</span> {produk.jenis || '-'}</div>
                                                 <div><span className="label">Jumlah:</span> {produk.jumlah}</div>
-                                                <div><span className="label">Harga:</span> {formatCurrency(parseFloat(produk.harga?.$numberDecimal || 0))}</div>
-                                                <div><span className="label">Subtotal:</span> {formatCurrency(parseFloat(produk.subtotal_obat?.$numberDecimal || 0))}</div>
                                             </div>
                                         ))
                                     ) : (
                                         <div>Tidak ada pemakaian obat</div>
                                     )}
-                                    {produks.length > 0 && (
+                                    {/* {produks.length > 0 && (
                                         <div className="total-section">
                                             <span className="label">Total Obat:</span> {formatCurrency(totalObat)}
                                         </div>
-                                    )}
+                                    )} */}
                                 </div>
 
-                                <div className="retribusi-section-title">JASA TINDAKAN</div>
-                                <div className="retribusi-data">
-                                    {pelayanans.length > 0 ? (
-                                        pelayanans.map((pelayanan, idx) => (
-                                            <div key={idx} className="pelayanan-item">
-                                                <div><span className="label">Tindakan:</span> {pelayanan.nama}</div>
-                                                <div><span className="label">Jumlah:</span> {pelayanan.jumlah}</div>
-                                                <div><span className="label">Harga:</span> {formatCurrency(parseFloat(pelayanan.harga?.$numberDecimal || 0))}</div>
-                                                <div><span className="label">Subtotal:</span> {formatCurrency(parseFloat(pelayanan.subtotal_pelayanan?.$numberDecimal || 0))}</div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div>Tidak ada jasa tindakan</div>
-                                    )}
-                                    {pelayanans.length > 0 && (
-                                        <div className="total-section">
-                                            <span className="label">Total Tindakan:</span> {formatCurrency(totalPelayanan)}
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="retribusi-section-title">PEMBAYARAN</div>
-                                <div className="retribusi-data">
-                                    <div className="grand-total">
-                                        <span className="label">Grand Total:</span> {formatCurrency(grandTotal)}
-                                    </div>
-                                </div>
                             </div>
 
                             {/* Kolom Kanan - Hasil Pembayaran dan Print */}
@@ -812,6 +809,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                                             onClick={handlePrintRekamMedis}
                                             disabled={!isConfirmed}
                                         >
+                                            {/* <img src="./images/rekammedis.png" alt="Print Rekam Medis" /> */}
                                             <img src={rekamMedisImg} alt="Print Rekam Medis" />
                                         </button>
                                     </div>
@@ -820,8 +818,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                                         <button 
                                             className="selesai-button"
                                             onClick={handleSelesaiClick}
-                                            disabled={isLoading || (!isConfirmed && 
-                                                (parseFloat(formData.jumlah_pembayaran) < grandTotal || formData.kembali <= 0))}
+                                            disabled={isLoading || !isConfirmed || formData.status_retribusi !== 'mengambil obat'}
                                         >
                                             Selesai
                                         </button>
@@ -850,7 +847,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                     isOpen={showSelesaiConfirmation}
                     onClose={() => setShowSelesaiConfirmation(false)}
                     title="Konfirmasi Selesai"
-                    description="Apakah anda yakin ingin menyelesaikan pembayaran dan memberikan status mengambil obat dan akan menghilangkan data ini dari kasir?"
+                    description="Apakah anda yakin ingin menyelesaikan pembayaran dan memberikan status selesai serta akan menghilangkan data ini dari kasir?"
                     onConfirm={handleConfirmSelesai}
                 />
             )}
