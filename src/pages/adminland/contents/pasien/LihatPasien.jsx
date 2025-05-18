@@ -349,19 +349,26 @@ const LihatPasien = ({ pasien, onClose, users, getKategoriClass }) => {
                                                 <td className="riwayat-actions">
                                                     {["sedang diperiksa", "dirawat inap", "menunggu pembayaran", "mengambil obat", "selesai"].includes(booking.status_booking) && (
                                                         <>
-                                                            <button 
+                                                            {/* <button 
                                                                 className={`btn-blue ${canAccessRetribusi(booking.status_booking) ? '' : 'disabled'}`} 
                                                                 title="Lihat Retribusi" 
                                                                 onClick={() => canAccessRetribusi(booking.status_booking) && alert(`Lihat retribusi ${booking._id}`)}
                                                                 disabled={!canAccessRetribusi(booking.status_booking)}
                                                             >
                                                                 <img src={retribusiIcon} alt="retribusi" />
-                                                            </button>
-                                                            <button 
+                                                            </button> */}
+                                                            {/* <button 
                                                                 className={`btn-blue ${canAccessRekamMedis(booking.status_booking) ? '' : 'disabled'}`} 
                                                                 title="Rekam Medis" 
                                                                 onClick={() => canAccessRekamMedis(booking.status_booking) && alert(`Lihat rekam medis ${booking._id}`)}
                                                                 disabled={!canAccessRekamMedis(booking.status_booking)}
+                                                            >
+                                                                <img src={rekamIcon} alt="rekam" />
+                                                            </button> */}
+                                                            <button 
+                                                                className="btn-blue"
+                                                                title="Rekam Medis"
+                                                                onClick={() => alert(`Lihat rekam medis ${r._id}`)}
                                                             >
                                                                 <img src={rekamIcon} alt="rekam" />
                                                             </button>

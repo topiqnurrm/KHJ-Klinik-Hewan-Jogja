@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import Popup from "../popup/popupriwayat";
 import ConfirmPopup from "../popup/popup2"; 
 import PopupEditBooking from "../popup/popupeditbooking";
+import MedicalRecordPopup from "../print_historis/MedicalRecordPopup"; // Import the MedicalRecordPopup component
 import { getBookingWithRetribusi, deleteBooking } from "../../api/api-booking";
 import "./riwayatklien.css";
 
@@ -31,7 +32,10 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
     const [bookingToDelete, setBookingToDelete] = useState(null);
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [bookingToEdit, setBookingToEdit] = useState(null);
-    const [debugInfo, setDebugInfo] = useState(null); // State untuk debugging
+    // New state for medical record popup
+    const [showMedicalRecordPopup, setShowMedicalRecordPopup] = useState(false);
+    const [selectedBookingId, setSelectedBookingId] = useState(null);
+    const [debugInfo, setDebugInfo] = useState(null);
 
     const fetchRiwayat = () => {
         setIsLoading(true);
@@ -49,7 +53,6 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                     (item) => item.administrasis1?.some(admin => admin.id_user === userId)
                 );
                 
-                // Debug: Cek salah satu data untuk melihat struktur administrasis1
                 if (filteredByUser.length > 0) {
                     const sampleItem = filteredByUser[0];
                     console.log("Sample administrasis1:", sampleItem.administrasis1);
@@ -79,21 +82,16 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
         }
     }, [isOpen]);
 
-    // Perbaikan fungsi getLatestNote untuk mengembalikan catatan berdasarkan data buat terbaru
     const getLatestNote = (administrasisArray) => {
-        // Debug
         console.log("Receiving administrasisArray:", administrasisArray);
         
-        // Pastikan array ada dan tidak kosong
         if (!administrasisArray || !Array.isArray(administrasisArray) || administrasisArray.length === 0) {
             console.log("Array kosong atau tidak valid, mengembalikan default");
             return { catatan: "-", status_administrasi: "", tanggal: null };
         }
 
-        // Buat salinan array untuk mencegah modifikasi array asli
         let adminCopy = [...administrasisArray];
 
-        // Debug - cetak semua tanggal sebelum sorting
         console.log("Tanggal sebelum sorting:", adminCopy.map(a => ({
             tanggal: a.tanggal,
             catatan: a.catatan,
@@ -101,37 +99,28 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
             parsed: a.createdAt ? new Date(a.createdAt) : new Date(a.tanggal)
         })));
 
-        // Urutkan array berdasarkan createdAt atau tanggal jika createdAt tidak ada
-        // Urutan DESCENDING (dari yang terbaru)
         adminCopy.sort((a, b) => {
-            // Prioritaskan berdasarkan createdAt jika ada
             const dateFieldA = a.createdAt || a.tanggal;
             const dateFieldB = b.createdAt || b.tanggal;
             
-            // Jika tanggal tidak valid, letakkan di akhir
             if (!dateFieldA) return 1;
             if (!dateFieldB) return -1;
             
-            // Ubah string tanggal menjadi objek Date
             const dateA = new Date(dateFieldA);
             const dateB = new Date(dateFieldB);
             
-            // Validasi untuk memastikan tanggal valid
             if (isNaN(dateA.getTime())) return 1;
             if (isNaN(dateB.getTime())) return -1;
             
-            // Urutan descending (terbaru dulu)
             return dateB - dateA;
         });
 
-        // Debug - cetak hasil sorting
         console.log("Hasil setelah sorting:", adminCopy.map(a => ({
             tanggal: a.tanggal,
             createdAt: a.createdAt,
             catatan: a.catatan
         })));
 
-        // Ambil elemen pertama (terbaru) setelah pengurutan
         const newest = adminCopy[0];
         console.log("Catatan terbaru yang dipilih:", newest);
         return newest;
@@ -146,7 +135,6 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                 .filter(Boolean)
                 .join(", ");
             
-            // Get the complete latest note object with improved debugging
             const latestNote = getLatestNote(r.administrasis1);
             console.log(`Item ${r._id} - Latest note:`, latestNote);
             
@@ -165,7 +153,6 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
             return allFields.includes(lower);
         });
 
-        // Sorting logic
         if (sortBy) {
             result.sort((a, b) => {
                 let valueA, valueB;
@@ -198,11 +185,9 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                         valueB = b[sortBy];
                 }
 
-                // Handle null values
                 if (valueA === null || valueA === undefined) valueA = sortOrder === "asc" ? "" : "zzz";
                 if (valueB === null || valueB === undefined) valueB = sortOrder === "asc" ? "" : "zzz";
 
-                // Comparison
                 if (typeof valueA === "string" && typeof valueB === "string") {
                     return sortOrder === "asc"
                         ? valueA.localeCompare(valueB)
@@ -226,6 +211,12 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
         setShowEditPopup(true);
     };
 
+    // New function to handle opening medical record popup
+    const handleViewMedicalRecord = (bookingId) => {
+        setSelectedBookingId(bookingId);
+        setShowMedicalRecordPopup(true);
+    };
+
     const handleCloseEditPopup = () => {
         setShowEditPopup(false);
         setBookingToEdit(null);
@@ -233,6 +224,12 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
         if (typeof onBookingDeleted === 'function') {
             onBookingDeleted();
         }
+    };
+
+    // New function to handle closing medical record popup
+    const handleCloseMedicalRecordPopup = () => {
+        setShowMedicalRecordPopup(false);
+        setSelectedBookingId(null);
     };
 
     const confirmDeleteBooking = () => {
@@ -292,7 +289,6 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
         }
     };
 
-    // Fungsi format layanan (dengan default jenis layanan fallback)
     const formatServiceDisplay = (pelayanan, defaultJenisLayanan) => {
         const nama = pelayanan.nama || pelayanan.id_pelayanan?.nama || "";
         const jenisLayanan = pelayanan.jenis_layanan || pelayanan.id_pelayanan?.jenis_layanan || defaultJenisLayanan || "";
@@ -300,68 +296,9 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
         return jenisLayanan ? `${nama} (${formattedJenisLayanan})` : nama;
     };
 
-    // Komponen untuk menampilkan debugging info
-    const DebugPanel = ({data}) => {
-        if (!data) return null;
-        
-        // Buat salinan array dan urutkan terbalik
-        const reversedAdministrasis = data.administrasis1 ? [...data.administrasis1].reverse() : [];
-        
-        return (
-            <div style={{margin: "20px 0", padding: "10px", backgroundColor: "#f5f5f5", border: "1px solid #ddd"}}>
-                <h3>Debug Info:</h3>
-                <p><strong>Item ID:</strong> {data.itemId}</p>
-                <div>
-                    <strong>All administrasis1 entries:</strong>
-                    <pre style={{maxHeight: "200px", overflow: "auto"}}>
-                        {JSON.stringify(reversedAdministrasis, null, 2)}
-                    </pre>
-                </div>
-                <div>
-                    <strong>Latest Note Selected:</strong>
-                    <pre>
-                        {JSON.stringify(data.latestNote, null, 2)}
-                    </pre>
-                </div>
-            </div>
-        );
-    };
-
-    // Fungsi untuk menampilkan semua catatan dalam administrasis1
-    const showAllNotes = (administrasis) => {
-        if (!administrasis || !Array.isArray(administrasis) || administrasis.length === 0) {
-            return <span className="no-notes">Tidak ada catatan</span>;
-        }
-
-        // Urutkan dari yang terbaru ke terlama
-        const sortedNotes = [...administrasis].sort((a, b) => {
-            if (!a.tanggal) return 1;
-            if (!b.tanggal) return -1;
-            return new Date(b.tanggal) - new Date(a.tanggal);
-        });
-
-        return (
-            <div className="all-notes">
-                {sortedNotes.map((admin, idx) => (
-                    <div key={idx} className="note-item">
-                        <div className="note-date">
-                            {admin.tanggal ? new Date(admin.tanggal).toLocaleDateString("id-ID") : "Tanggal tidak tersedia"}
-                        </div>
-                        <div className="note-content">
-                            {admin.catatan || "-"}
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-    };
-
     return (
         <>
             <Popup isOpen={isOpen} onClose={onClose} title="Riwayat Pemeriksaan Hewan Saya">
-                {/* Tampilkan panel debugging jika ada data */}
-                {/* {debugInfo && <DebugPanel data={debugInfo} />} */}
-                
                 <div className="riwayat-filter-container">
                     <div className="riwayat-search-wrapper">
                         <label className="riwayat-search-label">Filter Pencarian</label>
@@ -417,7 +354,6 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                                     <th>Lokasi</th>
                                     <th>Layanan</th>
                                     <th>Catatan</th>
-                                    {/* <th>Semua Catatan</th> */}
                                     <th>Status</th>
                                     <th>Biaya</th>
                                     <th>Tgl Update</th>
@@ -445,7 +381,6 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                                                     .join(", ") || "-"}
                                             </td>
                                             <td>{getLatestNote(r.administrasis1).catatan || "-"}</td>
-                                            {/* <td>{showAllNotes(r.administrasis1)}</td> */}
                                             <td>
                                                 <span className={`status-label ${getStatusClass(r.status_booking)}`}>
                                                     {r.status_booking}
@@ -456,19 +391,18 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                                             <td className="riwayat-actions">
                                                 {["sedang diperiksa", "dirawat inap", "menunggu pembayaran", "mengambil obat", "selesai"].includes(r.status_booking) && (
                                                     <>
-                                                        <button 
-                                                            className={`btn-blue ${canAccessRetribusi(r.status_booking) ? '' : 'disabled'}`} 
-                                                            title="Lihat Retribusi" 
-                                                            onClick={() => canAccessRetribusi(r.status_booking) && alert(`Lihat retribusi ${r._id}`)}
-                                                            disabled={!canAccessRetribusi(r.status_booking)}
-                                                        >
-                                                            <img src={retribusiIcon} alt="retribusi" />
-                                                        </button>
-                                                        <button 
+                                                        {/* <button 
                                                             className={`btn-blue ${canAccessRekamMedis(r.status_booking) ? '' : 'disabled'}`} 
                                                             title="Rekam Medis" 
-                                                            onClick={() => canAccessRekamMedis(r.status_booking) && alert(`Lihat rekam medis ${r._id}`)}
+                                                            onClick={() => handleViewMedicalRecord(r._id)}
                                                             disabled={!canAccessRekamMedis(r.status_booking)}
+                                                        >
+                                                            <img src={rekamIcon} alt="rekam" />
+                                                        </button> */}
+                                                        <button 
+                                                            className="btn-blue"
+                                                            title="Rekam Medis"
+                                                            onClick={() => handleViewMedicalRecord(r._id)}
                                                         >
                                                             <img src={rekamIcon} alt="rekam" />
                                                         </button>
@@ -494,7 +428,13 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                 </div>
             </Popup>
 
-            <PopupEditBooking isOpen={showEditPopup} onClose={handleCloseEditPopup} bookingData={bookingToEdit} />
+            {/* Include the popups */}
+            <PopupEditBooking 
+                isOpen={showEditPopup} 
+                onClose={handleCloseEditPopup} 
+                bookingData={bookingToEdit} 
+            />
+            
             <ConfirmPopup
                 isOpen={showConfirmPopup}
                 onClose={cancelDelete}
@@ -507,8 +447,14 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                 }
                 onConfirm={confirmDeleteBooking}
             />
+            
+            {/* Add the MedicalRecordPopup component */}
+            <MedicalRecordPopup 
+                isOpen={showMedicalRecordPopup} 
+                onClose={handleCloseMedicalRecordPopup} 
+                bookingId={selectedBookingId} 
+            />
 
-            {/* Tambahkan CSS untuk styling tampilan catatan */}
             <style jsx>{`
                 .all-notes {
                     max-height: 120px;

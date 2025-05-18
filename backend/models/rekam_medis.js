@@ -58,7 +58,7 @@ const RekamMedisSchema = new mongoose.Schema({
             },
             status: {
                 type: String,
-                enum: ['sedang diperiksa', 'dirawat inap', 'menunggu pembayaran'],
+                enum: ['sedang diperiksa', 'dirawat inap', 'menunggu pembayaran', 'mengambil obat'],
                 required: false
             },
             hasil: {

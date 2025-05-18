@@ -664,7 +664,7 @@ const Dashboard = ({ setActiveMenu }) => {
                                 "selesai",
                                 ].includes(booking.status_booking) && (
                                 <>
-                                    <button 
+                                    {/* <button 
                                     className={`btn-blue ${canAccessRetribusi(booking.status_booking) ? '' : 'disabled'}`} 
                                     title="Lihat Retribusi" 
                                     onClick={() => canAccessRetribusi(booking.status_booking) && alert(`Lihat retribusi ${booking._id}`)}
@@ -679,6 +679,13 @@ const Dashboard = ({ setActiveMenu }) => {
                                     disabled={!canAccessRekamMedis(booking.status_booking)}
                                     >
                                     <img src={rekamIcon} alt="rekam" />
+                                    </button> */}
+                                    <button 
+                                        className="btn-blue"
+                                        title="Rekam Medis"
+                                        onClick={() => alert(`Lihat rekam medis ${r._id}`)}
+                                    >
+                                        <img src={rekamIcon} alt="rekam" />
                                     </button>
                                 </>
                                 )}
