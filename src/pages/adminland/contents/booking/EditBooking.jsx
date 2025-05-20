@@ -680,7 +680,7 @@ const EditBooking = ({ booking, onClose, onUpdate }) => {
                         await checkAndCreateKunjungan(booking._id, {
                             administrasis2: [{
                                 id_user: JSON.parse(localStorage.getItem("user"))?._id || 'current_user_id',
-                                catatan: "dibuat",
+                                catatan: "Menunggu Antrian",
                                 status_kunjungan: "sedang diperiksa"
                             }]
                         });

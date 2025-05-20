@@ -169,6 +169,73 @@ router.put('/update/:id', async (req, res) => {
       return res.status(400).json({ message: 'Jumlah pembayaran tidak cukup' });
     }
     
+    // Check if rekam_medis should be updated
+    if (req.body.update_rekam_medis && req.body.rekam_medis_data) {
+      const rekamMedisData = req.body.rekam_medis_data;
+      
+      // Find the corresponding rekam_medis record
+      const rekamMedis = await RekamMedis.findOne({ id_kunjungan: retribusi.id_kunjungan });
+      
+      if (rekamMedis) {
+        // REVISI: Menangani flag add_doctor_status untuk menambahkan status baru
+        if (rekamMedisData.add_doctor_status) {
+          // Buat objek baru untuk status dokter yang akan ditambahkan
+          const newDoctorStatus = {
+            status: rekamMedisData.doctor_updates.status,
+            hasil: rekamMedisData.doctor_updates.hasil,
+            id_user: rekamMedisData.doctor_updates.id_user,
+            tanggal: rekamMedisData.doctor_updates.tanggal || new Date()
+          };
+          
+          // Tambahkan status baru ke array dokters
+          // REVISI: Tambahkan pengecekan apakah dokters sudah ada
+          if (!rekamMedis.dokters) {
+            rekamMedis.dokters = [];
+          }
+          
+          rekamMedis.dokters.push(newDoctorStatus);
+          await rekamMedis.save();
+          
+          // Tambahkan juga ke array statuses jika diperlukan
+          if (!rekamMedis.statuses) {
+            rekamMedis.statuses = [];
+          }
+          
+          rekamMedis.statuses.push(newDoctorStatus);
+          await rekamMedis.save();
+        }
+        // Tetap sertakan logika lama untuk backward compatibility
+        else if (rekamMedisData.update_all_doctors && rekamMedis.dokters && rekamMedis.dokters.length > 0) {
+          // Update all doctors' status and hasil
+          rekamMedis.dokters = rekamMedis.dokters.map(dokter => {
+            return {
+              ...dokter.toObject(),
+              status: rekamMedisData.doctor_updates.status || dokter.status,
+              hasil: rekamMedisData.doctor_updates.hasil || dokter.hasil
+            };
+          });
+          
+          // Save the updated rekam_medis document
+          await rekamMedis.save();
+        } else if (rekamMedisData.doctor_id) {
+          // Update specific doctor if ID is provided
+          rekamMedis.dokters = rekamMedis.dokters.map(dokter => {
+            if (dokter._id.toString() === rekamMedisData.doctor_id) {
+              return {
+                ...dokter.toObject(),
+                status: rekamMedisData.doctor_updates.status || dokter.status,
+                hasil: rekamMedisData.doctor_updates.hasil || dokter.hasil
+              };
+            }
+            return dokter;
+          });
+          
+          // Save the updated rekam_medis document
+          await rekamMedis.save();
+        }
+      }
+    }
+
     // Update data retribusi pembayaran
     const updatedPembayaran = await RetribusiPembayaran.findByIdAndUpdate(
       id,
@@ -206,7 +273,6 @@ router.put('/update/:id', async (req, res) => {
           // Cari data pemilik dari administrasis1 yang terbaru
           if (booking.administrasis1 && booking.administrasis1.length > 0) {
             const latestAdministrasi = booking.administrasis1
-            //   .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal))[0];
               .sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal))[0];
             
             if (latestAdministrasi.id_user) {
@@ -262,21 +328,21 @@ router.put('/update/:id', async (req, res) => {
 
         // Add this section to handle the new administrasis2 update
         if (update_kunjungan && kunjungan_data) {
-            // Push new entry to administrasis2 array
-            await Kunjungan.findByIdAndUpdate(
+          // Push new entry to administrasis2 array
+          await Kunjungan.findByIdAndUpdate(
             kunjungan._id,
             { 
-                $push: { 
+              $push: { 
                 administrasis2: {
-                    id_user: kunjungan_data.id_user,
-                    catatan: kunjungan_data.catatan,
-                    status_kunjungan: kunjungan_data.status_kunjungan,
-                    tanggal: new Date()
+                  id_user: kunjungan_data.id_user,
+                  catatan: kunjungan_data.catatan,
+                  status_kunjungan: kunjungan_data.status_kunjungan,
+                  tanggal: new Date()
                 } 
-                } 
+              } 
             },
             { new: true }
-            );
+          );
         }
       }
       

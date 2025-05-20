@@ -326,61 +326,74 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
         setShowSelesaiConfirmation(true);
     };
 
-    // Handle final confirmation for selesai - NOW ONLY UPDATES STATUS
+    // Handle final confirmation for selesai
     const handleConfirmSelesai = async () => {
+    try {
+        setIsLoading(true);
+        
+        // Get user data from localStorage correctly
+        let userId = null;
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
         try {
-            setIsLoading(true);
-            
-            // Get user data from localStorage correctly
-            let userId = null;
-            const userStr = localStorage.getItem('user');
-            if (userStr) {
-                try {
-                    const userData = JSON.parse(userStr);
-                    userId = userData._id; // Extract the _id from the user object
-                } catch (e) {
-                    console.error('Error parsing user data from localStorage:', e);
-                }
-            }
-            
-            // Make sure we're sending both payment data and status updates
-            const dataToBeSent = {
-                status_retribusi: 'mengambil obat', // Change status to 'mengambil obat'
-                // Include these fields to maintain consistency with previous data
-                metode_bayar: formData.metode_bayar,
-                kembali: formData.kembali.toString(),
-                jumlah_pembayaran: formData.jumlah_pembayaran.toString(),
-                
-                // Add data to update booking status and ensure kunjungan data is complete
-                update_booking: true,
-                booking_data: {
-                    status_booking: 'mengambil obat',
-                },
-                // Update kunjungan with status and user ID
-                update_kunjungan: true,
-                kunjungan_data: {
-                    id_user: userId,
-                    catatan: `Kembalian: ${formData.kembali}`,
-                    status_kunjungan: 'mengambil obat'
-                }
-            };
-            
-            // Log the data being sent for debugging
-            // console.log('Sending status update with data:', dataToBeSent);
-            
-            // Now actually send to the API
-            await updateStatusPembayaran(pembayaranItem._id, dataToBeSent);
-            
-            setIsLoading(false);
-            onUpdate(); // Refresh data in parent component
-            onClose(); // Close the modal
-        } catch (err) {
-            setError('Gagal mengupdate pembayaran');
-            setIsLoading(false);
-            console.error('Error updating payment:', err);
+            const userData = JSON.parse(userStr);
+            userId = userData._id; // Extract the _id from the user object
+        } catch (e) {
+            console.error('Error parsing user data from localStorage:', e);
         }
+        }
+        
+        // Make sure we're sending both payment data and status updates
+        const dataToBeSent = {
+        status_retribusi: 'mengambil obat', // Change status to 'mengambil obat'
+        // Include these fields to maintain consistency with previous data
+        metode_bayar: formData.metode_bayar,
+        kembali: formData.kembali.toString(),
+        jumlah_pembayaran: formData.jumlah_pembayaran.toString(),
+        
+        // Add data to update booking status and ensure kunjungan data is complete
+        update_booking: true,
+        booking_data: {
+            status_booking: 'mengambil obat',
+        },
+        // Update kunjungan with status and user ID
+        update_kunjungan: true,
+        kunjungan_data: {
+            id_user: userId,
+            catatan: `Kembalian: ${formData.kembali}`,
+            status_kunjungan: 'mengambil obat'
+        },
+        
+        // Revisi untuk menambahkan status dokter baru
+        update_rekam_medis: true,
+        rekam_medis_data: {
+            add_doctor_status: true, // Flag untuk menambahkan status baru
+            doctor_updates: {
+            status: 'mengambil obat',
+            hasil: `Total Tagihan: ${formatCurrency(grandTotal)}`,
+            id_user: userId,
+            tanggal: new Date().toISOString()
+            }
+        }
+        };
+        
+        // Add logging for debugging
+        console.log('Sending status update with data:', dataToBeSent);
+        
+        // Now actually send to the API
+        const response = await updateStatusPembayaran(pembayaranItem._id, dataToBeSent);
+        console.log('API Response:', response); // Log the response
+        
+        setIsLoading(false);
+        onUpdate(); // Refresh data in parent component
+        onClose(); // Close the modal
+    } catch (err) {
+        setError('Gagal mengupdate pembayaran');
+        setIsLoading(false);
+        console.error('Error updating payment:', err);
+    }
     };
-
+     
     // Format currency (IDR)
     const formatCurrency = (amount) => {
         const value = parseFloat(amount);
@@ -903,8 +916,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
                                         <button 
                                             className="selesai-button"
                                             onClick={handleSelesaiClick}
-                                            disabled={isLoading || (!isConfirmed && 
-                                                (parseFloat(formData.jumlah_pembayaran) < grandTotal || formData.kembali <= 0))}
+                                            disabled={isLoading || !isConfirmed}
                                         >
                                             Selesai
                                         </button>

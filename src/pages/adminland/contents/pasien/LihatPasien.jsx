@@ -13,6 +13,8 @@ import hapusIcon from "../../../../components/riwayat/gambar/hapus.png";
 import PopupEditBooking from '../dashboard/popup/popupeditbooking.jsx';
 import Popup from '../../admin_nav/popup_nav/popup2.jsx';
 
+import MedicalRecordPopup from '../../../../components/print_historis/MedicalRecordPopup.jsx';
+
 const LihatPasien = ({ pasien, onClose, users, getKategoriClass }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('');
@@ -27,6 +29,22 @@ const LihatPasien = ({ pasien, onClose, users, getKategoriClass }) => {
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
     const [bookingToDelete, setBookingToDelete] = useState(null);
+
+    // Tambahkan state untuk MedicalRecordPopup
+    const [isMedicalRecordOpen, setIsMedicalRecordOpen] = useState(false);
+    const [selectedMedicalBookingId, setSelectedMedicalBookingId] = useState(null);
+    
+    // Fungsi untuk membuka MedicalRecordPopup
+    const handleOpenMedicalRecord = (bookingId) => {
+        setSelectedMedicalBookingId(bookingId);
+        setIsMedicalRecordOpen(true);
+    };
+    
+    // Fungsi untuk menutup MedicalRecordPopup
+    const handleCloseMedicalRecord = () => {
+        setIsMedicalRecordOpen(false);
+        setSelectedMedicalBookingId(null);
+    };
     
     // Format currency to Rupiah
     const formatRupiah = (value) => {
@@ -74,7 +92,8 @@ const LihatPasien = ({ pasien, onClose, users, getKategoriClass }) => {
     };
 
     const canAccessRekamMedis = (status) => {
-        return ["dirawat inap", "menunggu pembayaran", "mengambil obat", "selesai"].includes(status);
+        // return ["dirawat inap", "menunggu pembayaran", "mengambil obat", "selesai"].includes(status);
+        return true;
     };
 
     // Toggle details section
@@ -366,9 +385,9 @@ const LihatPasien = ({ pasien, onClose, users, getKategoriClass }) => {
                                                                 <img src={rekamIcon} alt="rekam" />
                                                             </button> */}
                                                             <button 
-                                                                className="btn-blue"
-                                                                title="Rekam Medis"
-                                                                onClick={() => alert(`Lihat rekam medis ${r._id}`)}
+                                                                className="btn-blue" // Remove the conditional class
+                                                                title="Rekam Medis" 
+                                                                onClick={() => handleOpenMedicalRecord(booking._id)} // Remove the condition check
                                                             >
                                                                 <img src={rekamIcon} alt="rekam" />
                                                             </button>
@@ -424,6 +443,13 @@ const LihatPasien = ({ pasien, onClose, users, getKategoriClass }) => {
                 title="Konfirmasi Hapus"
                 description={`Apakah Anda yakin ingin menghapus booking untuk ${pasien.nama}?`}
                 onConfirm={handleConfirmDelete}
+            />
+
+            {/* Tambahkan MedicalRecordPopup di sini */}
+            <MedicalRecordPopup
+                isOpen={isMedicalRecordOpen}
+                onClose={handleCloseMedicalRecord}
+                bookingId={selectedMedicalBookingId}
             />
         </>
     );

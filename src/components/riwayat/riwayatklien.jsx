@@ -216,6 +216,11 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
         setSelectedBookingId(bookingId);
         setShowMedicalRecordPopup(true);
     };
+    
+    const handleCloseMedicalRecordPopup = () => {
+        setShowMedicalRecordPopup(false);
+        setSelectedBookingId(null);
+    };
 
     const handleCloseEditPopup = () => {
         setShowEditPopup(false);
@@ -224,12 +229,6 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
         if (typeof onBookingDeleted === 'function') {
             onBookingDeleted();
         }
-    };
-
-    // New function to handle closing medical record popup
-    const handleCloseMedicalRecordPopup = () => {
-        setShowMedicalRecordPopup(false);
-        setSelectedBookingId(null);
     };
 
     const confirmDeleteBooking = () => {
@@ -401,7 +400,7 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                                                         </button> */}
                                                         <button 
                                                             className="btn-blue"
-                                                            title="Rekam Medis"
+                                                            title="Timeline Pemeriksaan"
                                                             onClick={() => handleViewMedicalRecord(r._id)}
                                                         >
                                                             <img src={rekamIcon} alt="rekam" />
@@ -448,12 +447,14 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                 onConfirm={confirmDeleteBooking}
             />
             
-            {/* Add the MedicalRecordPopup component */}
-            <MedicalRecordPopup 
-                isOpen={showMedicalRecordPopup} 
-                onClose={handleCloseMedicalRecordPopup} 
-                bookingId={selectedBookingId} 
-            />
+            {/* Medical Record Popup - Render conditionally outside the main popup */}
+            {showMedicalRecordPopup && (
+                <MedicalRecordPopup 
+                    isOpen={showMedicalRecordPopup} 
+                    onClose={handleCloseMedicalRecordPopup} 
+                    bookingId={selectedBookingId} 
+                />
+            )}
 
             <style jsx>{`
                 .all-notes {

@@ -4,6 +4,7 @@ import Select from 'react-select';
 import './AddKunjungan.css';
 import { createDirectKunjungan } from '../../../../api/api-aktivitas-kunjungan';
 import { fetchLayanan } from '../../../../api/api-pelayanan';
+import Popup from '../../../../pages/adminland/admin_nav/popup_nav/popup2'; // Import Popup component
 
 const AddDirectKunjungan = ({ onClose, onUpdate }) => {
     // Dapatkan tanggal dan waktu saat ini dalam format yang sesuai
@@ -55,6 +56,9 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
     
     // State untuk melacak ketersediaan portal
     const [portalElement, setPortalElement] = useState(null);
+    
+    // State untuk mengontrol visibility popup konfirmasi
+    const [showConfirmPopup, setShowConfirmPopup] = useState(false);
     
     // Load services on component mount
     useEffect(() => {
@@ -288,15 +292,23 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
         return isValid;
     };
 
-    const handleSubmit = async (e) => {
+    // Handle untuk menampilkan popup konfirmasi
+    const handleShowConfirmation = (e) => {
         e.preventDefault();
         
-        // Validasi semua field sebelum submit
+        // Validasi semua field sebelum menampilkan popup
         if (!validateAllFields()) {
             setError('Mohon perbaiki semua kesalahan pada form');
             return;
         }
         
+        // Tampilkan popup konfirmasi
+        setShowConfirmPopup(true);
+    };
+
+    // Handle untuk melakukan submission setelah konfirmasi
+    const handleConfirmSubmit = async () => {
+        setShowConfirmPopup(false);
         setIsLoading(true);
         setError('');
         
@@ -392,7 +404,7 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                     
                     {error && <div className="error-message">{error}</div>}
                     
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleShowConfirmation}>
                         {/* Baris 1: Tanggal & Waktu Kunjungan */}
                         <div className="edit-form-row">
                             <div className="edit-form-group">
@@ -596,15 +608,24 @@ const AddDirectKunjungan = ({ onClose, onUpdate }) => {
                         Batal
                     </button>
                     <button 
-                        type="submit" 
+                        type="button" 
                         className="simpan-button"
-                        onClick={handleSubmit}
+                        onClick={handleShowConfirmation}
                         disabled={isLoading || !isFormValid()}
                     >
                         {isLoading ? 'Memproses...' : 'Tambah'}
                     </button>
                 </div>
             </div>
+            
+            {/* Popup Konfirmasi */}
+            <Popup
+                isOpen={showConfirmPopup}
+                onClose={() => setShowConfirmPopup(false)}
+                title="Konfirmasi Tambah Kunjungan"
+                description="Apakah Anda yakin ingin menambahkan kunjungan ini?"
+                onConfirm={handleConfirmSubmit}
+            />
         </div>
     );
     

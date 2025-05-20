@@ -656,7 +656,7 @@ router.post('/direct', async (req, res) => {
           pelayanans1: validatedPelayanans, // Add validated pelayanans1 array to the new kunjungan
           administrasis2: [{
               id_user,
-              catatan: 'dibuat',
+              catatan: 'Menunggu Antrian',
               status_kunjungan: 'sedang diperiksa',
               tanggal: new Date()
           }]

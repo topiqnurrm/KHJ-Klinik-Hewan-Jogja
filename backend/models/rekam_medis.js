@@ -83,7 +83,6 @@ const RekamMedisSchema = new mongoose.Schema({
                     },
                     message: 'Berat badan harus berupa angka dengan maksimal 6 digit dan 2 digit desimal.'
                 },
-                default: 0
             },
             suhu_badan: {
                 type: mongoose.Types.Decimal128,
@@ -94,7 +93,6 @@ const RekamMedisSchema = new mongoose.Schema({
                     },
                     message: 'Suhu badan harus berupa angka dengan maksimal 5 digit dan 2 digit desimal.'
                 },
-                default: 0
             },
         }
     ],

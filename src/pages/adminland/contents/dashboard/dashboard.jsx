@@ -21,6 +21,8 @@ import Popup from '../../admin_nav/popup_nav/popup2.jsx';
 // Import API functions
 import { getBookingWithRetribusi, deleteBooking } from "../../../../api/api-booking";
 
+import MedicalRecordPopup from '../../../../components/print_historis/MedicalRecordPopup.jsx';
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard = ({ setActiveMenu }) => {
@@ -38,6 +40,9 @@ const Dashboard = ({ setActiveMenu }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [sortBy, setSortBy] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
+
+  const [isMedicalRecordOpen, setIsMedicalRecordOpen] = useState(false);
+  const [selectedMedicalRecordId, setSelectedMedicalRecordId] = useState(null);
 
   // States for dashboard metrics
   const [visitsCount, setVisitsCount] = useState(0);
@@ -86,6 +91,12 @@ const Dashboard = ({ setActiveMenu }) => {
       ? parseFloat(value)
       : value;
     return amount.toLocaleString("id-ID", { style: "currency", currency: "IDR" });
+  };
+
+  // 3. Add function to handle opening the medical record popup
+  const handleOpenMedicalRecord = (bookingId) => {
+    setSelectedMedicalRecordId(bookingId);
+    setIsMedicalRecordOpen(true);
   };
 
   // Helper function for status styling
@@ -681,11 +692,11 @@ const Dashboard = ({ setActiveMenu }) => {
                                     <img src={rekamIcon} alt="rekam" />
                                     </button> */}
                                     <button 
-                                        className="btn-blue"
-                                        title="Rekam Medis"
-                                        onClick={() => alert(`Lihat rekam medis ${r._id}`)}
+                                      className="btn-blue"
+                                      title="Timeline Pemeriksaan"
+                                      onClick={() => handleOpenMedicalRecord(booking._id)}
                                     >
-                                        <img src={rekamIcon} alt="rekam" />
+                                      <img src={rekamIcon} alt="rekam" />
                                     </button>
                                 </>
                                 )}
@@ -737,6 +748,13 @@ const Dashboard = ({ setActiveMenu }) => {
           title="Konfirmasi Hapus"
           description={`Apakah Anda yakin ingin menghapus booking untuk ${bookingToDelete?.nama || bookingToDelete?.id_pasien?.nama || 'pasien ini'}?`}
           onConfirm={handleConfirmDelete}
+        />
+
+        {/* Add MedicalRecordPopup */}
+        <MedicalRecordPopup
+          isOpen={isMedicalRecordOpen}
+          onClose={() => setIsMedicalRecordOpen(false)}
+          bookingId={selectedMedicalRecordId}
         />
     </div>
   );

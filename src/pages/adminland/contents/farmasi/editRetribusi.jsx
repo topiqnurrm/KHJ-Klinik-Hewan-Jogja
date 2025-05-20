@@ -20,12 +20,14 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
     // Use the custom hook from PrintServices to fetch and manage payment details
     const {
         detailData,
-        isLoading,
+        isLoading: isDataLoading,
         error: fetchError,
         handlePrintRetribusi,
         handlePrintRekamMedis
     } = usePaymentDetail(pembayaranItem._id);
-
+    
+    // Add local loading state for operations within this component
+    const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({
         status_retribusi: 'menunggu pembayaran',
@@ -38,6 +40,9 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
     const [showSelesaiConfirmation, setShowSelesaiConfirmation] = useState(false);
     const [currentDateTime, setCurrentDateTime] = useState('');
     const [portalElement, setPortalElement] = useState(null);
+
+    // Combined loading state for UI
+    const isLoading = isDataLoading || isProcessing;
 
     // Set up portal element for modal
     useEffect(() => {
@@ -138,7 +143,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
     // Save payment details after confirmation
     const handleConfirmSave = async () => {
         try {
-            setIsLoading(true);
+            setIsProcessing(true);
             
             // Get user data from localStorage
             let userId = null;
@@ -172,7 +177,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
             setError('Gagal mengupdate pembayaran');
             console.error('Error updating payment:', err);
         } finally {
-            setIsLoading(false);
+            setIsProcessing(false);
         }
     };
 
@@ -184,7 +189,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
     // Handle final confirmation for selesai - Only updates status
     const handleConfirmSelesai = async () => {
         try {
-            setIsLoading(true);
+            setIsProcessing(true);
             
             // Get user data from localStorage
             let userId = null;
@@ -229,7 +234,7 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
             setError('Gagal mengupdate pembayaran');
             console.error('Error updating payment:', err);
         } finally {
-            setIsLoading(false);
+            setIsProcessing(false);
         }
     };
 
