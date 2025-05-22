@@ -56,7 +56,7 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
     // Only proceed if we have a valid bookingId
     if (!bookingId) return;
     
-    console.log("Fetching medical record for booking ID:", bookingId);
+    // console.log("Fetching medical record for booking ID:", bookingId);
     setIsLoading(true);
     setError(null);
     
@@ -64,12 +64,12 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
       // 1. Fetch booking data
       const bookingResponse = await axios.get(`${API_URL}/booking/${bookingId}`);
       setBookingData(bookingResponse.data);
-      console.log("Booking data fetched:", bookingResponse.data);
+      // console.log("Booking data fetched:", bookingResponse.data);
       
       // 2. Fetch kunjungan data using booking ID
       const kunjunganResponse = await axios.get(`${API_URL}/kunjungan/by-booking/${bookingId}`);
       setKunjunganData(kunjunganResponse.data);
-      console.log("Kunjungan data fetched:", kunjunganResponse.data);
+      // console.log("Kunjungan data fetched:", kunjunganResponse.data);
       
       // 3. If kunjungan exists, try to fetch rekam medis and retribusi
       if (kunjunganResponse.data) {
@@ -79,9 +79,9 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
           // Fetch rekam medis - wrap in try/catch to handle 404
           const rekamMedisResponse = await axios.get(`${API_URL}/rekam-medis/by-kunjungan/${kunjunganId}`);
           setRekamMedisData(rekamMedisResponse.data);
-          console.log("Rekam medis data fetched:", rekamMedisResponse.data);
+          // console.log("Rekam medis data fetched:", rekamMedisResponse.data);
         } catch (rekamMedisErr) {
-          console.log("Rekam medis belum tersedia:", rekamMedisErr.message);
+          // console.log("Rekam medis belum tersedia:", rekamMedisErr.message);
           // Clear previous data
           setRekamMedisData(null);
         }
@@ -90,9 +90,9 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
           // Fetch retribusi - wrap in try/catch to handle 404
           const retribusiResponse = await axios.get(`${API_URL}/retribusi/by-kunjungan/${kunjunganId}`);
           setRetribusiData(retribusiResponse.data);
-          console.log("Retribusi data fetched:", retribusiResponse.data);
+          // console.log("Retribusi data fetched:", retribusiResponse.data);
         } catch (retribusiErr) {
-          console.log("Data retribusi belum tersedia:", retribusiErr.message);
+          // console.log("Data retribusi belum tersedia:", retribusiErr.message);
           // Clear previous data
           setRetribusiData(null);
         }
@@ -127,6 +127,17 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit"
+    });
+  };
+
+  // New function to format date only (without time)
+  const formatDateOnly = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
     });
   };
   
@@ -205,7 +216,7 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
                 <p><strong>Kategori:</strong> {bookingData?.kategori || "N/A"}</p>
                 <p><strong>Keluhan:</strong> {bookingData?.keluhan || "N/A"}</p>
                 <p><strong>Jenis Layanan:</strong> {bookingData?.jenis_layanan || "N/A"}</p>
-                <p><strong>Tanggal Booking:</strong> {formatDateTime(bookingData?.pilih_tanggal)}</p>
+                <p><strong>Tanggal Booking:</strong> {formatDateOnly(bookingData?.pilih_tanggal)}</p>
               </div>
 
               {/* ADMINISTRASI SECTION */}

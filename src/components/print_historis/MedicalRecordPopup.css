@@ -14,7 +14,7 @@
   z-index: 99999; /* Extremely high z-index to ensure it's above everything */
 }
 
-.medical-record-popup {
+.medical-record-popup-overlay .medical-record-popup {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -27,7 +27,7 @@
   z-index: 100000; /* Even higher than the overlay */
 }
 
-.medical-record-header {
+.medical-record-popup-overlay .medical-record-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -38,7 +38,7 @@
   flex-shrink: 0; /* Prevent header from shrinking */
 }
 
-.medical-record-header h2 {
+.medical-record-popup-overlay .medical-record-header h2 {
   margin: 0;
   color: white; /* Changed to white for better contrast */
   font-size: 20px;
@@ -51,7 +51,7 @@
   text-align: center;
 }
 
-.close-button {
+.medical-record-popup-overlay .close-button {
   background: none;
   border: none;
   font-size: 1.8rem;
@@ -60,12 +60,12 @@
   line-height: 1;
 }
 
-.close-button:hover {
+.medical-record-popup-overlay .close-button:hover {
   color: #f8f8f8;
   opacity: 0.8;
 }
 
-.medical-record-content {
+.medical-record-popup-overlay .medical-record-content {
   padding: 20px;
   font-family: "SansSerifFLF", sans-serif;
   flex-grow: 1;
@@ -79,25 +79,25 @@
 }
 
 /* Webkit scrollbar styling */
-.medical-record-content::-webkit-scrollbar {
+.medical-record-popup-overlay .medical-record-content::-webkit-scrollbar {
   width: 8px;
 }
 
-.medical-record-content::-webkit-scrollbar-track {
+.medical-record-popup-overlay .medical-record-content::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
 }
 
-.medical-record-content::-webkit-scrollbar-thumb {
+.medical-record-popup-overlay .medical-record-content::-webkit-scrollbar-thumb {
   background: #d4d4d4;
   border-radius: 4px;
 }
 
-.medical-record-content::-webkit-scrollbar-thumb:hover {
+.medical-record-popup-overlay .medical-record-content::-webkit-scrollbar-thumb:hover {
   background: #b3b3b3;
 }
 
-.patient-info {
+.medical-record-popup-overlay .patient-info {
   background-color: #f9f9f9;
   padding: 15px;
   border-radius: 6px;
@@ -105,7 +105,7 @@
   border: 1px solid #eaeaea;
 }
 
-.patient-info h3 {
+.medical-record-popup-overlay .patient-info h3 {
   margin-top: 0;
   color: #2c3e50;
   font-size: 1.2rem;
@@ -113,17 +113,17 @@
   font-family: "SansSerifFLF", sans-serif;
 }
 
-.patient-info p {
+.medical-record-popup-overlay .patient-info p {
   margin: 8px 0;
   font-size: 14px;
   color: #3F4254;
 }
 
-.record-section {
+.medical-record-popup-overlay .record-section {
   margin-bottom: 25px;
 }
 
-.record-section h3 {
+.medical-record-popup-overlay .record-section h3 {
   color: #2c3e50;
   font-size: 1.2rem;
   margin-bottom: 10px;
@@ -132,7 +132,7 @@
   font-family: "SansSerifBldFLF", sans-serif;
 }
 
-.record-item {
+.medical-record-popup-overlay .record-item {
   margin-bottom: 15px;
   background-color: #fff;
   border: 1px solid #e0e0e0;
@@ -140,7 +140,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.record-header {
+.medical-record-popup-overlay .record-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -150,101 +150,101 @@
   border-radius: 6px 6px 0 0;
 }
 
-.status {
+.medical-record-popup-overlay .status {
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.85rem;
   font-weight: bold;
 }
 
-.menunggu-respon-administrasi {
+.medical-record-popup-overlay .menunggu-respon-administrasi {
   background-color: #fff3cd;
   color: #856404;
   border: 1px solid #ffeeba;
 }
 
 /* New Check-in status style */
-.check-in {
+.medical-record-popup-overlay .check-in {
   background-color: #d4edda;
   color: #155724;
   border: 1px solid #c3e6cb;
 }
 
-.disetujui-administrasi {
+.medical-record-popup-overlay .disetujui-administrasi {
   background-color: #d4edda;
   color: #155724;
   border: 1px solid #c3e6cb;
 }
 
-.ditolak-administrasi,
-.dibatalkan-administrasi {
+.medical-record-popup-overlay .ditolak-administrasi,
+.medical-record-popup-overlay .dibatalkan-administrasi {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
 }
 
-.dirawat-inap {
+.medical-record-popup-overlay .dirawat-inap {
   background-color: #fff3cd;
   color: #856404;
   border: 1px solid #ffeeba;
 }
 
-.menunggu-pembayaran {
+.medical-record-popup-overlay .menunggu-pembayaran {
   background-color: #fff3cd;
   color: #856404;
   border: 1px solid #ffeeba;
 }
 
-.selesai, 
-.mengambil-obat {
+.medical-record-popup-overlay .selesai, 
+.medical-record-popup-overlay .mengambil-obat {
   background-color: #d1ecf1;
   color: #0c5460;
   border: 1px solid #bee5eb;
 }
 
 /* Gaya untuk status baru */
-.selesai-diperiksa {
+.medical-record-popup-overlay .selesai-diperiksa {
   background-color: #fff3cd;
   color: #856404;
   border: 1px solid #ffeeba;
 }
 
-.pembayaran-berhasil-menunggu-obat {
+.medical-record-popup-overlay .pembayaran-berhasil-menunggu-obat {
   background-color: #d1ecf1;
   color: #0c5460;
   border: 1px solid #bee5eb;
 }
 
-.date {
+.medical-record-popup-overlay .date {
   font-size: 0.85rem;
   color: #718096;
 }
 
-.record-body {
+.medical-record-popup-overlay .record-body {
   padding: 15px;
 }
 
-.record-body p {
+.medical-record-popup-overlay .record-body p {
   margin: 8px 0;
   font-size: 14px;
   color: #3F4254;
 }
 
-.loading {
+.medical-record-popup-overlay .loading {
   text-align: center;
   padding: 20px;
   color: #4a5568;
   font-family: "SansSerifFLF", sans-serif;
 }
 
-.error-message {
+.medical-record-popup-overlay .error-message {
   text-align: center;
   padding: 20px;
   color: #e53e3e;
   font-family: "SansSerifFLF", sans-serif;
 }
 
-.no-records {
+.medical-record-popup-overlay .no-records {
   text-align: center;
   padding: 20px;
   color: #718096;
@@ -252,13 +252,13 @@
   font-family: "SansSerifFLF", sans-serif;
 }
 
-.pembayaran-berhasil--menunggu-obat {
+.medical-record-popup-overlay .pembayaran-berhasil--menunggu-obat {
   background-color: #d1ecf1;
   color: #0c5460;
   border: 1px solid #bee5eb;
 }
 
-.popupriwayat .popup-close {
+.medical-record-popup-overlay .popupriwayat .popup-close {
     background: transparent;
     border: none;
     font-size: 20px;

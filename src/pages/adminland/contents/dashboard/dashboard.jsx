@@ -19,7 +19,7 @@ import PopupEditBooking from './popup/popupeditbooking.jsx';
 import Popup from '../../admin_nav/popup_nav/popup2.jsx';
 
 // Import API functions
-import { getBookingWithRetribusi, deleteBooking } from "../../../../api/api-booking";
+import { getBookingWithRetribusi, deleteBooking, getAllKunjungan } from "../../../../api/api-booking";
 
 import MedicalRecordPopup from '../../../../components/print_historis/MedicalRecordPopup.jsx';
 
@@ -37,6 +37,8 @@ const Dashboard = ({ setActiveMenu }) => {
   // States for table data
   const [bookings, setBookings] = useState([]);
   const [filteredBookings, setFilteredBookings] = useState([]);
+  // Add state for kunjungan data
+  const [kunjunganData, setKunjunganData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sortBy, setSortBy] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
@@ -166,36 +168,59 @@ const Dashboard = ({ setActiveMenu }) => {
     }
   };
 
-  // Fetch bookings data
-  const fetchBookings = () => {
+  // Helper function to check if no_antri has 5 digits (for booking classification)
+  const isBookingType = (no_antri) => {
+    if (!no_antri) return false;
+    // Extract digits from no_antri (e.g., "D0001" -> "0001")
+    const digits = no_antri.replace(/\D/g, '');
+    // Check if the digits part has exactly 4 digits (like "0001" in "D0001")
+    // This means the total format is 5 characters (1 letter + 4 digits)
+    return digits.length === 4 && no_antri.length === 5;
+  };
+
+  // Fetch both bookings and kunjungan data
+  const fetchAllData = async () => {
     setIsLoading(true);
     
-    getBookingWithRetribusi()
-      .then((data) => {
-        // Sort bookings by createdAt field in descending order (newest first)
-        const sortedData = [...data].sort((a, b) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        setBookings(sortedData);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching bookings:", err);
-        setIsLoading(false);
-      });
+    try {
+      // Prepare date parameters for API calls
+      const dateParams = {};
+      if (selectedDate) {
+        dateParams.date = selectedDate.toISOString();
+      } else if (startDate && endDate) {
+        dateParams.startDate = startDate.toISOString();
+        dateParams.endDate = endDate.toISOString();
+      }
+
+      // Fetch both booking and kunjungan data
+      const [bookingData, kunjunganResponse] = await Promise.all([
+        getBookingWithRetribusi(),
+        getAllKunjungan(dateParams)
+      ]);
+
+      // Sort bookings by createdAt field in descending order (newest first)
+      const sortedBookingData = [...bookingData].sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      
+      setBookings(sortedBookingData);
+      setKunjunganData(kunjunganResponse);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setIsLoading(false);
+    }
   };
 
   // Initial data fetch
   useEffect(() => {
-    fetchBookings();
-  }, []);
+    fetchAllData();
+  }, [selectedDate, startDate, endDate]); // Refetch when date changes
 
-  // Apply date filtering to bookings immediately when data is loaded or date changes
+  // Perbaikan pada useEffect untuk menghitung metrics
   useEffect(() => {
-    if (!bookings.length) return;
-    
-    // Filter bookings based on date selection
-    let filteredData = [...bookings];
+    // Filter bookings berdasarkan tanggal yang dipilih
+    let filteredBookingsForMetrics = [...bookings];
     
     if (selectedDate) {
       const selectedDateStart = new Date(selectedDate);
@@ -203,7 +228,7 @@ const Dashboard = ({ setActiveMenu }) => {
       const selectedDateEnd = new Date(selectedDate);
       selectedDateEnd.setHours(23, 59, 59, 999);
       
-      filteredData = filteredData.filter(booking => {
+      filteredBookingsForMetrics = filteredBookingsForMetrics.filter(booking => {
         const bookingDate = new Date(booking.pilih_tanggal);
         return bookingDate >= selectedDateStart && bookingDate <= selectedDateEnd;
       });
@@ -213,57 +238,117 @@ const Dashboard = ({ setActiveMenu }) => {
       const rangeEnd = new Date(endDate);
       rangeEnd.setHours(23, 59, 59, 999);
       
-      filteredData = filteredData.filter(booking => {
+      filteredBookingsForMetrics = filteredBookingsForMetrics.filter(booking => {
         const bookingDate = new Date(booking.pilih_tanggal);
         return bookingDate >= rangeStart && bookingDate <= rangeEnd;
       });
     }
     
-    // Apply initial filtering for table view
-    setFilteredBookings(filteredData);
+    // Hitung booking types langsung dari bookings yang ter-filter
+    const onsiteCount = filteredBookingsForMetrics.filter(b => b.jenis_layanan === 'onsite').length;
+    const houseCallCount = filteredBookingsForMetrics.filter(b => b.jenis_layanan === 'house call').length;
     
-    // Calculate dashboard metrics based on date filtering
-    // Count visits (bookings with specific statuses)
-    const visitStatuses = ['sedang diperiksa', 'dirawat inap', 'menunggu pembayaran', 'mengambil obat', 'selesai'];
-    const visitCount = filteredData.filter(booking => visitStatuses.includes(booking.status_booking)).length;
+    // Untuk visits count dan booking count, tetap gunakan kunjungan data
+    const filteredKunjungan = kunjunganData;
+    const totalVisits = filteredKunjungan.length;
+    const bookingCountFromKunjungan = filteredKunjungan.filter(k => isBookingType(k.no_antri)).length;
     
-    // Count bookings (bookings with other specific statuses)
-    const bookingStatuses = ['menunggu respon administrasi', 'disetujui administrasi', 'ditolak administrasi', 'dibatalkan administrasi'];
-    const bookingCount = filteredData.filter(booking => bookingStatuses.includes(booking.status_booking)).length;
-    
-    // Calculate booking types counts
-    const onsiteCount = filteredData.filter(booking => booking.jenis_layanan === 'onsite').length;
-    const houseCallCount = filteredData.filter(booking => booking.jenis_layanan === 'house call').length;
-    
-    // Calculate category distribution for pie chart
+    // PERBAIKAN UTAMA: Calculate category distribution dengan lookup ke booking data
     const categoryDistribution = {
       ternak: 0,
       kesayangan: 0,
       unggas: 0
     };
     
-    // Only count visits (not all bookings) for the pie chart
-    filteredData
-      .filter(booking => visitStatuses.includes(booking.status_booking))
-      .forEach(booking => {
-        if (booking.kategori === 'ternak') {
-          categoryDistribution.ternak += 1;
-        } else if (booking.kategori === 'kesayangan / satwa liar') {
-          categoryDistribution.kesayangan += 1;
-        } else if (booking.kategori === 'unggas') {
-          categoryDistribution.unggas += 1;
-        }
-      });
+    // Buat mapping dari _id booking ke data booking untuk lookup cepat
+    const bookingById = {};
+    filteredBookingsForMetrics.forEach(booking => {
+      if (booking._id) {
+        bookingById[booking._id] = booking;
+      }
+    });
     
-    setVisitsCount(visitCount);
-    setBookingsCount(bookingCount);
+    // PERBAIKAN: Iterasi melalui kunjungan dan cari kategori dari booking jika diperlukan
+    filteredKunjungan.forEach(kunjungan => {
+      let kategori = kunjungan.kategori;
+      
+      // Jika kategori tidak ada di kunjungan, cari dari booking yang terkait
+      if (!kategori) {
+        // Cek apakah ada id_booking di kunjungan
+        if (kunjungan.id_booking) {
+          // Jika id_booking adalah object (hasil populate)
+          if (typeof kunjungan.id_booking === 'object' && kunjungan.id_booking._id) {
+            const relatedBooking = bookingById[kunjungan.id_booking._id];
+            if (relatedBooking) {
+              kategori = relatedBooking.kategori;
+            }
+          } 
+          // Jika id_booking adalah string ID
+          else if (typeof kunjungan.id_booking === 'string') {
+            const relatedBooking = bookingById[kunjungan.id_booking];
+            if (relatedBooking) {
+              kategori = relatedBooking.kategori;
+            }
+          }
+        }
+        
+        // Jika masih belum ada kategori, coba cari berdasarkan kesamaan data lain
+        if (!kategori) {
+          // Cari booking dengan nama hewan yang sama dan tanggal yang dekat
+          const matchingBooking = filteredBookingsForMetrics.find(booking => {
+            // Bandingkan nama hewan
+            const kunjunganNama = kunjungan.nama_hewan || kunjungan.id_booking?.id_pasien?.nama;
+            const bookingNama = booking.nama || booking.id_pasien?.nama;
+            
+            if (kunjunganNama && bookingNama && kunjunganNama === bookingNama) {
+              // Bandingkan tanggal (dalam rentang yang wajar)
+              const kunjunganDate = new Date(kunjungan.tanggal);
+              const bookingDate = new Date(booking.pilih_tanggal);
+              const timeDiff = Math.abs(kunjunganDate.getTime() - bookingDate.getTime());
+              const daysDiff = timeDiff / (1000 * 3600 * 24);
+              
+              // Jika dalam rentang 7 hari, anggap sebagai match
+              return daysDiff <= 7;
+            }
+            return false;
+          });
+          
+          if (matchingBooking) {
+            kategori = matchingBooking.kategori;
+          }
+        }
+      }
+      
+      // Hitung berdasarkan kategori yang ditemukan
+      if (kategori === 'ternak') {
+        categoryDistribution.ternak += 1;
+      } else if (kategori === 'kesayangan / satwa liar') {
+        categoryDistribution.kesayangan += 1;
+      } else if (kategori === 'unggas') {
+        categoryDistribution.unggas += 1;
+      }
+      // Jika masih tidak ada kategori, data tidak akan dihitung dalam distribusi
+      // tapi kita bisa menambahkan console.log untuk debugging
+      else if (!kategori) {
+        console.log('Kunjungan tanpa kategori:', {
+          id: kunjungan._id,
+          no_antri: kunjungan.no_antri,
+          nama_hewan: kunjungan.nama_hewan || kunjungan.id_booking?.id_pasien?.nama,
+          tanggal: kunjungan.tanggal
+        });
+      }
+    });
+    
+    // Update state
+    setVisitsCount(totalVisits);
+    setBookingsCount(bookingCountFromKunjungan);
     setCategoryData(categoryDistribution);
     setBookingTypes({
       onsite: onsiteCount,
       houseCall: houseCallCount
     });
     
-  }, [bookings, selectedDate, startDate, endDate]);
+  }, [kunjunganData, bookings, selectedDate, startDate, endDate]);
 
   // Generate pie chart data based on category distribution
   const pieData = {
@@ -340,7 +425,7 @@ const Dashboard = ({ setActiveMenu }) => {
           .filter(Boolean)
           .join(", ");
         const latestAdmin = getLatestAdministrasi(booking.administrasis1);
-  const userName = latestAdmin?.user_name || "Tidak diketahui";
+        const userName = latestAdmin?.user_name || "Tidak diketahui";
         const kategoriStr = booking.kategori || "";
         
         const allFields = `
@@ -417,7 +502,7 @@ const Dashboard = ({ setActiveMenu }) => {
     
     // If booking was updated, refresh the data
     if (wasUpdated) {
-      fetchBookings();
+      fetchAllData();
     }
   };
 
@@ -433,7 +518,7 @@ const Dashboard = ({ setActiveMenu }) => {
     deleteBooking(bookingToDelete._id)
       .then(() => {
         // Refresh the booking list after deletion
-        fetchBookings();
+        fetchAllData();
         setIsDeletePopupOpen(false);
         setBookingToDelete(null);
       })
@@ -538,17 +623,17 @@ const Dashboard = ({ setActiveMenu }) => {
                   </div>
                   <div className="card2">
                       <h2>{bookingsCount}</h2>
-                      <p>Booking <br/>{selectedDate ? "(Tanggal Ini)" : startDate && endDate ? "(Pada Rentang Ini)" : " (All)"}</p>
+                      <p>Offline <br/>{selectedDate ? "(Tanggal Ini)" : startDate && endDate ? "(Pada Rentang Ini)" : " (All)"}</p>
                   </div>
                 </div>
                 <div className="cards-section12">
                   <div className="card3">
                       <h2>{bookingTypes.onsite}</h2>
-                      <p>~ Onsite <br/>Booking & kunjungan <br/>{selectedDate ? "(Tanggal Ini)" : startDate && endDate ? "(Pada Rentang Ini)" : " (All)"}</p>
+                      <p>Booking Onsite <br/>{selectedDate ? "(Tanggal Ini)" : startDate && endDate ? "(Pada Rentang Ini)" : " (All)"}</p>
                   </div>
                   <div className="card4">
                       <h2>{bookingTypes.houseCall}</h2>
-                      <p>~ House Call <br/>Booking & kunjungan <br/>{selectedDate ? "(Tanggal Ini)" : startDate && endDate ? "(Pada Rentang Ini)" : " (All)"}</p>
+                      <p>Booking House Call <br/>{selectedDate ? "(Tanggal Ini)" : startDate && endDate ? "(Pada Rentang Ini)" : " (All)"}</p>
                   </div>
                 </div>
                 <div className="chart-section2">
@@ -561,7 +646,7 @@ const Dashboard = ({ setActiveMenu }) => {
 
             {/* Table Section */}
             <div className="dashboard-table-section">
-                <h2>Data Pemeriksaan Pasien</h2>
+                <h2>Data Booking Pasien</h2>
                 
                 <div className="table-filter-container">
                 <div className="table-search-wrapper">
@@ -657,7 +742,6 @@ const Dashboard = ({ setActiveMenu }) => {
                                 .filter(Boolean)
                                 .join(", ") || "-"}
                             </td>
-                            {/* <td>{booking.administrasis1?.[0]?.catatan || "-"}</td> */}
                             <td>{getLatestAdministrasi(booking.administrasis1)?.catatan || "-"}</td>
                             <td>
                                 <span className={`status-label ${getStatusClass(booking.status_booking)}`}>
@@ -675,22 +759,6 @@ const Dashboard = ({ setActiveMenu }) => {
                                 "selesai",
                                 ].includes(booking.status_booking) && (
                                 <>
-                                    {/* <button 
-                                    className={`btn-blue ${canAccessRetribusi(booking.status_booking) ? '' : 'disabled'}`} 
-                                    title="Lihat Retribusi" 
-                                    onClick={() => canAccessRetribusi(booking.status_booking) && alert(`Lihat retribusi ${booking._id}`)}
-                                    disabled={!canAccessRetribusi(booking.status_booking)}
-                                    >
-                                    <img src={retribusiIcon} alt="retribusi" />
-                                    </button>
-                                    <button 
-                                    className={`btn-blue ${canAccessRekamMedis(booking.status_booking) ? '' : 'disabled'}`} 
-                                    title="Rekam Medis" 
-                                    onClick={() => canAccessRekamMedis(booking.status_booking) && alert(`Lihat rekam medis ${booking._id}`)}
-                                    disabled={!canAccessRekamMedis(booking.status_booking)}
-                                    >
-                                    <img src={rekamIcon} alt="rekam" />
-                                    </button> */}
                                     <button 
                                       className="btn-blue"
                                       title="Timeline Pemeriksaan"

@@ -43,7 +43,9 @@ import kasirRoutes from './routes/rout-aktivitas-kasir.js';
 
 import farmasiRoutes from './routes/rout-aktivitas-farmasi.js';
 
-import medicalRecord from './routes/medical-record-routes.js'
+import medicalRecord from './routes/medical-record-routes.js';
+
+import dashboardKunjungan from './routes/rout-booking-dashboard.js'
 
 dotenv.config();
 
@@ -138,7 +140,9 @@ app.use('/api/aktivitas-kasir', kasirRoutes);
 
 app.use('/api/aktivitas-farmasi', farmasiRoutes);
 
-app.use('/api/medical_record', medicalRecord)
+app.use('/api/medical_record', medicalRecord);
+
+app.use('/api/booking_dashboard', dashboardKunjungan)
 
 // Route ambil data klien
 app.get('/api/users/klien', async (req, res) => {

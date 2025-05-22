@@ -4,6 +4,8 @@ import axios from 'axios';
 const BOOKING_API_URL = 'http://localhost:5000/api/booking';
 const BOOKING_RETRIBUSI_API_URL = 'http://localhost:5000/api/bookings-retribusi';
 
+const KUNJUNGAN_API_URL = 'http://localhost:5000/api/booking_dashboard';
+
 export const checkBookingAvailability = async (tanggal, excludeBookingId = null) => {
   try {
     const response = await axios.get(`${BOOKING_API_URL}/cek-ketersediaan`, {
@@ -123,6 +125,20 @@ export const updateBooking = async (bookingId, bookingData) => {
     return response.data;
   } catch (error) {
     console.error('Gagal memperbarui booking:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+
+// Tambahan fungsi baru untuk mengambil data kunjungan
+export const getAllKunjungan = async (dateParams = {}) => {
+  try {
+    const response = await axios.get(`${KUNJUNGAN_API_URL}/all`, {
+      params: dateParams
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Gagal mengambil data kunjungan:', error);
     throw error;
   }
 };
