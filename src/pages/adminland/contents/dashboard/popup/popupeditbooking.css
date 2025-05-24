@@ -277,7 +277,7 @@
     font-family: inherit !important;
 }
 
-.popup-button cancel {
+.popup-overlay-edit-admin .popup-button cancel {
     background-color: #B4374B !important;
     color: white !important;
 }

@@ -8,10 +8,9 @@ const getAuthToken = () => {
     return localStorage.getItem('token');
 };
 
-// Helper function to check user role
-const checkUserRole = async () => {
+// 1. Ganti fungsi checkUserRole untuk create dan delete (tetap superadmin only)
+const checkUserRoleForCreateDelete = async () => {
     try {
-        // Get user data from localStorage
         const userData = localStorage.getItem('user');
         if (!userData) {
             throw new Error('User not authenticated');
@@ -20,6 +19,25 @@ const checkUserRole = async () => {
         const user = JSON.parse(userData);
         if (user.aktor !== 'superadmin') {
             throw new Error('Hanya superadmin yang dapat mengakses fitur ini');
+        }
+        
+        return true;
+    } catch (error) {
+        throw error;
+    }
+};
+
+// 2. Buat fungsi baru untuk check role edit (superadmin dan paramedis)
+const checkUserRoleForEdit = async () => {
+    try {
+        const userData = localStorage.getItem('user');
+        if (!userData) {
+            throw new Error('User not authenticated');
+        }
+        
+        const user = JSON.parse(userData);
+        if (user.aktor !== 'superadmin' && user.aktor !== 'paramedis') {
+            throw new Error('Hanya superadmin dan paramedis yang dapat mengedit produk');
         }
         
         return true;
@@ -48,10 +66,11 @@ export const fetchProdukById = async (id) => {
     }
 };
 
+// 3. GANTI fungsi createProduk (tetap superadmin only):
 export const createProduk = async (produkData) => {
     try {
         // Check if user is superadmin before creating produk
-        await checkUserRole();
+        await checkUserRoleForCreateDelete();
         
         const response = await axios.post(`${API_URL}/produk`, produkData, {
             headers: {
@@ -62,7 +81,6 @@ export const createProduk = async (produkData) => {
     } catch (error) {
         console.error('Error creating produk:', error);
         
-        // If error is due to authorization, show message temporarily
         if (error.message === 'Hanya superadmin yang dapat mengakses fitur ini') {
             showTemporaryError(error.message);
         }
@@ -71,10 +89,11 @@ export const createProduk = async (produkData) => {
     }
 };
 
+// 4. GANTI fungsi updateProduk (superadmin dan paramedis):
 export const updateProduk = async (id, produkData) => {
     try {
-        // Check if user is superadmin before updating produk
-        await checkUserRole();
+        // Check if user is superadmin or paramedis before updating produk
+        await checkUserRoleForEdit();
         
         const response = await axios.put(`${API_URL}/produk/${id}`, produkData, {
             headers: {
@@ -85,8 +104,7 @@ export const updateProduk = async (id, produkData) => {
     } catch (error) {
         console.error(`Error updating produk with id ${id}:`, error);
         
-        // If error is due to authorization, show message temporarily
-        if (error.message === 'Hanya superadmin yang dapat mengakses fitur ini') {
+        if (error.message === 'Hanya superadmin dan paramedis yang dapat mengedit produk') {
             showTemporaryError(error.message);
         }
         
@@ -94,10 +112,11 @@ export const updateProduk = async (id, produkData) => {
     }
 };
 
+// 5. GANTI fungsi deleteProduk (tetap superadmin only):
 export const deleteProduk = async (id) => {
     try {
         // Check if user is superadmin before deleting produk
-        await checkUserRole();
+        await checkUserRoleForCreateDelete();
         
         const response = await axios.delete(`${API_URL}/produk/${id}`, {
             headers: {
@@ -108,7 +127,6 @@ export const deleteProduk = async (id) => {
     } catch (error) {
         console.error(`Error deleting produk with id ${id}:`, error);
         
-        // If error is due to authorization, show message temporarily
         if (error.message === 'Hanya superadmin yang dapat mengakses fitur ini') {
             showTemporaryError(error.message);
         }

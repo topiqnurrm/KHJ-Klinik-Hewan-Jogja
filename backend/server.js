@@ -47,6 +47,8 @@ import medicalRecord from './routes/medical-record-routes.js';
 
 import dashboardKunjungan from './routes/rout-booking-dashboard.js'
 
+import laporanKunjungan from './routes/rout-laporan.js'
+
 dotenv.config();
 
 const app = express();
@@ -143,6 +145,8 @@ app.use('/api/aktivitas-farmasi', farmasiRoutes);
 app.use('/api/medical_record', medicalRecord);
 
 app.use('/api/booking_dashboard', dashboardKunjungan)
+
+app.use('/api/laporan', laporanKunjungan)
 
 // Route ambil data klien
 app.get('/api/users/klien', async (req, res) => {

@@ -74,7 +74,8 @@ const Obat = () => {
     };
 
     // Check if user has superadmin role
-    const isSuperAdmin = currentUser?.aktor === 'superadmin';
+    const canEdit = currentUser?.aktor === 'superadmin' || currentUser?.aktor === 'paramedis';
+    const isSuperAdmin = currentUser?.aktor === 'superadmin'; // Tetap pertahankan untuk delete dan add
 
     // Helper function to parse Decimal128 values
     const parseDecimal128 = (value) => {
@@ -310,8 +311,8 @@ const Obat = () => {
     };
 
     const handleEdit = (produkItem) => {
-        if (!isSuperAdmin) {
-            showErrorMessage('Hanya superadmin yang dapat mengedit obat');
+        if (!canEdit) {
+            showErrorMessage('Hanya superadmin dan paramedis yang dapat mengedit obat');
             return;
         }
         
@@ -446,7 +447,7 @@ const Obat = () => {
                                         <td>{item.stok}</td>
                                         <td className="riwayat-actions">
                                             <button 
-                                                className={`btn-green ${!isSuperAdmin ? 'disabled-button' : ''}`} 
+                                                className={`btn-green ${!canEdit ? 'disabled-button' : ''}`} 
                                                 title="Edit" 
                                                 onClick={() => handleEdit(item)}
                                             >
