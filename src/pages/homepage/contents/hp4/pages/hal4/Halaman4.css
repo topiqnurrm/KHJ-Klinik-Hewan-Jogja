@@ -1,69 +1,259 @@
+/* Desktop (default) - existing styles */
 .hal4 {
-    background-color: #ecfcf7;
-    padding: 24px;
-    border-radius: 12px;
-    font-family: 'Poppins', sans-serif;
-    color: #333;
-    max-width: 1000px;
+  background-color: #ecfcf7;
+  padding: 24px;
+  border-radius: 12px;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.hal4 p {
+  margin: 0px;
+  padding: 0px;
+  font-size: 15px;
+}
+
+.btn-konfirmasi {
+  margin-top: 20px;
+  background: white;
+  border: 1.8px solid #2fb087;
+  color: #2fb087;
+  padding: 8px 22px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s ease;
+  width: 150px;
+}
+
+.btn-konfirmasi:hover {
+  background-color: #2fb087;
+  color: white;
+}
+
+.iniw {
+  font-family: "SansSerifBldFLF";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 14px;
+  color: #333;
+}
+
+.iniw span {
+  font-family: "SansSerifBldFLF";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 14px;
+  color: #53a96a;
+  margin: 0px;
+  padding: 0px;
+}
+
+/* Tablet (768px - 1024px) */
+@media screen and (max-width: 1024px) {
+  .hal4 {
+    max-width: 90%;
+    padding: 20px;
     margin: 0 auto;
   }
-  
+
   .hal4 p {
-    margin: 0px;
-    padding: 0px;
-    font-size: 15px;
-  }
-  
-  .btn-konfirmasi {
-    margin-top: 20px;
-    background: white;
-    border: 1.8px solid #2fb087;
-    color: #2fb087;
-    padding: 8px 22px;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
     font-size: 14px;
-    transition: 0.3s ease;
-    width: 150px;
+    line-height: 1.4;
+    margin-bottom: 8px;
   }
-  
-  .btn-konfirmasi:hover {
-    background-color: #2fb087;
-    color: white;
+
+  .btn-konfirmasi {
+    width: 160px;
+    padding: 10px 20px;
+    font-size: 14px;
   }
-  
-
-
 
   .iniw {
-    font-family: "SansSerifBldFLF";
-    font-weight: normal;
-    font-style: normal;
-    /* background-color: #c8fbeb; */
-    /* border-left: 5px solid #2fb087;
-    border-right: 5px solid #2fb087; */
-    /* padding: 12px 16px; */
-    /* margin: 10px 100px; */
-    font-size: 14px;
-    /* width: 500px; */
-    /* justify-content: center; */
-    /* align-items: center; */
-    /* border-radius: 8px; */
-    color: #333;
-    /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); */
-    /* line-height: 1.5; */
+    font-size: 13px;
+    line-height: 1.5;
   }
-  
+
   .iniw span {
-    font-family: "SansSerifBldFLF";
-    font-weight: normal;
-    font-style: normal;
-    font-size: 14px;
-    /* justify-content: center; */
-    /* align-items: center; */
-    color: #53a96a;
-    /* line-height: 1.5; */
-    margin: 0px;
-    padding: 0px;
+    font-size: 13px;
   }
+}
+
+/* Mobile Large (481px - 767px) */
+@media screen and (max-width: 767px) {
+  .hal4 {
+    max-width: 95%;
+    padding: 16px;
+    margin: 10px auto;
+    border-radius: 8px;
+  }
+
+  .hal4 p {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+  }
+
+  .btn-konfirmasi {
+    width: 100%;
+    max-width: 200px;
+    padding: 12px 20px;
+    font-size: 14px;
+    margin-top: 24px;
+  }
+
+  .iniw {
+    font-size: 12px;
+    line-height: 1.6;
+    margin-top: 16px;
+  }
+
+  .iniw span {
+    font-size: 12px;
+    display: inline-block;
+  }
+
+  /* Error message responsive */
+  .error-message {
+    font-size: 13px !important;
+    padding: 8px !important;
+    margin: 8px 0 !important;
+  }
+
+  /* Belum isi message responsive */
+  .belumisi {
+    font-size: 16px !important;
+    padding: 0 10px;
+    line-height: 1.5;
+  }
+}
+
+/* Mobile Small (320px - 480px) */
+@media screen and (max-width: 480px) {
+  .hal4 {
+    max-width: 98%;
+    padding: 12px;
+    margin: 5px auto;
+    border-radius: 6px;
+  }
+
+  .hal4 p {
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .hal4 p strong {
+    display: block;
+    margin-bottom: 2px;
+    color: #2fb087;
+  }
+
+  .btn-konfirmasi {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 14px;
+    margin-top: 20px;
+    border-radius: 6px;
+  }
+
+  .iniw {
+    font-size: 11px;
+    line-height: 1.7;
+    margin-top: 16px;
+    text-align: left;
+  }
+
+  .iniw span {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* Error message */
+  .error-message {
+    font-size: 12px !important;
+    padding: 8px !important;
+    margin: 8px 0 !important;
+    border-radius: 4px !important;
+  }
+
+  /* Belum isi message */
+  .belumisi {
+    font-size: 14px !important;
+    padding: 0 8px;
+    line-height: 1.6;
+    margin-top: 3rem !important;
+  }
+}
+
+/* Extra Small Mobile (max-width: 320px) */
+@media screen and (max-width: 320px) {
+  .hal4 {
+    padding: 10px;
+    margin: 2px auto;
+  }
+
+  .hal4 p {
+    font-size: 11px;
+    line-height: 1.7;
+    margin-bottom: 14px;
+  }
+
+  .hal4 p strong {
+    font-size: 12px;
+    margin-bottom: 3px;
+  }
+
+  .btn-konfirmasi {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+
+  .iniw {
+    font-size: 10px;
+    line-height: 1.8;
+  }
+
+  .iniw span {
+    font-size: 10px;
+  }
+
+  .belumisi {
+    font-size: 13px !important;
+    margin-top: 2rem !important;
+  }
+}
+
+/* Landscape orientation adjustments for mobile */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .hal4 {
+    padding: 8px 16px;
+    margin: 5px auto;
+  }
+
+  .hal4 p {
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .btn-konfirmasi {
+    margin-top: 12px;
+    padding: 8px 16px;
+  }
+
+  .iniw {
+    margin-top: 10px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .belumisi {
+    margin-top: 1rem !important;
+  }
+}

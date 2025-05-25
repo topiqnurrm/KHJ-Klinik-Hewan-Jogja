@@ -12,54 +12,153 @@
   font-style: normal;
 }
 
+/* Desktop styles (default) */
 .hal1 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    /* background-color: #38ab97; */
-    padding-left: 40px;
-    border-radius: 10px;
-    width: 100%;
-    height: 70%;
-    margin-top: 10px;
-    grid-auto-rows: min-content;
-  }
-  
-  .hal1 .form-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    /* color: #8C8C8C; */
-  }
-  
-  .hal1 label {
-    font-family: "SansSerifBldFLF", sans-serif;
-    font-weight: normal;
-    font-style: normal;
-    font-size: 0.95rem;
-    padding-bottom: 10px;
-    /* font-size: 14px; */
-    color: #3F4254;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-left: 15px;
+  border-radius: 10px;
+  width: 100%;
+  height: 70%;
+  margin-top: 10px;
+  grid-auto-rows: min-content;
+  gap: 0 20px;
+}
+
+.hal1 .form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hal1 label {
+  font-family: "SansSerifBldFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 0.95rem;
+  padding-bottom: 10px;
+  color: #3F4254;
+}
+
+.hal1 input {
+  background: #ecfcf7;
+  border: 1px solid #333;
+  border-radius: 7px;
+  color: #666;
+  padding: 7px;
+  font-size: 0.95rem; 
+  margin-bottom: 15px;
+  width: 350px;
+}
+
+.hal1 .form-group_full-width {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  grid-column: span 2;
+}
+
+.hal1 .form-group_full-width input {
+  width: 760px;
+}
+
+/* Tablet landscape (1024px and below) */
+@media screen and (max-width: 1024px) {
+  .hal1 {
+    padding-left: 30px;
+    padding-right: 30px;
+    gap: 0 15px;
   }
   
   .hal1 input {
-    background: #ecfcf7;
-    border: 1px solid #333;
-    border-radius: 7px;
-    color: #666;
-    padding: 7px;;
-    font-size: 0.95rem; 
-    margin-bottom: 15px;
-    width: 350px;
+    width: 280px;
+  }
+  
+  .hal1 .form-group_full-width input {
+    width: 100%;
+    max-width: 590px;
+  }
+}
+
+/* Tablet portrait (768px and below) */
+@media screen and (max-width: 768px) {
+  .hal1 {
+    grid-template-columns: 1fr;
+    padding-left: 20px;
+    padding-right: 20px;
+    gap: 0;
+  }
+  
+  .hal1 input {
+    width: 100%;
+    max-width: 400px;
   }
   
   .hal1 .form-group_full-width {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    grid-column: span 2;
-  }
-
-  .hal1 .form-group_full-width input {
-    width: 810px;
+    grid-column: span 1;
   }
   
+  .hal1 .form-group_full-width input {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+/* Mobile landscape (640px and below) */
+@media screen and (max-width: 640px) {
+  .hal1 {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  .hal1 label {
+    font-size: 0.9rem;
+  }
+  
+  .hal1 input {
+    font-size: 0.9rem;
+    padding: 8px;
+    max-width: 100%;
+  }
+  
+  .hal1 .form-group_full-width input {
+    max-width: 100%;
+  }
+}
+
+/* Mobile portrait (480px and below) */
+@media screen and (max-width: 480px) {
+  .hal1 {
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-top: 5px;
+  }
+  
+  .hal1 label {
+    font-size: 0.85rem;
+    padding-bottom: 8px;
+  }
+  
+  .hal1 input {
+    font-size: 0.85rem;
+    padding: 6px;
+    margin-bottom: 12px;
+  }
+}
+
+/* Very small mobile (360px and below) */
+@media screen and (max-width: 360px) {
+  .hal1 {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  
+  .hal1 label {
+    font-size: 0.8rem;
+  }
+  
+  .hal1 input {
+    font-size: 0.8rem;
+    padding: 5px;
+  }
+}

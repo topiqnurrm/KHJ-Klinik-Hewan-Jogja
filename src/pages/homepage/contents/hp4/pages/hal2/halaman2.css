@@ -14,7 +14,6 @@
 
 .judul {
   display: flex;
-  /* justify-content: space-between; */
   background-color: #ecfcf7;
   padding-top: 8px;
   padding-bottom: 7px;
@@ -23,7 +22,7 @@
 }
 
 .judul > div {
-  flex: 1; /* bagi rata kedua sisi */
+  flex: 1;
 }
 
 .judul h3 {
@@ -31,20 +30,21 @@
   font-weight: normal;
   font-style: normal;
   font-size: 0.95rem;
-
-  /* text-align: center; */
   color: #3F4254;
   margin: 0px;
   padding: 0px;
-  /* margin-bottom: 20px; */
 }
 
 .judul1 {
   display: flex;
-  /* align-items: center; */
   gap: 10px;
   padding-left: 20px;
+}
 
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .search-input {
@@ -53,14 +53,13 @@
   border: 1px solid #ccc;
   font-size: 14px;
   outline: none;
-  min-width: 180px;
-  margin-bottom: 8px;
+  min-width: 120px;
+  line-height: 0.1;
 }
-
 
 .judul2 {
   display: flex;
-  justify-content: flex-start; /* atau hapus saja justify-content */
+  justify-content: flex-start;
   padding-left: 10px;
   padding-bottom: 10px;
   pointer-events: none;
@@ -73,312 +72,574 @@
   padding: 0px;
   border-radius: 10px;
   font-family: "SansSerifBldFLF", sans-serif;
-  gap: 35px; /* pastikan tidak ada jarak antar child */
+  gap: 35px;
   padding-left: 10px;
 }
 
-  .hlmhwn2 .daftar-hewan {
-    background: #ecfcf7;
-    border-radius: 10px;
-    padding: 0px;
-    box-shadow: inset 0 -5px 5px rgba(0, 0, 0, 0), 
-    inset 5px 0 5px rgba(0, 0, 0, 0.05), 
-    inset -5px 0 5px rgba(0, 0, 0, 0.05), 
-    inset 0 5px 5px rgba(0, 0, 0, 0.05); /* Shadow atas, kanan, kiri ada, bawah tidak */
+.hlmhwn2 .daftar-hewan {
+  background: #ecfcf7;
+  border-radius: 10px;
+  padding: 0px;
+  box-shadow: inset 0 -5px 5px rgba(0, 0, 0, 0), 
+  inset 5px 0 5px rgba(0, 0, 0, 0.05), 
+  inset -5px 0 5px rgba(0, 0, 0, 0.05), 
+  inset 0 5px 5px rgba(0, 0, 0, 0.05);
+  width: 46%;
+  height: 257px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
 
-    width: 46%;
-    height: 257px;
-    overflow-y: auto;   /* bikin scroll vertikal kalau isi lebih banyak */
-    overflow-x: hidden; /* cegah scroll horizontal */
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;  /* biar form tetap vertikal */
-  }  
+.hlmhwn2 .form-hewan {
+  padding-top: 20px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background: #ecfcf7;
+  border-radius: 10px;
+  box-shadow: inset 0 -5px 5px rgba(0, 0, 0, 0), 
+  inset 5px 0 5px rgba(0, 0, 0, 0.05), 
+  inset -5px 0 5px rgba(0, 0, 0, 0.05), 
+  inset 0 5px 5px rgba(0, 0, 0, 0.05);
+  width: 46%;
+  height: 237px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+.hlmhwn2 .daftar-kartu {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: flex;
+  flex-direction: column;
+  margin: 0px;
+  gap: 12px;
+}
+
+.hlmhwn2 .hewan-item {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.hlmhwn2 .hewan-item.aktif {
+  background-color: #38ab97;
+  color: white;
+}
+
+.hlmhwn2 .hewan-index {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.hlmhwn2 .hewan-nama {
+  flex-grow: 1;
+}
+
+.hlmhwn2 .hewan-aksi button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 1rem;
+}
+
+.hlmhwn2 .edit-btn {
+  color: green;
+}
+
+.hlmhwn2 .hapus-btn {
+  color: red;
+}
+
+.hlmhwn2 .tambah-btn {
+  font-family: "SansSerifFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 0.95rem;
+  color: #3F4254;
+  font-weight: normal;
+  margin-top: 10px;
+  padding: 10px 30px;
+  border: 1px solid #38ab97;
+  color: #38ab97;
+  background: white;
+  border-radius: 10px;
+  cursor: pointer;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hlmhwn2 .tambah-btn:hover {
+  background-color: #38ab97;
+  color: white;
+}
+
+.hlmhwn2 .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+  padding-left: 10px;
+  padding-right: 25px;
+}
+
+.hlmhwn2 .form-group label {
+  font-family: "SansSerifBldFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 0.95rem;
+  color: #3F4254;
+  font-weight: normal;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.hlmhwn2 .form-group input, .form-group select {
+  background: #ecfcf7;
+  border: 1px solid #333;
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.hlmhwn2 .hewan-item-baru {
+  display: flex;
+  align-items: center;
+  padding: 0px;
+  margin: 0px;
+  border-radius: 10px;
+  font-family: "SansSerifBldFLF", sans-serif;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.hlmhwn2 .hewan-item-baru.aktif {
+  background-color: none;
+}
+
+.hlmhwn2 .hewan-index-baru {
+  font-family: "SansSerifFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 0.95rem;
+  color: #3F4254;
+  font-weight: normal;
+  margin-right: 12px;
+  width: 0px;
+  text-align: right;
+  flex-shrink: 0;
+  padding-left: 10px;
+  padding-right: 20px;
+}
+
+.hlmhwn2 .hewan-konten {
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 7px 0px;
+  flex-grow: 1;
+  font-size: 1rem;
+  color: #555;
+  transition: background-color 0.3s ease;
+  text-align: left;
+  margin-right: 10px;
+}
+
+.hlmhwn2 .hewan-item-baru.aktif .hewan-konten {
+  background-color: #38ab97;
+  color: white;
+  border-color: transparent;
+  margin-right: 0px;
+}
+
+.hlmhwn2 .hewan-item-baru.aktif .hewan-konten span {
+  color: white;
+}
+
+.hlmhwn2 .hewan-aksi-baru {
+  display: flex;
+  margin-left: 12px;
+  gap: 10px;
+  margin-right: 10px;
+}
+
+.hlmhwn2 .hewan-aksi-baru button {
+  background: #38ab97;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.hlmhwn2 .hewan-aksi-baru .edit-btn {
+  color: green;
+  background-color: #47BE7D;
+  border-radius: 8px;
+  padding-top: 4px;
+  padding-left: 5px;
+  width: 25px;
+  height: 25px;
+}
+
+.hlmhwn2 .hewan-aksi-baru .hapus-btn {
+  color: red;
+  background-color: #BF4749;
+  border-radius: 8px;
+  padding-top: 4px;
+  padding-left: 5px;
+  width: 25px;
+  height: 25px;
+}
+
+.hlmhwn2 .hewan-konten span {
+  font-family: "SansSerifFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 0.95rem;
+  color: #3F4254;
+  font-weight: normal;
+}
+
+.hlmhwn2 .hewan-aksi-baru .edit-btn:hover {
+  background-color: #3ba56f;
+  transform: scale(1.1);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.hlmhwn2 .hewan-aksi-baru .hapus-btn:hover {
+  background-color: #a93c3f;
+  transform: scale(1.1);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.clear-search {
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: #999;
+  cursor: pointer;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.error-message {
+  width: 100%;
+  max-width: 300px;
+  color: red;
+  text-align: center;
+  font-weight: normal;
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  z-index: 10;
+  margin: 0 auto;
+}
+
+/* ===== RESPONSIVE MEDIA QUERIES ===== */
+
+/* Large Tablets & Small Laptops (768px - 1024px) */
+@media screen and (max-width: 1024px) and (min-width: 769px) {
+  .hlmhwn2 {
+    gap: 20px;
+    padding-left: 8px;
+  }
   
+  .hlmhwn2 .daftar-hewan,
   .hlmhwn2 .form-hewan {
-    padding-top: 20px;
-    padding-bottom: 10px;
-    padding-left: 10px;
-    padding-right: 10px;
-
-    background: #ecfcf7;
-    border-radius: 10px;
-    box-shadow: inset 0 -5px 5px rgba(0, 0, 0, 0), 
-    inset 5px 0 5px rgba(0, 0, 0, 0.05), 
-    inset -5px 0 5px rgba(0, 0, 0, 0.05), 
-    inset 0 5px 5px rgba(0, 0, 0, 0.05); /* Shadow atas, kanan, kiri ada, bawah tidak */
-
-    width: 46%;
-    height: 237px;
-    overflow-y: auto;   /* bikin scroll vertikal kalau isi lebih banyak */
-    overflow-x: hidden; /* cegah scroll horizontal */
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;  /* biar form tetap vertikal */
-  }  
-  
-  .hlmhwn2 .daftar-kartu {
-    padding-top: 20px;
-    padding-bottom: 20px;
-    padding-left: 10px;
-    padding-right: 10px;
-
-    display: flex;
-    flex-direction: column;
-    margin: 0px;
-    gap: 12px;
+    width: 48%;
   }
   
-  .hlmhwn2 .hewan-item {
-    display: flex;
-    align-items: center;
-    background: white;
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 10px 15px;
-    font-size: 0.95rem;
-    color: #555;
+  .judul1 {
+    padding-left: 15px;
   }
   
-  .hlmhwn2 .hewan-item.aktif {
-    background-color: #38ab97;
-    color: white;
+  .search-input {
+    min-width: 150px;
   }
-  
-  .hlmhwn2 .hewan-index {
-    font-weight: bold;
-    margin-right: 10px;
-  }
-  
-  .hlmhwn2 .hewan-nama {
-    flex-grow: 1;
-  }
-  
-  .hlmhwn2 .hewan-aksi button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    margin-left: 10px;
-    font-size: 1rem;
-  }
-  
-  .hlmhwn2 .edit-btn {
-    color: green;
-  }
-  
-  .hlmhwn2 .hapus-btn {
-    color: red;
-  }
-  
-  .hlmhwn2 .tambah-btn {
-    font-family: "SansSerifFLF", sans-serif;
-    font-weight: normal;
-    font-style: normal;
-    font-size: 0.95rem;
-    color: #3F4254;
-    font-weight: normal;
-
-    margin-top: 10px;
-    padding: 10px 30px;
-    border: 1px solid #38ab97;
-    color: #38ab97;
-    background: white;
-    border-radius: 10px;
-    cursor: pointer;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  .hlmhwn2 .tambah-btn:hover {
-    background-color: #38ab97;
-    color: white;
-  }  
   
   .hlmhwn2 .form-group {
-    display: flex;
+    padding-right: 15px;
+  }
+}
+
+/* Tablets (481px - 768px) */
+@media screen and (max-width: 768px) and (min-width: 481px) {
+  .judul {
     flex-direction: column;
-    margin-bottom: 15px;
-    padding-left: 10px;
-    padding-right: 25px;
+    gap: 10px;
+    padding: 15px;
   }
   
-  .hlmhwn2 .form-group label {
-    font-family: "SansSerifBldFLF", sans-serif;
-    font-weight: normal;
-    font-style: normal;
-    font-size: 0.95rem;
-    color: #3F4254;
-    font-weight: normal;
-    margin-bottom: 8px;
-    text-align: left; /* Tambahkan ini supaya teks label mulai dari kiri */
+  .judul1 {
+    padding-left: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
   
-  .hlmhwn2 .form-group input, .form-group select {
-    background: #ecfcf7;
-    border: 1px solid #333;
-    border-radius: 7px;
-    padding: 8px 10px;
-    font-size: 1rem;
+  .judul2 {
+    padding-left: 0;
+    padding-bottom: 5px;
+  }
+  
+  .search-input {
+    min-width: 200px;
     width: 100%;
+    max-width: 300px;
   }
   
-
-
-  .hlmhwn2 .hewan-item-baru {
-    display: flex;
-    align-items: center;
-    padding: 0px;
-    margin: 0px;
-    border-radius: 10px;
-    font-family: "SansSerifBldFLF", sans-serif;
-    transition: background-color 0.3s ease;
-    cursor: pointer;
+  .hlmhwn2 {
+    flex-direction: column;
+    gap: 20px;
+    padding: 15px;
   }
   
-  /* ini */
-  .hlmhwn2 .hewan-item-baru.aktif {
-    /* background-color: #38ab97; */
-    background-color: none;
+  .hlmhwn2 .daftar-hewan,
+  .hlmhwn2 .form-hewan {
+    width: 100%;
+    height: auto;
+    min-height: 200px;
+  }
+  
+  .hlmhwn2 .daftar-hewan {
+    order: 1;
+  }
+  
+  .hlmhwn2 .form-hewan {
+    order: 2;
+  }
+  
+  .hlmhwn2 .daftar-kartu {
+    padding: 15px;
+  }
+  
+  .hlmhwn2 .form-group {
+    padding-left: 5px;
+    padding-right: 15px;
   }
   
   .hlmhwn2 .hewan-index-baru {
-    font-family: "SansSerifFLF", sans-serif;
-    font-weight: normal;
-    font-style: normal;
-    font-size: 0.95rem;
-    color: #3F4254;
-    font-weight: normal;
-    margin-right: 12px;
-    width: 0px;
-    text-align: right;
-    flex-shrink: 0;
-    padding-left: 10px;
-    padding-right: 20px;
-  }
-  
-  .hlmhwn2 .hewan-konten {
-    /* background-color: white; */
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 7px 0px;
-    flex-grow: 1;
-    font-size: 1rem;
-    color: #555;
-    transition: background-color 0.3s ease;
-    text-align: left; /* Tambahkan ini supaya isinya dari kiri */
-    margin-right: 10px;
-  }
-  
-  .hlmhwn2 .hewan-item-baru.aktif .hewan-konten {
-    /* background-color: #38ab97; */
-    background-color: #38ab97;
-    color: white;
-    border-color: transparent;
-    margin-right: 0px;
-  }
-
-  .hlmhwn2 .hewan-item-baru.aktif .hewan-konten span {
-    color: white;
+    padding-left: 5px;
+    padding-right: 15px;
   }
   
   .hlmhwn2 .hewan-aksi-baru {
-    display: flex;
-    margin-left: 12px;
+    margin-left: 10px;
+    margin-right: 5px;
+  }
+}
+
+/* Mobile Devices (320px - 480px) */
+@media screen and (max-width: 480px) {
+  .judul {
+    flex-direction: column;
+    gap: 15px;
+    padding: 12px;
+  }
+  
+  .judul h3 {
+    font-size: 0.9rem;
+  }
+  
+  .judul1 {
+    padding-left: 0;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 10px;
-    margin-right: 10px;
   }
   
-  .hlmhwn2 .hewan-aksi-baru button {
-    background: #38ab97;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
+  .judul2 {
+    padding-left: 0;
+    padding-bottom: 5px;
   }
   
-  .hlmhwn2 .hewan-aksi-baru .edit-btn {
-    color: green;
-    background-color: #47BE7D;
-    border-radius: 8px;
-    padding-top: 4px;
-    padding-left: 5px;
-    width: 25px; /* Set width */
-    height: 25px; /* Set height */
-  }
-  
-  .hlmhwn2 .hewan-aksi-baru .hapus-btn {
-    color: red;
-    background-color: #BF4749;
-    border-radius: 8px;
-    padding-top: 4px;
-    padding-left: 5px;
-    width: 25px; /* Set width */
-    height: 25px; /* Set height */
-  }
-
-  .hlmhwn2 .hewan-konten span {
-    font-family: "SansSerifFLF", sans-serif;
-    font-weight: normal;
-    font-style: normal;
-    font-size: 0.95rem;
-    color: #3F4254;
-    font-weight: normal;
-  }
-  
-
-
-
-
-
-
-
-
-
-  .hlmhwn2 .hewan-aksi-baru .edit-btn:hover {
-    background-color: #3ba56f;
-    transform: scale(1.1);
-    transition: background-color 0.2s ease, transform 0.2s ease;
-  }
-  
-  .hlmhwn2 .hewan-aksi-baru .hapus-btn:hover {
-    background-color: #a93c3f;
-    transform: scale(1.1);
-    transition: background-color 0.2s ease, transform 0.2s ease;
-  }
-  
-  
-
-
-
-  .clear-search {
-    /* position: absolute; */
-    /* right: 8px; */
-    background: none;
-    border: none;
-    font-size: 15px;
-    color: #999;
-    cursor: pointer;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-  }
-
-
-
-
-  .error-message {
+  .search-wrapper {
     width: 100%;
-    max-width: 300px;
-    color: red;
-    text-align: center;
-    font-weight: normal;
-    position: sticky;
-    top: 0;
-    background-color: #fff; /* Optional: Add background to avoid overlap */
-    z-index: 10; /* Ensure it stays above other elements */
-    margin: 0 auto; /* Center horizontally */
   }
   
+  .search-input {
+    min-width: unset;
+    width: 100%;
+    max-width: 100%;
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+  
+  .clear-search {
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 14px;
+  }
+  
+  .hlmhwn2 {
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+  }
+  
+  .hlmhwn2 .daftar-hewan,
+  .hlmhwn2 .form-hewan {
+    width: 100%;
+    height: auto;
+    min-height: 180px;
+  }
+  
+  .hlmhwn2 .daftar-hewan {
+    order: 1;
+  }
+  
+  .hlmhwn2 .form-hewan {
+    order: 2;
+    padding: 15px 8px 10px 8px;
+  }
+  
+  .hlmhwn2 .daftar-kartu {
+    padding: 12px 8px;
+    gap: 10px;
+  }
+  
+  .hlmhwn2 .hewan-item-baru {
+    flex-wrap: wrap;
+  }
+  
+  .hlmhwn2 .hewan-index-baru {
+    font-size: 0.85rem;
+    padding-left: 3px;
+    padding-right: 10px;
+    margin-right: 8px;
+  }
+  
+  .hlmhwn2 .hewan-konten {
+    font-size: 0.9rem;
+    padding: 6px 0px;
+    margin-right: 8px;
+  }
+  
+  .hlmhwn2 .hewan-konten span {
+    font-size: 0.85rem;
+  }
+  
+  .hlmhwn2 .hewan-aksi-baru {
+    margin-left: 8px;
+    margin-right: 3px;
+    gap: 8px;
+  }
+  
+  .hlmhwn2 .hewan-aksi-baru .edit-btn,
+  .hlmhwn2 .hewan-aksi-baru .hapus-btn {
+    width: 22px;
+    height: 22px;
+    padding-top: 3px;
+    padding-left: 4px;
+  }
+  
+  .hlmhwn2 .tambah-btn {
+    font-size: 0.85rem;
+    padding: 8px 25px;
+    margin-top: 8px;
+  }
+  
+  .hlmhwn2 .form-group {
+    margin-bottom: 12px;
+    padding-left: 3px;
+    padding-right: 10px;
+  }
+  
+  .hlmhwn2 .form-group label {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+  
+  .hlmhwn2 .form-group input,
+  .hlmhwn2 .form-group select {
+    font-size: 0.9rem;
+    padding: 6px 8px;
+  }
+  
+  .error-message {
+    max-width: 250px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Extra Small Mobile Devices (max-width: 320px) */
+@media screen and (max-width: 320px) {
+  .judul {
+    padding: 10px;
+  }
+  
+  .judul h3 {
+    font-size: 0.85rem;
+  }
+  
+  .search-input {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+  
+  .hlmhwn2 {
+    padding: 8px;
+    gap: 12px;
+  }
+  
+  .hlmhwn2 .daftar-kartu {
+    padding: 10px 5px;
+  }
+  
+  .hlmhwn2 .form-hewan {
+    padding: 12px 5px 8px 5px;
+  }
+  
+  .hlmhwn2 .hewan-index-baru {
+    font-size: 0.8rem;
+    padding-right: 8px;
+  }
+  
+  .hlmhwn2 .hewan-konten {
+    font-size: 0.85rem;
+  }
+  
+  .hlmhwn2 .hewan-konten span {
+    font-size: 0.8rem;
+  }
+  
+  .hlmhwn2 .tambah-btn {
+    font-size: 0.8rem;
+    padding: 7px 20px;
+  }
+  
+  .hlmhwn2 .form-group label {
+    font-size: 0.8rem;
+  }
+  
+  .hlmhwn2 .form-group input,
+  .hlmhwn2 .form-group select {
+    font-size: 0.85rem;
+    padding: 5px 7px;
+  }
+  
+  .hlmhwn2 .hewan-aksi-baru .edit-btn,
+  .hlmhwn2 .hewan-aksi-baru .hapus-btn {
+    width: 20px;
+    height: 20px;
+    padding-top: 2px;
+    padding-left: 3px;
+  }
+}

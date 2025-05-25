@@ -3,15 +3,16 @@
     src: url("/src/components/fonts/SansSerifBldFLF.otf") format("opentype");
     font-weight: normal;
     font-style: normal;
-  }
-  
-  @font-face {
+}
+
+@font-face {
     font-family: "SansSerifFLF";
     src: url("/src/components/fonts/SansSerifFLF.otf") format("opentype");
     font-weight: normal;
     font-style: normal;
-  }
-  
+}
+
+/* Desktop styles (default) */
 .profile-popup {
     position: fixed;
     top: 50px;
@@ -23,9 +24,6 @@
 
 .profile-popup .profile-card {
     background: #e0ffe0;
-    /* background-color: rgba(255, 255, 255, 0.5); 
-    backdrop-filter: blur(5px); */
-    
     border-radius: 12px;
     padding: 15px 15px;
     width: 250px;
@@ -49,7 +47,6 @@
 .profile-popup .profile-text h4 {
     margin: 0;
     color: #333;
-
     font-family: "SansSerifBldFLF", sans-serif;
     font-weight: normal;
     font-style: normal;
@@ -59,7 +56,6 @@
 .profile-popup .profile-text p {
     margin: 4px 0 0 0;
     color: #777;
-
     font-family: "SansSerifBldFLF", sans-serif;
     font-weight: normal;
     font-style: normal;
@@ -80,7 +76,6 @@
     padding: 8px 25px;
     border-radius: 8px;
     cursor: pointer;
-
     font-family: "SansSerifFLF", sans-serif;
     font-weight: normal;
     font-style: normal;
@@ -106,21 +101,235 @@
 }
 
 .profile-popup .btn-edit:hover {
-    background-color: #3da76d; /* Hijau lebih gelap */
+    background-color: #3da76d;
     transition: background-color 0.3s ease;
 }
 
 .profile-popup .btn-logout:hover {
-    background-color: #a83d3e; /* Merah lebih gelap */
+    background-color: #a83d3e;
     transition: background-color 0.3s ease;
 }
 
-
-
-
 .login-content {
     display: flex;
-    align-items: center; /* untuk vertikal center */
-    justify-content: center; /* kalau mau posisinya di tengah keseluruhan */
-    gap: 10px; /* ubah jarak antar teks dan gambar, misal 6px */
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Tablet Large (iPad Pro, large tablets) - 1024px to 1199px */
+@media screen and (max-width: 1199px) and (min-width: 1024px) {
+    .profile-popup {
+        margin-left: 200px;
+    }
+}
+
+/* Tablet Medium - 768px to 1023px */
+@media screen and (max-width: 1023px) and (min-width: 768px) {
+    .profile-popup {
+        margin-left: 100px;
+        top: 60px;
+    }
+    
+    .profile-popup .profile-card {
+        width: 240px;
+        padding: 14px;
+    }
+    
+    .profile-popup .btn-edit, .btn-logout {
+        padding: 7px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Tablet Small - 600px to 767px */
+@media screen and (max-width: 767px) and (min-width: 600px) {
+    .profile-popup {
+        margin-left: 50px;
+        top: 70px;
+    }
+    
+    .profile-popup .profile-card {
+        width: 220px;
+        padding: 12px;
+    }
+    
+    .profile-popup .profile-photo {
+        width: 50px;
+        height: 50px;
+        margin-right: 10px;
+    }
+    
+    .profile-popup .profile-text h4,
+    .profile-popup .profile-text p {
+        font-size: 0.9rem;
+    }
+    
+    .profile-popup .btn-edit, .btn-logout {
+        padding: 6px 18px;
+        font-size: 0.85rem;
+    }
+    
+    .profile-popup .icon {
+        padding-right: 8px;
+    }
+}
+
+/* Mobile Large - 480px to 599px */
+@media screen and (max-width: 599px) and (min-width: 480px) {
+    .profile-popup {
+        margin-left: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 80px;
+        right: 20px;
+        left: 20px;
+        transform: none;
+    }
+    
+    .profile-popup .profile-card {
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+        padding: 12px;
+    }
+    
+    .profile-popup .profile-photo {
+        width: 45px;
+        height: 45px;
+        margin-right: 10px;
+    }
+    
+    .profile-popup .profile-text h4,
+    .profile-popup .profile-text p {
+        font-size: 0.85rem;
+    }
+    
+    .profile-popup .profile-actions {
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    
+    .profile-popup .btn-edit, .btn-logout {
+        width: 100%;
+        justify-content: center;
+        padding: 8px 15px;
+        font-size: 0.85rem;
+    }
+    
+    .profile-popup .icon {
+        padding-right: 6px;
+    }
+}
+
+/* Mobile Medium - 375px to 479px */
+@media screen and (max-width: 479px) and (min-width: 375px) {
+    .profile-popup {
+        margin-left: 0;
+        top: 70px;
+        right: 15px;
+        left: 15px;
+        transform: none;
+    }
+    
+    .profile-popup .profile-card {
+        width: 100%;
+        padding: 10px;
+    }
+    
+    .profile-popup .profile-photo {
+        width: 40px;
+        height: 40px;
+        margin-right: 8px;
+    }
+    
+    .profile-popup .profile-text h4,
+    .profile-popup .profile-text p {
+        font-size: 0.8rem;
+    }
+    
+    .profile-popup .profile-actions {
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 10px;
+    }
+    
+    .profile-popup .btn-edit, .btn-logout {
+        width: 100%;
+        justify-content: center;
+        padding: 7px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .profile-popup .icon {
+        padding-right: 5px;
+    }
+}
+
+/* Mobile Small - up to 374px */
+@media screen and (max-width: 374px) {
+    .profile-popup {
+        margin-left: 0;
+        top: 60px;
+        right: 10px;
+        left: 10px;
+        transform: none;
+    }
+    
+    .profile-popup .profile-card {
+        width: 100%;
+        padding: 8px;
+    }
+    
+    .profile-popup .profile-photo {
+        width: 35px;
+        height: 35px;
+        margin-right: 6px;
+    }
+    
+    .profile-popup .profile-text h4,
+    .profile-popup .profile-text p {
+        font-size: 0.75rem;
+    }
+    
+    .profile-popup .profile-actions {
+        flex-direction: column;
+        gap: 5px;
+        margin-top: 8px;
+    }
+    
+    .profile-popup .btn-edit, .btn-logout {
+        width: 100%;
+        justify-content: center;
+        padding: 6px 10px;
+        font-size: 0.75rem;
+    }
+    
+    .profile-popup .icon {
+        padding-right: 4px;
+    }
+}
+
+/* Landscape orientation adjustments for mobile devices */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    .profile-popup {
+        top: 20px;
+    }
+    
+    .profile-popup .profile-card {
+        padding: 8px;
+    }
+    
+    .profile-popup .profile-actions {
+        margin-top: 8px;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .profile-popup .profile-photo {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
 }

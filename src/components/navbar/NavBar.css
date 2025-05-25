@@ -31,8 +31,6 @@
     backdrop-filter: blur(5px); /* Efek blur agar transparansi terlihat lebih bagus */
 }
 
-
-
 .logo {
     height: 35px;
     /* padding-left: 70px; */
@@ -48,6 +46,8 @@
 
 .ulknav li {
     display: inline-block;
+    padding-top: 2.9%;
+    padding-bottom: 2.9%;
 }
 
 .linav {
@@ -58,13 +58,31 @@
     /* font-weight: bold; */
     padding: 10px 14px;
     transition: color 0.2s ease;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.3s, background 0.3s;
+    position: relative;
 }
 
 .linav:hover {
     color: #38AB97; 
 }
 
+/* Efek saat menu aktif */
+.linav.active {
+    color: #08A78B; /* Warna aktif */
+}
 
+/* Alternatif lain: Gunakan garis bawah tanpa mengubah tinggi elemen */
+.linav.active::after {
+    content: "";
+    position: absolute;
+    bottom: -2px; 
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #08A78B;
+}
 
 .message-icon {
     display: flex;
@@ -119,7 +137,6 @@
     margin-left: 150px;
 }
 
-
 /* Efek Hover pada User Profile */
 .user-profile:hover {
     background-color: #38AB97; /* Warna hover */
@@ -132,53 +149,12 @@
     font-family: "SansSerifBldFLF", sans-serif; /* Gunakan font custom */
 }
 
-
-
-
-
-
-.linav {
-    cursor: pointer;
-    user-select: none;
-    padding: 16px 15px;
-    transition: color 0.3s, background 0.3s;
-    position: relative;
-  }
-  
-  /* Efek saat menu aktif */
-  .linav.active {
-    color: #08A78B; /* Warna aktif */
-  }
-  
-  /* Alternatif lain: Gunakan garis bawah tanpa mengubah tinggi elemen */
-  .linav.active::after {
-    content: "";
-    position: absolute;
-    bottom: -2px; 
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background-color: #08A78B;
-  }
-  
-  /* Alternatif lain: Gunakan background agar tidak mengganggu tinggi */
-  /* .linav.active {
-    background: rgba(8, 167, 139, 0.1); 
-    border-radius: 5px;
-  } */
-
-
 .login-img {
     width: 15px;
     height: 15px;
     /* border-radius: 50%; */
     border: none; /* Tidak ada border */
-    
 }
-
-
-
-
 
 /* Container login */
 .login-wrapper {
@@ -192,9 +168,6 @@
 
     width: 134.24px;
     height: 25px;
-
-    /* width: 114.24px;
-    height: 27px; */
 }
 
 /* Isi login (tulisan + gambar) */
@@ -205,6 +178,303 @@
     align-items: center;
     padding-right: 0;
     gap: 0px;
-
 }
 
+/* ============= RESPONSIVE DESIGN ============= */
+
+/* Large Desktop (1200px+) - Default styles already defined above */
+
+/* Medium Desktop/Laptop (992px - 1199px) */
+@media (max-width: 1199px) {
+    .navbar {
+        padding: 0 16px;
+    }
+    
+    .ulknav {
+        padding-left: 60px;
+        gap: 15px;
+    }
+    
+    .message-icon {
+        padding-left: 60px;
+    }
+    
+    .not-logged-in {
+        margin-left: 80px;
+    }
+}
+
+/* Small Desktop/Large Tablet (768px - 991px) */
+@media (max-width: 991px) {
+    .navbar {
+        padding: 0 12px;
+        height: 55px;
+    }
+    
+    .logo {
+        height: 30px;
+    }
+    
+    .ulknav {
+        padding-left: 30px;
+        gap: 10px;
+    }
+    
+    .linav {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
+    
+    .message-icon {
+        padding-left: 30px;
+        padding-right: 8px;
+    }
+    
+    .message-img {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .user-profile {
+        width: 90px;
+        height: 25px;
+        padding: 4px 12px;
+    }
+    
+    .login-wrapper {
+        width: 110px;
+        height: 23px;
+    }
+    
+    .user-id {
+        font-size: 12px;
+    }
+    
+    .not-logged-in {
+        margin-left: 50px;
+    }
+}
+
+/* Tablet Portrait (481px - 767px) */
+@media (max-width: 767px) {
+    .navbar {
+        padding: 0 8px;
+        height: 60px;
+        justify-content: space-between;
+    }
+    
+    .logo {
+        height: 28px;
+        flex-shrink: 0;
+    }
+    
+    .ulknav {
+        padding-left: 0;
+        gap: 8px;
+        flex: 1;
+        justify-content: center;
+        margin: 0 10px;
+    }
+    
+    .linav {
+        font-size: 11px;
+        padding: 6px 8px;
+    }
+    
+    .message-icon {
+        padding-left: 0;
+        padding-right: 5px;
+        flex-shrink: 0;
+    }
+    
+    .message-img {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .user-profile {
+        width: 80px;
+        height: 23px;
+        padding: 3px 10px;
+        flex-shrink: 0;
+    }
+    
+    .login-wrapper {
+        width: 95px;
+        height: 21px;
+    }
+    
+    .user-id {
+        font-size: 11px;
+    }
+    
+    .user-img {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .login-img {
+        width: 13px;
+        height: 13px;
+    }
+    
+    .not-logged-in {
+        margin-left: 0;
+    }
+}
+
+/* Mobile Landscape (426px - 480px) */
+@media (max-width: 480px) {
+    .navbar {
+        height: 50px;
+        padding: 0 6px;
+    }
+    
+    .logo {
+        height: 25px;
+    }
+    
+    .ulknav {
+        gap: 5px;
+        margin: 0 5px;
+    }
+    
+    .linav {
+        font-size: 10px;
+        padding: 5px 6px;
+    }
+    
+    .message-img {
+        width: 26px;
+        height: 26px;
+    }
+    
+    .user-profile {
+        width: 70px;
+        height: 21px;
+        padding: 2px 8px;
+    }
+    
+    .login-wrapper {
+        width: 85px;
+        height: 19px;
+    }
+    
+    .user-id {
+        font-size: 10px;
+    }
+    
+    .user-img {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .login-img {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+/* Mobile Portrait (320px - 425px) */
+@media (max-width: 425px) {
+    .navbar {
+        height: 45px;
+        padding: 0 4px;
+    }
+    
+    .logo {
+        height: 22px;
+    }
+    
+    .ulknav {
+        gap: 3px;
+        margin: 0 3px;
+    }
+    
+    .linav {
+        font-size: 9px;
+        padding: 4px 5px;
+    }
+    
+    .message-img {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .user-profile {
+        width: 65px;
+        height: 19px;
+        padding: 2px 7px;
+    }
+    
+    .login-wrapper {
+        width: 75px;
+        height: 17px;
+    }
+    
+    .user-id {
+        font-size: 9px;
+    }
+    
+    .user-img {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .login-img {
+        width: 11px;
+        height: 11px;
+    }
+}
+
+/* Very Small Mobile (up to 320px) */
+@media (max-width: 320px) {
+    .navbar {
+        height: 40px;
+        padding: 0 2px;
+    }
+    
+    .logo {
+        height: 20px;
+    }
+    
+    .ulknav {
+        gap: 2px;
+        margin: 0 2px;
+    }
+    
+    .linav {
+        font-size: 8px;
+        padding: 3px 4px;
+    }
+    
+    .message-img {
+        width: 22px;
+        height: 22px;
+    }
+    
+    .user-profile {
+        width: 60px;
+        height: 17px;
+        padding: 1px 6px;
+    }
+    
+    .login-wrapper {
+        width: 70px;
+        height: 15px;
+    }
+    
+    .user-id {
+        font-size: 8px;
+    }
+    
+    .user-img {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .login-img {
+        width: 10px;
+        height: 10px;
+    }
+}

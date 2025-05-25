@@ -11,234 +11,465 @@
   font-weight: normal;
   font-style: normal;
 }
-  
+
+/* Default Desktop Styles */
+.hal3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-left: 15px;
+  border-radius: 10px;
+  width: 100%;
+  height: auto;
+  margin-top: 10px;
+  grid-auto-rows: min-content;
+}
+
+.hal3 .form-group,
+.hal3 .form-group_full-width {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.ha13 .form-group-pilih-hewan {
+  width: 100px;
+}
+
+.hal3 .select-layanan {
+  width: 365px !important;
+}
+
+.hal3 .keluhan {
+  width: 349px !important;
+  resize: none;
+  height: 35px;
+}
+
+.hal3 label {
+  font-family: "SansSerifBldFLF", sans-serif;
+  font-weight: normal;
+  font-size: 0.95rem;
+  padding-bottom: 10px;
+  color: #3F4254;
+}
+
+.hal3 .warna {
+  color: #666
+}
+
+.hal3 input,
+.hal3 select,
+.hal3 textarea {
+  background: #ecfcf7;
+  border: 1px solid #333;
+  border-radius: 7px;
+  padding: 7px;
+  font-size: 0.95rem;
+  width: 350px;
+  color: #3F4254;
+}
+
+.hal3 textarea {
+  resize: vertical;
+  width: 100%;
+}
+
+.hal3 .form-group_full-width {
+  grid-column: span 2;
+}
+
+.hal3 .form-group_full-width input,
+.hal3 .form-group_full-width textarea {
+  width: 810px;
+}
+
+.date-input-wrapper {
+  position: relative;
+  width: 350px;
+}
+
+.date-input-wrapper input {
+  width: 349px;
+  color: #3F4254;
+}
+
+.date-input-wrapper img {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.hal3 .simpan {
+  grid-column: span 2;
+  width: 825px;
+}
+
+.hal3 .btn-simpan {
+  font-family: "SansSerifFLF", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 0.95rem;
+  color: #3F4254;
+  font-weight: normal;
+  width: 150px;
+  margin-top: 0px;
+  padding: 8px 22px;
+  border: 1px solid #38ab97;
+  color: #38ab97;
+  background: white;
+  border-radius: 10px;
+  cursor: pointer;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hal3 .btn-simpan:hover {
+  background-color: #38ab97;
+  color: white;
+}
+
+.hal3 input[type="date"].empty {
+  color: #aaa;
+}
+
+.validation-message.error {
+  color: #c00;
+}
+
+.validation-message.success {
+  color: #007e33;
+}
+
+.kuota-info {
+  font-size: 1rem;
+}
+
+.kuota-info.available {
+  color: green;
+}
+
+.kuota-info.full {
+  color: red;
+}
+
+.hal3 .form-group-1 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.red-day {
+  background-color: #f8d7da; 
+  color: #721c24;
+}
+
+.green-day {
+  background-color: #d4edda; 
+  color: #155724;
+}
+
+.react-datepicker__header {
+  background-color: #e6f8f0;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header {
+  color: #333;
+}
+
+.react-datepicker__header select{
+  background-color: #e6f8f0;
+  width: 100px;
+}
+
+.highlighted-day {
+  background-color: #ffeb3b;
+  color: #fff;
+  border-radius: 50%;
+}
+
+/* RESPONSIVE STYLES */
+
+/* Tablet Landscape (1024px - 1199px) */
+@media screen and (max-width: 1199px) and (min-width: 1024px) {
   .hal3 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding-left: 40px;
-    border-radius: 10px;
-    width: 100%;
-    height: auto;
-    margin-top: 10px;
-    grid-auto-rows: min-content;
-  }
-  
-  .hal3 .form-group,
-  .hal3 .form-group_full-width {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 15px;
-  }
-
-  .ha13 .form-group-pilih-hewan {
-    width: 100px;
-  }
-
-  .hal3 .select-layanan {
-    width: 365px !important;
-  }
-
-  .hal3 .keluhan {
-    width: 349px !important;
-    resize: none;
-    height: 35px;
-  }
-  
-  .hal3 label {
-    font-family: "SansSerifBldFLF", sans-serif;
-    font-weight: normal;
-    font-size: 0.95rem;
-    padding-bottom: 10px;
-    color: #3F4254;
-  }
-
-  .hal3 .warna {
-    color: #666
+    padding-left: 30px;
+    padding-right: 20px;
   }
   
   .hal3 input,
   .hal3 select,
   .hal3 textarea {
-    background: #ecfcf7;
-    border: 1px solid #333;
-    border-radius: 7px;
-    padding: 7px;
-    font-size: 0.95rem;
-    width: 350px;
-    color: #3F4254;
+    width: 300px;
   }
   
-  .hal3 textarea {
-    resize: vertical;
-    width: 100%;
+  .hal3 .select-layanan {
+    width: 315px !important;
   }
   
-  .hal3 .form-group_full-width {
-    grid-column: span 2;
+  .hal3 .keluhan {
+    width: 299px !important;
+  }
+  
+  .date-input-wrapper {
+    width: 300px;
+  }
+  
+  .date-input-wrapper input {
+    width: 299px;
   }
   
   .hal3 .form-group_full-width input,
   .hal3 .form-group_full-width textarea {
-    width: 810px;
+    width: 640px;
+  }
+  
+  .hal3 .simpan {
+    width: 655px;
+  }
+}
+
+/* Tablet Portrait (768px - 1023px) */
+@media screen and (max-width: 1023px) and (min-width: 768px) {
+  .hal3 {
+    grid-template-columns: 1fr;
+    padding-left: 20px;
+    padding-right: 20px;
+    gap: 0;
+  }
+  
+  .hal3 .form-group,
+  .hal3 .form-group-1 {
+    margin-bottom: 20px;
+  }
+  
+  .hal3 input,
+  .hal3 select,
+  .hal3 textarea {
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+  }
+  
+  .hal3 .select-layanan {
+    width: 100% !important;
+    max-width: 515px !important;
+  }
+  
+  .hal3 .keluhan {
+    width: 100% !important;
+    max-width: 500px !important;
   }
   
   .date-input-wrapper {
-    position: relative;
-    width: 350px;
+    width: 100%;
+    max-width: 500px;
   }
   
   .date-input-wrapper input {
-    width: 349px;
-    color: #3F4254;
-    /* padding-right: 40px; */
-  }
-
-  .date-input-wrapper img {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 18px;
-    height: 18px;
-    pointer-events: none;
+    width: 100%;
   }
   
-
-
-
-
-
-.hal3 .simpan {
-  grid-column: span 2;
-  width: 825px;
-  /* justify-content: center; */
+  .hal3 .form-group_full-width {
+    grid-column: span 1;
+  }
+  
+  .hal3 .form-group_full-width input,
+  .hal3 .form-group_full-width textarea {
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  .hal3 .simpan {
+    grid-column: span 1;
+    width: 100%;
+    max-width: 515px;
+  }
+  
+  .hal3 .btn-simpan {
+    width: 180px;
+  }
 }
 
-  .hal3 .btn-simpan {
-    font-family: "SansSerifFLF", sans-serif;
-    font-weight: normal;
-    font-style: normal;
-    font-size: 0.95rem;
-    color: #3F4254;
-    font-weight: normal;
-    width: 150px;
-
-    margin-top: 0px;
-    /* padding: 10px 30px; */
-    padding: 8px 22px;
-    border: 1px solid #38ab97;
-    color: #38ab97;
-    background: white;
-    border-radius: 10px;
-    cursor: pointer;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+/* Mobile Large (481px - 767px) */
+@media screen and (max-width: 767px) and (min-width: 481px) {
+  .hal3 {
+    grid-template-columns: 1fr;
+    padding-left: 15px;
+    padding-right: 15px;
+    gap: 0;
   }
   
-  .hal3 .btn-simpan:hover {
-    background-color: #38ab97;
-    color: white;
-  }
-  
-
-
-  .hal3 input[type="date"].empty {
-    color: #aaa;  /* warna mirip placeholder */
-  }
-  
-
-
-
-
-
-  /* .validation-message {
-    margin-top: 10px;
-    font-size: 0.95rem;
-    padding: 8px 12px;
-    border-radius: 6px;
-    width: fit-content;
-  } */
-  
-  .validation-message.error {
-    /* background-color: #ffe0e0; */
-    color: #c00;
-    /* border: 1px solid #c00; */
-  }
-  
-  .validation-message.success {
-    /* background-color: #e0ffe5; */
-    color: #007e33;
-    /* border: 1px solid #007e33; */
-  }
-  
-
-
-
-
-  .kuota-info {
-    font-size: 1rem;
-    /* font-weight: bold; */
-  }
-  
-  .kuota-info.available {
-    color: green; /* Hijau untuk slot tersedia */
-  }
-  
-  .kuota-info.full {
-    color: red; /* Merah untuk kuota penuh */
-  }
-  
-
-
-
+  .hal3 .form-group,
   .hal3 .form-group-1 {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+  
+  .hal3 label {
+    font-size: 0.9rem;
+    padding-bottom: 8px;
+  }
+  
+  .hal3 input,
+  .hal3 select,
+  .hal3 textarea {
+    width: 100%;
+    font-size: 0.9rem;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  
+  .hal3 .select-layanan {
+    width: 100% !important;
+  }
+  
+  .hal3 .keluhan {
+    width: 100% !important;
+    height: 40px;
+  }
+  
+  .date-input-wrapper {
+    width: 100%;
+  }
+  
+  .date-input-wrapper input {
+    width: 100%;
+  }
+  
+  .hal3 .form-group_full-width {
+    grid-column: span 1;
+  }
+  
+  .hal3 .form-group_full-width input,
+  .hal3 .form-group_full-width textarea {
+    width: 100%;
+  }
+  
+  .hal3 .simpan {
+    grid-column: span 1;
+    width: 100%;
+  }
+  
+  .hal3 .btn-simpan {
+    width: 160px;
+    font-size: 0.9rem;
+  }
+  
+  .kuota-info {
+    font-size: 0.9rem;
+  }
+  
+  /* DatePicker responsive adjustments */
+  .react-datepicker {
+    font-size: 0.85rem;
+  }
+  
+  .react-datepicker__header select {
+    width: 80px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Mobile Small (320px - 480px) */
+@media screen and (max-width: 480px) {
+  .hal3 {
+    grid-template-columns: 1fr;
+    padding-left: 10px;
+    padding-right: 10px;
+    gap: 0;
+    margin-top: 5px;
+  }
+  
+  .hal3 .form-group,
+  .hal3 .form-group-1 {
     margin-bottom: 15px;
   }
-
-
-
-
-
-  .red-day {
-    background-color: #f8d7da; 
-    color: #721c24;
-  }
-  .green-day {
-    background-color: #d4edda; 
-    color: #155724;
+  
+  .hal3 label {
+    font-size: 0.85rem;
+    padding-bottom: 6px;
   }
   
-  
-
-
-  .react-datepicker__header {
-    background-color: #e6f8f0;
+  .hal3 input,
+  .hal3 select,
+  .hal3 textarea {
+    width: 100%;
+    font-size: 0.85rem;
+    padding: 6px;
+    box-sizing: border-box;
   }
   
-  .react-datepicker__current-month,
-  .react-datepicker-time__header,
-  .react-datepicker-year-header {
-    color: #333;
+  .hal3 .select-layanan {
+    width: 100% !important;
   }
   
-
-  .react-datepicker__header select{
-    background-color: #e6f8f0;
-    width: 100px;
+  .hal3 .keluhan {
+    width: 100% !important;
+    height: 45px;
   }
   
-
-
-
-
-  .highlighted-day {
-    background-color: #ffeb3b; /* Warna kuning terang untuk tanggal yang dipilih */
-    color: #fff; /* Warna teks putih */
-    border-radius: 50%;
+  .date-input-wrapper {
+    width: 100%;
   }
   
+  .date-input-wrapper input {
+    width: 100%;
+  }
+  
+  .hal3 .form-group_full-width {
+    grid-column: span 1;
+  }
+  
+  .hal3 .form-group_full-width input,
+  .hal3 .form-group_full-width textarea {
+    width: 100%;
+  }
+  
+  .hal3 .simpan {
+    grid-column: span 1;
+    width: 100%;
+  }
+  
+  .hal3 .btn-simpan {
+    width: 140px;
+    font-size: 0.85rem;
+    padding: 8px 16px;
+  }
+  
+  .kuota-info {
+    font-size: 0.85rem;
+  }
+  
+  .validation-message {
+    font-size: 0.85rem;
+  }
+  
+  /* DatePicker responsive adjustments */
+  .react-datepicker {
+    font-size: 0.8rem;
+    width: 280px;
+  }
+  
+  .react-datepicker__header select {
+    width: 70px;
+    font-size: 0.75rem;
+  }
+  
+  .react-datepicker__day {
+    width: 1.7rem;
+    line-height: 1.7rem;
+  }
+  
+  /* Adjust character counter for mobile */
+  .hal3 textarea + div {
+    font-size: 0.8rem;
+  }
+}
