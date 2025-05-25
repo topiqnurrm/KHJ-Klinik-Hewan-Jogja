@@ -12,19 +12,30 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
   const [rekamMedisData, setRekamMedisData] = useState(null);
   const [retribusiData, setRetribusiData] = useState(null);
   const [error, setError] = useState(null);
-  const [fetchTrigger, setFetchTrigger] = useState(0); // Added to force refetch
+  const [fetchTrigger, setFetchTrigger] = useState(0);
+
+  // Store original overflow value
+  const [originalOverflow, setOriginalOverflow] = useState('');
 
   // Effect to handle popup open/close and body scrolling
   useEffect(() => {
     if (isOpen) {
+      // Store current overflow value
+      const currentOverflow = document.body.style.overflow || getComputedStyle(document.body).overflow;
+      setOriginalOverflow(currentOverflow);
+      
       // Prevent background scrolling when popup is open
       document.body.style.overflow = 'hidden';
     } else {
-      // Restore background scrolling when popup is closed
-      document.body.style.overflow = 'auto';
+      // Restore original overflow value or remove the style property entirely
+      if (originalOverflow && originalOverflow !== 'hidden') {
+        document.body.style.overflow = originalOverflow;
+      } else {
+        // Remove the inline style to let CSS take over
+        document.body.style.removeProperty('overflow');
+      }
       
       // Clear data states when popup closes after a short delay
-      // This prevents flickering content when closing/opening the same record
       const timeoutId = setTimeout(() => {
         setBookingData(null);
         setKunjunganData(null);
@@ -35,12 +46,22 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
       
       return () => clearTimeout(timeoutId);
     }
-  }, [isOpen]);
+
+    // Cleanup function to ensure scroll is restored
+    return () => {
+      if (isOpen) {
+        if (originalOverflow && originalOverflow !== 'hidden') {
+          document.body.style.overflow = originalOverflow;
+        } else {
+          document.body.style.removeProperty('overflow');
+        }
+      }
+    };
+  }, [isOpen, originalOverflow]);
 
   // Effect to fetch data when bookingId changes or popup opens
   useEffect(() => {
     if (isOpen && bookingId) {
-      // Increment the fetch trigger to force a refetch
       setFetchTrigger(prev => prev + 1);
     }
   }, [isOpen, bookingId]);
@@ -53,10 +74,8 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
   }, [fetchTrigger]);
 
   const fetchMedicalRecordData = async (bookingId) => {
-    // Only proceed if we have a valid bookingId
     if (!bookingId) return;
     
-    // console.log("Fetching medical record for booking ID:", bookingId);
     setIsLoading(true);
     setError(null);
     
@@ -64,47 +83,35 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
       // 1. Fetch booking data
       const bookingResponse = await axios.get(`${API_URL}/booking/${bookingId}`);
       setBookingData(bookingResponse.data);
-      // console.log("Booking data fetched:", bookingResponse.data);
       
       // 2. Fetch kunjungan data using booking ID
       const kunjunganResponse = await axios.get(`${API_URL}/kunjungan/by-booking/${bookingId}`);
       setKunjunganData(kunjunganResponse.data);
-      // console.log("Kunjungan data fetched:", kunjunganResponse.data);
       
       // 3. If kunjungan exists, try to fetch rekam medis and retribusi
       if (kunjunganResponse.data) {
         const kunjunganId = kunjunganResponse.data._id;
         
         try {
-          // Fetch rekam medis - wrap in try/catch to handle 404
           const rekamMedisResponse = await axios.get(`${API_URL}/rekam-medis/by-kunjungan/${kunjunganId}`);
           setRekamMedisData(rekamMedisResponse.data);
-          // console.log("Rekam medis data fetched:", rekamMedisResponse.data);
         } catch (rekamMedisErr) {
-          // console.log("Rekam medis belum tersedia:", rekamMedisErr.message);
-          // Clear previous data
           setRekamMedisData(null);
         }
         
         try {
-          // Fetch retribusi - wrap in try/catch to handle 404
           const retribusiResponse = await axios.get(`${API_URL}/retribusi/by-kunjungan/${kunjunganId}`);
           setRetribusiData(retribusiResponse.data);
-          // console.log("Retribusi data fetched:", retribusiResponse.data);
         } catch (retribusiErr) {
-          // console.log("Data retribusi belum tersedia:", retribusiErr.message);
-          // Clear previous data
           setRetribusiData(null);
         }
       } else {
-        // Clear previous data if no kunjungan found
         setRekamMedisData(null);
         setRetribusiData(null);
       }
     } catch (err) {
       console.error("Error fetching medical record data:", err);
       setError("Gagal mengambil data rekam medis");
-      // Clear all data on error
       setBookingData(null);
       setKunjunganData(null);
       setRekamMedisData(null);
@@ -114,8 +121,21 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
     }
   };
 
+  // Enhanced close handler to ensure scroll restoration
+  const handleClose = () => {
+    // Explicitly restore scroll before closing
+    if (originalOverflow && originalOverflow !== 'hidden') {
+      document.body.style.overflow = originalOverflow;
+    } else {
+      document.body.style.removeProperty('overflow');
+    }
+    
+    // Call the parent's onClose
+    onClose();
+  };
+
   const handlePopupClick = (e) => {
-    e.stopPropagation(); // Stop clicks inside popup from reaching parent elements
+    e.stopPropagation();
   };
 
   const formatDateTime = (dateString) => {
@@ -130,7 +150,6 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
     });
   };
 
-  // New function to format date only (without time)
   const formatDateOnly = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -141,7 +160,6 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
     });
   };
   
-  // Format display status for doctor section
   const formatDokterStatus = (status) => {
     if (status === "menunggu pembayaran") {
       return "selesai diperiksa";
@@ -154,7 +172,6 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
     }
   };
   
-  // Format display status for UI display (sedang diperiksa -> check in)
   const formatDisplayStatus = (status) => {
     if (status === "sedang diperiksa") {
       return "check in";
@@ -162,30 +179,24 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
     return status;
   };
   
-  // Filter administrasis1 with specified statuses
   const filteredAdministrasis = bookingData?.administrasis1?.filter(item => 
     ["menunggu respon administrasi", "disetujui administrasi", "ditolak administrasi", "dibatalkan administrasi"].includes(item.status_administrasi)
   ) || [];
   
-  // Filter administrasis2 with specified statuses
   const filteredKunjunganAdministrasis = kunjunganData?.administrasis2?.filter(item => 
     ["sedang diperiksa"].includes(item.status_kunjungan)
   ) || [];
   
-  // Filter dokters with specified statuses
   const filteredDokters = rekamMedisData?.dokters?.filter(item => 
     ["sedang diperiksa", "dirawat inap", "menunggu pembayaran", "selesai", "mengambil obat"].includes(item.status)
   ) || [];
   
-  // Filter retribusi with status 'selesai'
   const showRetribusi = retribusiData && retribusiData.status_retribusi === "selesai";
 
-  // Function to check if we should show the payment result differently
   const isPaymentWaitingMedication = (status) => {
     return formatDokterStatus(status) === "pembayaran berhasil & menunggu obat";
   };
 
-  // Display debug information while developing
   const hasAnyData = filteredAdministrasis.length > 0 || 
                     filteredKunjunganAdministrasis.length > 0 || 
                     filteredDokters.length > 0 || 
@@ -194,11 +205,11 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
-    <div className="medical-record-popup-overlay" onClick={onClose}>
+    <div className="medical-record-popup-overlay" onClick={handleClose}>
       <div className="medical-record-popup" onClick={handlePopupClick}>
         <div className="medical-record-header">
           <h2>Timeline Pemeriksaan {bookingId && `- ID: ${bookingId.slice(-6)}`}</h2>
-          <button className="popup-close" onClick={onClose}>
+          <button className="popup-close" onClick={handleClose}>
             ✖
           </button>
         </div>
@@ -275,7 +286,6 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
                         </div>
                         <div className="record-body">
                           {dokter.status === "mengambil obat" ? (
-                            // For "mengambil obat" status, only show Hasil
                             <>
                               {shouldShowHasilDirectly ? (
                                 <p dangerouslySetInnerHTML={{ __html: dokter.hasil ? dokter.hasil.replace(/Total Tagihan:/g, "<strong>Total Tagihan:</strong>") : "Belum ada hasil" }} />
@@ -287,7 +297,6 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
                               )}
                             </>
                           ) : (
-                            // For other statuses
                             <>
                               <p><strong>Dokter:</strong> {dokter.nama || "N/A"}</p>
                               <p><strong>Diagnosa:</strong> {dokter.diagnosa || "Belum ada diagnosa"}</p>
