@@ -24,6 +24,9 @@ const NavBar = ({ userId, identity, refetchBooking, refreshTrigger }) => {
     
     // Add a local state to track refetch triggers
     const [refetchTrigger, setRefetchTrigger] = useState(false);
+    
+    // Ref untuk menyimpan interval ID
+    const intervalRef = useRef(null);
 
     // Ambil data user
     useEffect(() => {
@@ -36,22 +39,39 @@ const NavBar = ({ userId, identity, refetchBooking, refreshTrigger }) => {
         }
     }, [identity]);
 
-    // refresh notif otomatis
-    // NavBar.jsx
-    useEffect(() => {
-        const cekUnfinishedBooking = async () => {
+    // Function untuk cek unfinished booking
+    const cekUnfinishedBooking = async () => {
         if (identity) {
             try {
-            const adaBookingBelumSelesai = await checkUnfinishedBookingByUserId(identity);
-            setHasUnfinishedBooking(adaBookingBelumSelesai);
+                const adaBookingBelumSelesai = await checkUnfinishedBookingByUserId(identity);
+                setHasUnfinishedBooking(adaBookingBelumSelesai);
             } catch (err) {
-            console.error("Gagal cek unfinished booking:", err);
-            setHasUnfinishedBooking(false);
+                console.error("Gagal cek unfinished booking:", err);
+                setHasUnfinishedBooking(false);
             }
         }
-        };
+    };
+
+    // Auto-update setiap 3 detik + manual refresh
+    useEffect(() => {
+        // Jalankan cek pertama kali
         cekUnfinishedBooking();
-    }, [identity, refetchTrigger, refreshTrigger]); // Add refreshTrigger from props here
+        
+        // Set interval untuk auto-update setiap 3 detik
+        if (identity) {
+            intervalRef.current = setInterval(() => {
+                cekUnfinishedBooking();
+            }, 3000); // 3000ms = 3 detik
+        }
+
+        // Cleanup interval saat component unmount atau identity berubah
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        };
+    }, [identity, refetchTrigger, refreshTrigger]); // Dependencies tetap sama
     
     // Function to handle refresh from child component
     const handleBookingDeleted = () => {
@@ -62,6 +82,9 @@ const NavBar = ({ userId, identity, refetchBooking, refreshTrigger }) => {
         if (typeof refetchBooking === 'function') {
             refetchBooking();
         }
+        
+        // Langsung cek ulang tanpa menunggu interval
+        cekUnfinishedBooking();
     };
 
     // Scroll & highlight section

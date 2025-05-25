@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './kasir.css';
 import editIcon from "../../../../components/riwayat/gambar/edit.png";
 import { getAllPembayaran, hasEditPermission, getCurrentUser } from '../../../../api/api-aktivitas-kasir';
@@ -26,8 +26,13 @@ const Kasir = () => {
     const [notification, setNotification] = useState({
         show: false,
         message: "",
-        type: "error" // error, success, warning, info
+        type: "error"
     });
+
+    // State for auto-refresh
+    const [isAutoRefreshActive, setIsAutoRefreshActive] = useState(true);
+    const [lastRefreshTime, setLastRefreshTime] = useState(new Date());
+    const intervalRef = useRef(null);
 
     // Show notification function
     const showNotification = (message, type = "error") => {
@@ -39,10 +44,10 @@ const Kasir = () => {
         
         // Hapus notifikasi setelah 3 detik
         setTimeout(() => {
-            setNotification({
-                ...notification,
+            setNotification(prev => ({
+                ...prev,
                 show: false
-            });
+            }));
         }, 3000);
     };
     
@@ -60,10 +65,25 @@ const Kasir = () => {
         }
     }, []);
 
-    // Fetch data on component mount
+    // Setup auto-refresh interval
     useEffect(() => {
+        // Initial data fetch
         fetchPembayaranData();
-    }, []);
+
+        // Setup auto-refresh if active
+        if (isAutoRefreshActive) {
+            intervalRef.current = setInterval(() => {
+                fetchPembayaranData(true); // Pass true to indicate auto-refresh
+            }, 3000); // Refresh every 3 seconds
+        }
+
+        // Cleanup interval on unmount or when auto-refresh is disabled
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
+    }, [isAutoRefreshActive]);
     
     // Update filtered data when source data or filters change
     useEffect(() => {
@@ -71,19 +91,69 @@ const Kasir = () => {
     }, [pembayaranList, searchTerm, sortBy, sortOrder]);
 
     // Fetch all payment data
-    const fetchPembayaranData = async () => {
+    const fetchPembayaranData = async (isAutoRefresh = false) => {
         try {
-            setLoading(true);
+            // Only show loading indicator for manual refresh, not auto-refresh
+            if (!isAutoRefresh) {
+                setLoading(true);
+            }
+            
             const data = await getAllPembayaran();
+            
+            // Check if data has changed (for notification purposes)
+            if (isAutoRefresh && pembayaranList.length > 0) {
+                const newPendingPayments = data.filter(item => 
+                    item.status_retribusi.toLowerCase() === "menunggu pembayaran"
+                );
+                const currentPendingPayments = pembayaranList.filter(item => 
+                    item.status_retribusi.toLowerCase() === "menunggu pembayaran"
+                );
+                
+                // Check if there are new pending payments
+                if (newPendingPayments.length > currentPendingPayments.length) {
+                    showNotification(`${newPendingPayments.length - currentPendingPayments.length} data pembayaran baru ditemukan`, "info");
+                }
+            }
+            
             setPembayaranList(data);
-            setFilteredPembayaranList(data.filter(item => 
-                item.status_retribusi.toLowerCase() === "menunggu pembayaran"
-            ));
-            setLoading(false);
+            setLastRefreshTime(new Date());
+            
+            if (!isAutoRefresh) {
+                setLoading(false);
+            }
         } catch (err) {
             setError('Gagal mengambil data pembayaran');
-            setLoading(false);
+            if (!isAutoRefresh) {
+                setLoading(false);
+            }
             console.error('Error fetching payment data:', err);
+            
+            // Show error notification only for manual refresh
+            if (!isAutoRefresh) {
+                showNotification('Gagal mengambil data pembayaran', "error");
+            }
+        }
+    };
+
+    // Manual refresh function
+    const handleManualRefresh = () => {
+        fetchPembayaranData();
+        showNotification("Data berhasil diperbarui", "success");
+    };
+
+    // Toggle auto-refresh
+    const toggleAutoRefresh = () => {
+        setIsAutoRefreshActive(!isAutoRefreshActive);
+        
+        if (!isAutoRefreshActive) {
+            // Starting auto-refresh
+            showNotification("Auto-refresh diaktifkan", "info");
+        } else {
+            // Stopping auto-refresh
+            showNotification("Auto-refresh dinonaktifkan", "warning");
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
         }
     };
 
@@ -189,6 +259,15 @@ const Kasir = () => {
         }
     };
 
+    // Format time for display
+    const formatTime = (date) => {
+        return date.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    };
+
     return (
         <div className='kasir-container'>
             <div className="dashboard-header">
@@ -201,6 +280,63 @@ const Kasir = () => {
                     {notification.message}
                 </div>
             )}
+
+            {/* Auto-refresh controls */}
+            {/* <div className="refresh-controls" style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '10px', 
+                marginBottom: '15px',
+                padding: '10px',
+                backgroundColor: '#f5f5f5',
+                borderRadius: '5px',
+                fontSize: '14px'
+            }}>
+                <button 
+                    className={`refresh-toggle-btn ${isAutoRefreshActive ? 'active' : 'inactive'}`}
+                    onClick={toggleAutoRefresh}
+                    style={{
+                        padding: '5px 10px',
+                        border: 'none',
+                        borderRadius: '3px',
+                        cursor: 'pointer',
+                        backgroundColor: isAutoRefreshActive ? '#4CAF50' : '#f44336',
+                        color: 'white',
+                        fontSize: '12px'
+                    }}
+                >
+                    {isAutoRefreshActive ? '🔄 Auto-Refresh ON' : '⏸ Auto-Refresh OFF'}
+                </button>
+                
+                <button 
+                    className="manual-refresh-btn"
+                    onClick={handleManualRefresh}
+                    style={{
+                        padding: '5px 10px',
+                        border: '1px solid #ccc',
+                        borderRadius: '3px',
+                        cursor: 'pointer',
+                        backgroundColor: 'white',
+                        fontSize: '12px'
+                    }}
+                >
+                    🔄 Refresh Manual
+                </button>
+                
+                <span style={{ color: '#666', fontSize: '12px' }}>
+                    Last update: {formatTime(lastRefreshTime)}
+                </span>
+                
+                {isAutoRefreshActive && (
+                    <span style={{ 
+                        color: '#4CAF50', 
+                        fontSize: '12px',
+                        fontWeight: 'bold'
+                    }}>
+                        • Auto-refresh aktif (setiap 3 detik)
+                    </span>
+                )}
+            </div> */}
             
             <div className="riwayat-filter-container">
                 <div className="riwayat-search-wrapper">

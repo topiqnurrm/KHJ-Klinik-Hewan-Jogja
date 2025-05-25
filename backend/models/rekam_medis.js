@@ -30,7 +30,8 @@ const RekamMedisSchema = new mongoose.Schema({
     },
     pemeriksaan: {
         type: String,
-        required: false
+        // required: true,
+        default: "tidak ada"
     },
     tanggal: {
         type: Date,

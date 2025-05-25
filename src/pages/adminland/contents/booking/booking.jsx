@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './booking.css';
 import editIcon from "../../../../components/riwayat/gambar/edit.png";
 import { getAllBookings, updateBookingStatus, addNoteToBooking, getCurrentUser } from '../../../../api/api-aktivitas-booking';
@@ -21,6 +21,11 @@ const Booking = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [showError, setShowError] = useState(false);
 
+    // State untuk auto-refresh
+    const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(true);
+    const [lastRefreshTime, setLastRefreshTime] = useState(null);
+    const intervalRef = useRef(null);
+
     // Status yang tidak ditampilkan
     const hiddenStatuses = ["ditolak administrasi", "dibatalkan administrasi"];
 
@@ -34,21 +39,57 @@ const Booking = () => {
         }, 3000);
     };
 
-    const fetchAllBookings = async () => {
-        setIsLoading(true);
+    const fetchAllBookings = async (showLoadingIndicator = true) => {
+        if (showLoadingIndicator) {
+            setIsLoading(true);
+        }
+        
         try {
             const allData = await getAllBookings();
             // Filter out the hidden statuses from the original data
             const filteredData = allData.filter(booking => !hiddenStatuses.includes(booking.status));
             setBookings(filteredData);
             setFilteredBookings(filteredData);
+            setLastRefreshTime(new Date());
         } catch (error) {
             console.error('Gagal fetch data booking:', error);
-            showErrorMessage("Gagal memuat data booking: " + (error.response?.data?.message || error.message));
+            // Hanya tampilkan error jika bukan dari auto-refresh
+            if (showLoadingIndicator) {
+                showErrorMessage("Gagal memuat data booking: " + (error.response?.data?.message || error.message));
+            }
         } finally {
-            setIsLoading(false);
+            if (showLoadingIndicator) {
+                setIsLoading(false);
+            }
         }
     };
+
+    // Setup auto-refresh interval
+    useEffect(() => {
+        if (isAutoRefreshEnabled) {
+            // Set interval untuk refresh setiap 3 detik
+            intervalRef.current = setInterval(() => {
+                // Hanya refresh jika tidak sedang dalam modal edit
+                if (!showEditModal) {
+                    fetchAllBookings(false); // false = tidak tampilkan loading indicator
+                }
+            }, 3000);
+        } else {
+            // Clear interval jika auto-refresh dimatikan
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        }
+
+        // Cleanup function
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        };
+    }, [isAutoRefreshEnabled, showEditModal]);
 
     useEffect(() => {
         fetchAllBookings();
@@ -57,6 +98,22 @@ const Booking = () => {
         const user = getCurrentUser();
         setCurrentUser(user);
     }, []);
+
+    // Pause auto-refresh saat modal edit terbuka
+    useEffect(() => {
+        if (showEditModal) {
+            // Pause auto-refresh saat modal terbuka
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        } else if (isAutoRefreshEnabled) {
+            // Resume auto-refresh saat modal ditutup
+            intervalRef.current = setInterval(() => {
+                fetchAllBookings(false);
+            }, 3000);
+        }
+    }, [showEditModal, isAutoRefreshEnabled]);
 
     useEffect(() => {
         const lower = searchTerm.toLowerCase();
@@ -148,7 +205,7 @@ const Booking = () => {
                 prev.map(b => b._id === updatedBooking._id ? updatedBooking : b)
             );
             // Refresh juga untuk memastikan konsistensi
-            fetchAllBookings();
+            fetchAllBookings(false);
         }
     };
 
@@ -171,10 +228,63 @@ const Booking = () => {
         });
     };
 
+    // Toggle auto-refresh
+    const toggleAutoRefresh = () => {
+        setIsAutoRefreshEnabled(!isAutoRefreshEnabled);
+    };
+
+    // Manual refresh
+    const handleManualRefresh = () => {
+        fetchAllBookings(true);
+    };
+
     return (
         <div className='booking-container'>
             <div className="dashboard-header">
                 <h1>Aktivitas &gt; Booking</h1>
+                
+                {/* Auto-refresh controls */}
+                {/* <div className="refresh-controls" style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '10px', 
+                    marginTop: '10px',
+                    fontSize: '14px'
+                }}>
+                    <button 
+                        onClick={toggleAutoRefresh}
+                        style={{
+                            padding: '5px 10px',
+                            backgroundColor: isAutoRefreshEnabled ? '#4CAF50' : '#f44336',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Auto-refresh: {isAutoRefreshEnabled ? 'ON' : 'OFF'}
+                    </button>
+                    
+                    <button 
+                        onClick={handleManualRefresh}
+                        style={{
+                            padding: '5px 10px',
+                            backgroundColor: '#2196F3',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Refresh Manual
+                    </button>
+                    
+                    {lastRefreshTime && (
+                        <span style={{ color: '#666' }}>
+                            Terakhir diperbarui: {lastRefreshTime.toLocaleTimeString()}
+                        </span>
+                    )}
+                </div> */}
             </div>
             
             {/* Error notification */}

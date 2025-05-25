@@ -45,7 +45,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
         diagnosa: "",
         beratBadan: "",
         suhuBadan: "",
-        pemeriksaan: "",
+        pemeriksaan: "tidak ada",
         hasil: ""
     });
 
@@ -311,7 +311,7 @@ const Rekammedis = ({ kunjunganData, onBack }) => {
                             diagnosa: rekamMedisResponse.diagnosa || "",
                             beratBadan: rekamMedisResponse.berat_badan?.$numberDecimal || "",
                             suhuBadan: rekamMedisResponse.suhu_badan?.$numberDecimal || "",
-                            pemeriksaan: rekamMedisResponse.pemeriksaan || "",
+                            pemeriksaan: rekamMedisResponse.pemeriksaan || "tidak ada",
                             hasil: rekamMedisResponse.hasil || ""
                         });
                         

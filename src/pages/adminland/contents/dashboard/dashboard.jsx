@@ -26,6 +26,10 @@ import MedicalRecordPopup from '../../../../components/print_historis/MedicalRec
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard = ({ setActiveMenu }) => {
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastScrollPosition, setLastScrollPosition] = useState(0);
+
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   // Set today's date as the default selected date
@@ -178,9 +182,14 @@ const Dashboard = ({ setActiveMenu }) => {
     return digits.length === 4 && no_antri.length === 5;
   };
 
-  // Fetch both bookings and kunjungan data
-  const fetchAllData = async () => {
-    setIsLoading(true);
+  const fetchAllData = async (isAutoRefresh = false) => {
+    // Jika ini adalah auto refresh, simpan posisi scroll dan set flag
+    if (isAutoRefresh) {
+      setLastScrollPosition(window.pageYOffset);
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
     
     try {
       // Prepare date parameters for API calls
@@ -205,17 +214,49 @@ const Dashboard = ({ setActiveMenu }) => {
       
       setBookings(sortedBookingData);
       setKunjunganData(kunjunganResponse);
-      setIsLoading(false);
+      
     } catch (error) {
       console.error("Error fetching data:", error);
-      setIsLoading(false);
+    } finally {
+      if (isAutoRefresh) {
+        setIsRefreshing(false);
+      } else {
+        setIsLoading(false);
+      }
     }
   };
 
   // Initial data fetch
   useEffect(() => {
-    fetchAllData();
+    fetchAllData(false); // false = bukan auto refresh
   }, [selectedDate, startDate, endDate]); // Refetch when date changes
+
+  // Auto-refresh data setiap 3 detik
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Hanya lakukan auto refresh jika tidak sedang loading manual
+      if (!isLoading) {
+        fetchAllData(true); // true = auto refresh
+      }
+    }, 3000); // 3000ms = 3 detik
+
+    // Cleanup function untuk membersihkan interval ketika component unmount
+    return () => clearInterval(interval);
+  }, [selectedDate, startDate, endDate, isLoading]); // Tambahkan isLoading ke dependencies
+
+  // 5. UseEffect untuk restore scroll position setelah auto refresh
+  useEffect(() => {
+    if (isRefreshing === false && lastScrollPosition > 0) {
+      // Gunakan requestAnimationFrame untuk memastikan DOM sudah ter-render
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: lastScrollPosition,
+          behavior: 'instant' // Langsung tanpa animasi
+        });
+        setLastScrollPosition(0); // Reset scroll position
+      });
+    }
+  }, [isRefreshing, lastScrollPosition]);
 
   // Perbaikan pada useEffect untuk menghitung metrics
   useEffect(() => {
@@ -502,7 +543,16 @@ const Dashboard = ({ setActiveMenu }) => {
     
     // If booking was updated, refresh the data
     if (wasUpdated) {
-      fetchAllData();
+      const currentScrollPosition = window.pageYOffset;
+      fetchAllData(false).then(() => {
+        // Restore scroll position setelah update
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: currentScrollPosition,
+            behavior: 'instant'
+          });
+        });
+      });
     }
   };
 
@@ -514,11 +564,21 @@ const Dashboard = ({ setActiveMenu }) => {
   const handleConfirmDelete = () => {
     if (!bookingToDelete) return;
     
+    const currentScrollPosition = window.pageYOffset;
     setIsLoading(true);
+    
     deleteBooking(bookingToDelete._id)
       .then(() => {
         // Refresh the booking list after deletion
-        fetchAllData();
+        fetchAllData(false).then(() => {
+          // Restore scroll position setelah delete
+          requestAnimationFrame(() => {
+            window.scrollTo({
+              top: currentScrollPosition,
+              behavior: 'instant'
+            });
+          });
+        });
         setIsDeletePopupOpen(false);
         setBookingToDelete(null);
       })
@@ -697,7 +757,7 @@ const Dashboard = ({ setActiveMenu }) => {
                 </div>
 
                 <div className="table-container">
-                {isLoading ? (
+                {(isLoading && !isRefreshing) ? (
                     <div className="loading-indicator">Memuat data...</div>
                 ) : filteredBookings.length === 0 ? (
                     <div className="no-data-message">

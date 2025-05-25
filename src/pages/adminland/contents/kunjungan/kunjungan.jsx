@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './kunjungan.css';
 import editIcon from "../../../../components/riwayat/gambar/kunjungan.png";
 import Rekammedis from './rekammedis.jsx'; // Import komponen Rekammedis
@@ -38,6 +38,11 @@ const Kunjungan = () => {
     const [canEdit, setCanEdit] = useState(false);
     const [canAdd, setCanAdd] = useState(false);
 
+    // State untuk auto-refresh
+    const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(true);
+    const [lastRefreshTime, setLastRefreshTime] = useState(new Date());
+    const intervalRef = useRef(null);
+
     const showNotification = (message, type = "error") => {
         setNotification({
             show: true,
@@ -69,26 +74,58 @@ const Kunjungan = () => {
         }
     }, []);
 
-    const fetchAllKunjungan = async () => {
-        setIsLoading(true);
+    const fetchAllKunjungan = async (showLoadingIndicator = true) => {
+        if (showLoadingIndicator) {
+            setIsLoading(true);
+        }
         try {
             const data = await getAllKunjungan();
             setKunjungan(data);
             setFilteredKunjungan(data);
-            setIsLoading(false);
+            setLastRefreshTime(new Date());
+            if (showLoadingIndicator) {
+                setIsLoading(false);
+            }
         } catch (error) {
             console.error('Gagal fetch data kunjungan:', error);
             showNotification("Gagal memuat data kunjungan: " + (error.response?.data?.message || error.message), "error");
-            setIsLoading(false);
+            if (showLoadingIndicator) {
+                setIsLoading(false);
+            }
             // Set empty arrays to prevent errors
             setKunjungan([]);
             setFilteredKunjungan([]);
         }
     };
 
+    // Initial data fetch
     useEffect(() => {
         fetchAllKunjungan();
     }, []);
+
+    // Auto-refresh setup
+    useEffect(() => {
+        if (isAutoRefreshEnabled && !showRekamMedis && !showAddKunjungan) {
+            // Set interval untuk refresh setiap 3 detik
+            intervalRef.current = setInterval(() => {
+                fetchAllKunjungan(false); // false = tidak tampilkan loading indicator
+            }, 3000);
+        } else {
+            // Clear interval jika auto-refresh dimatikan atau sedang dalam modal
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        }
+
+        // Cleanup function
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
+        };
+    }, [isAutoRefreshEnabled, showRekamMedis, showAddKunjungan]);
 
     // Handle search and sort
     useEffect(() => {
@@ -159,7 +196,6 @@ const Kunjungan = () => {
 
     // Handler untuk tombol tambah kunjungan
     const handleAddKunjungan = () => {
-        
         // Tampilkan form atau modal tambah kunjungan
         setShowAddKunjungan(true);
     };
@@ -183,6 +219,22 @@ const Kunjungan = () => {
         // Refresh data kunjungan setelah kembali dari rekam medis
         fetchAllKunjungan();
         // showNotification("Data kunjungan berhasil diperbarui", "success");
+    };
+
+    // Toggle auto-refresh
+    const toggleAutoRefresh = () => {
+        setIsAutoRefreshEnabled(!isAutoRefreshEnabled);
+        if (!isAutoRefreshEnabled) {
+            showNotification("Auto-refresh diaktifkan (setiap 3 detik)", "info");
+        } else {
+            showNotification("Auto-refresh dinonaktifkan", "info");
+        }
+    };
+
+    // Manual refresh
+    const handleManualRefresh = () => {
+        fetchAllKunjungan();
+        showNotification("Data berhasil di-refresh", "success");
     };
 
     const getStatusClass = (status) => {
@@ -221,6 +273,11 @@ const Kunjungan = () => {
         }
     };
 
+    // Format waktu refresh terakhir
+    const formatLastRefreshTime = () => {
+        return lastRefreshTime.toLocaleTimeString();
+    };
+
     // Conditional rendering - tampilkan Rekammedis atau daftar Kunjungan
     if (showRekamMedis && selectedKunjungan) {
         return <Rekammedis kunjunganData={selectedKunjungan} onBack={handleBackFromRekamMedis} />;
@@ -252,6 +309,30 @@ const Kunjungan = () => {
                 >
                     + Tambah Kunjungan
                 </button>
+
+                {/* Auto-refresh controls */}
+                {/* <div className="refresh-controls">
+                    <button 
+                        className={`refresh-toggle-button ${isAutoRefreshEnabled ? 'active' : ''}`}
+                        onClick={toggleAutoRefresh}
+                        title={isAutoRefreshEnabled ? "Matikan auto-refresh" : "Aktifkan auto-refresh"}
+                    >
+                        {isAutoRefreshEnabled ? "🔄 Auto" : "⏸️ Manual"}
+                    </button>
+                    
+                    <button 
+                        className="manual-refresh-button"
+                        onClick={handleManualRefresh}
+                        title="Refresh manual"
+                    >
+                        🔄 Refresh
+                    </button>
+                    
+                    <span className="last-refresh-time">
+                        Terakhir diperbarui: {formatLastRefreshTime()}
+                    </span>
+                </div> */}
+
                 <div className="riwayat-search-wrapper">
                     <label className="riwayat-search-label">Filter Pencarian</label>
                     <input

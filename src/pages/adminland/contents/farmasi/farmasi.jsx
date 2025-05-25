@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './farmasi.css';
 import editIcon from "../../../../components/riwayat/gambar/edit.png";
 import { getAllPembayaran, getCurrentUser } from '../../../../api/api-aktivitas-farmasi';
@@ -28,6 +28,13 @@ const Kasir = () => {
         message: "",
         type: "error" // error, success, warning, info
     });
+
+    // State untuk auto-refresh
+    const [autoRefresh, setAutoRefresh] = useState(true);
+    const [lastRefresh, setLastRefresh] = useState(new Date());
+    
+    // Refs untuk interval management
+    const refreshIntervalRef = useRef(null);
 
     // Show notification function
     const showNotification = (message, type = "error") => {
@@ -95,20 +102,68 @@ const Kasir = () => {
         filterAndSortData();
     }, [pembayaranList, searchTerm, sortBy, sortOrder]);
 
+    // Auto-refresh effect
+    useEffect(() => {
+        if (autoRefresh && !showEditModal) {
+            // Setup interval untuk refresh setiap 3 detik
+            refreshIntervalRef.current = setInterval(() => {
+                fetchPembayaranData(true); // Pass true untuk silent refresh
+                setLastRefresh(new Date());
+            }, 3000);
+        } else {
+            // Clear interval jika auto refresh dimatikan atau modal edit dibuka
+            if (refreshIntervalRef.current) {
+                clearInterval(refreshIntervalRef.current);
+                refreshIntervalRef.current = null;
+            }
+        }
+
+        // Cleanup function
+        return () => {
+            if (refreshIntervalRef.current) {
+                clearInterval(refreshIntervalRef.current);
+                refreshIntervalRef.current = null;
+            }
+        };
+    }, [autoRefresh, showEditModal]);
+
+    // Cleanup interval on component unmount
+    useEffect(() => {
+        return () => {
+            if (refreshIntervalRef.current) {
+                clearInterval(refreshIntervalRef.current);
+            }
+        };
+    }, []);
+
     // Fetch all payment data
-    const fetchPembayaranData = async () => {
+    const fetchPembayaranData = async (silentRefresh = false) => {
         try {
-            setLoading(true);
+            // Hanya tampilkan loading pada refresh pertama atau manual refresh
+            if (!silentRefresh) {
+                setLoading(true);
+            }
+            
             const data = await getAllPembayaran();
             setPembayaranList(data);
             setFilteredPembayaranList(data.filter(item => 
                 item.status_retribusi.toLowerCase() === "mengambil obat" || 
                 item.status_retribusi.toLowerCase() === "menunggu pembayaran"
             ));
-            setLoading(false);
+            
+            if (!silentRefresh) {
+                setLoading(false);
+            }
+            
+            // Clear error jika sebelumnya ada error
+            if (error) {
+                setError(null);
+            }
         } catch (err) {
             setError('Gagal mengambil data pembayaran');
-            setLoading(false);
+            if (!silentRefresh) {
+                setLoading(false);
+            }
             console.error('Error fetching payment data:', err);
         }
     };
@@ -203,6 +258,23 @@ const Kasir = () => {
         showNotification("Data pembayaran berhasil diperbarui", "success");
     };
 
+    // Toggle auto refresh
+    const toggleAutoRefresh = () => {
+        setAutoRefresh(!autoRefresh);
+        if (autoRefresh) {
+            showNotification("Auto-refresh dimatikan", "info");
+        } else {
+            showNotification("Auto-refresh diaktifkan", "success");
+        }
+    };
+
+    // Manual refresh
+    const handleManualRefresh = () => {
+        fetchPembayaranData();
+        setLastRefresh(new Date());
+        showNotification("Data berhasil disegarkan", "success");
+    };
+
     // Get CSS class for status display
     const getStatusClass = (status) => {
         switch (status.toLowerCase()) {
@@ -285,6 +357,15 @@ const Kasir = () => {
         return '-';
     };
 
+    // Format waktu terakhir refresh
+    const formatLastRefresh = () => {
+        return lastRefresh.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    };
+
     return (
         <div className='kasir-container'>
             <div className="dashboard-header">
@@ -297,6 +378,60 @@ const Kasir = () => {
                     {notification.message}
                 </div>
             )}
+            
+            {/* Auto-refresh controls */}
+            {/* <div className="refresh-controls" style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                marginBottom: '20px',
+                padding: '10px',
+                backgroundColor: '#f5f5f5',
+                borderRadius: '5px'
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <button 
+                        onClick={toggleAutoRefresh}
+                        style={{
+                            padding: '8px 16px',
+                            backgroundColor: autoRefresh ? '#28a745' : '#6c757d',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        {autoRefresh ? '⏸️ Matikan Auto-Refresh' : '▶️ Aktifkan Auto-Refresh'}
+                    </button>
+                    
+                    <button 
+                        onClick={handleManualRefresh}
+                        style={{
+                            padding: '8px 16px',
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        🔄 Refresh Manual
+                    </button>
+                </div>
+                
+                <div style={{ fontSize: '14px', color: '#666' }}>
+                    <span>Status: </span>
+                    <span style={{ 
+                        color: autoRefresh ? '#28a745' : '#6c757d',
+                        fontWeight: 'bold'
+                    }}>
+                        {autoRefresh ? 'Auto-refresh aktif' : 'Auto-refresh tidak aktif'}
+                    </span>
+                    <span style={{ marginLeft: '15px' }}>
+                        Terakhir refresh: {formatLastRefresh()}
+                    </span>
+                </div>
+            </div> */}
             
             <div className="riwayat-filter-container">
                 <div className="riwayat-search-wrapper">

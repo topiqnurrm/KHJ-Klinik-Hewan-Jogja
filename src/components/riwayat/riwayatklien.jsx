@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Popup from "../popup/popupriwayat";
 import ConfirmPopup from "../popup/popup2"; 
 import PopupEditBooking from "../popup/popupeditbooking";
@@ -36,14 +36,18 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
     const [showMedicalRecordPopup, setShowMedicalRecordPopup] = useState(false);
     const [selectedBookingId, setSelectedBookingId] = useState(null);
     const [debugInfo, setDebugInfo] = useState(null);
+    // Auto-update states
+    const [isAutoUpdateEnabled, setIsAutoUpdateEnabled] = useState(true);
+    const [lastUpdateTime, setLastUpdateTime] = useState(new Date());
+    const intervalRef = useRef(null);
 
-    const fetchRiwayat = () => {
-        setIsLoading(true);
+    const fetchRiwayat = (silent = false) => {
+        if (!silent) setIsLoading(true);
         const storedUser = JSON.parse(localStorage.getItem("user"));
         const userId = storedUser?._id;
 
         if (!userId) {
-            setIsLoading(false);
+            if (!silent) setIsLoading(false);
             return;
         }
 
@@ -65,20 +69,61 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                 
                 setRiwayat(filteredByUser);
                 setFiltered(filteredByUser);
-                setIsLoading(false);
+                setLastUpdateTime(new Date());
+                if (!silent) setIsLoading(false);
             })
             .catch((err) => {
                 console.error(err);
-                setIsLoading(false);
+                if (!silent) setIsLoading(false);
             });
     };
 
+    // Setup auto-update interval
+    useEffect(() => {
+        if (isOpen && isAutoUpdateEnabled) {
+            // Clear existing interval
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+            
+            // Set up new interval for auto-update every 3 seconds
+            intervalRef.current = setInterval(() => {
+                fetchRiwayat(true); // Silent update (tidak menampilkan loading)
+            }, 3000);
+
+            // Cleanup function
+            return () => {
+                if (intervalRef.current) {
+                    clearInterval(intervalRef.current);
+                }
+            };
+        }
+    }, [isOpen, isAutoUpdateEnabled]);
+
+    // Initial fetch when popup opens
     useEffect(() => {
         if (isOpen) {
             setSearchTerm("");
             setSortBy("");
             setSortOrder("asc");
             fetchRiwayat();
+        }
+    }, [isOpen]);
+
+    // Cleanup interval when component unmounts or popup closes
+    useEffect(() => {
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
+    }, []);
+
+    // Clear interval when popup closes
+    useEffect(() => {
+        if (!isOpen && intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
         }
     }, [isOpen]);
 
@@ -295,6 +340,16 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
         return jenisLayanan ? `${nama} (${formattedJenisLayanan})` : nama;
     };
 
+    // Function to toggle auto-update
+    const toggleAutoUpdate = () => {
+        setIsAutoUpdateEnabled(!isAutoUpdateEnabled);
+    };
+
+    // Function to manually refresh
+    const handleManualRefresh = () => {
+        fetchRiwayat();
+    };
+
     return (
         <>
             <Popup isOpen={isOpen} onClose={onClose} title="Riwayat Pemeriksaan Hewan Saya">
@@ -336,6 +391,26 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                             <option value="desc">Descending</option>
                         </select>
                     </div>
+
+                    {/* Auto-update controls */}
+                    {/* <div className="auto-update-controls">
+                        <button 
+                            className={`auto-update-toggle ${isAutoUpdateEnabled ? 'active' : 'inactive'}`}
+                            onClick={toggleAutoUpdate}
+                        >
+                            {isAutoUpdateEnabled ? '⏸️ Pause Auto-Update' : '▶️ Enable Auto-Update'}
+                        </button>
+                        <button 
+                            className="manual-refresh-btn"
+                            onClick={handleManualRefresh}
+                            disabled={isLoading}
+                        >
+                            🔄 Refresh
+                        </button>
+                        <div className="last-update-info">
+                            <small>Update terakhir: {lastUpdateTime.toLocaleTimeString('id-ID')}</small>
+                        </div>
+                    </div> */}
                 </div>
 
                 <div className="riwayat-popup-content">
@@ -390,14 +465,6 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                                             <td className="riwayat-actions">
                                                 {["sedang diperiksa", "dirawat inap", "menunggu pembayaran", "mengambil obat", "selesai"].includes(r.status_booking) && (
                                                     <>
-                                                        {/* <button 
-                                                            className={`btn-blue ${canAccessRekamMedis(r.status_booking) ? '' : 'disabled'}`} 
-                                                            title="Rekam Medis" 
-                                                            onClick={() => handleViewMedicalRecord(r._id)}
-                                                            disabled={!canAccessRekamMedis(r.status_booking)}
-                                                        >
-                                                            <img src={rekamIcon} alt="rekam" />
-                                                        </button> */}
                                                         <button 
                                                             className="btn-blue"
                                                             title="Timeline Pemeriksaan"
@@ -488,6 +555,71 @@ const RiwayatPopup = ({ isOpen, onClose, onBookingDeleted }) => {
                 .no-notes {
                     color: #999;
                     font-style: italic;
+                }
+
+                .auto-update-controls {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    margin-top: 10px;
+                    padding: 10px;
+                    background-color: #f8f9fa;
+                    border-radius: 6px;
+                    border: 1px solid #e9ecef;
+                }
+
+                .auto-update-toggle {
+                    padding: 6px 12px;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    font-weight: 500;
+                    transition: all 0.2s ease;
+                }
+
+                .auto-update-toggle.active {
+                    background-color: #28a745;
+                    color: white;
+                }
+
+                .auto-update-toggle.inactive {
+                    background-color: #6c757d;
+                    color: white;
+                }
+
+                .auto-update-toggle:hover {
+                    opacity: 0.8;
+                }
+
+                .manual-refresh-btn {
+                    padding: 6px 12px;
+                    background-color: #007bff;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    font-weight: 500;
+                    transition: background-color 0.2s ease;
+                }
+
+                .manual-refresh-btn:hover:not(:disabled) {
+                    background-color: #0056b3;
+                }
+
+                .manual-refresh-btn:disabled {
+                    background-color: #6c757d;
+                    cursor: not-allowed;
+                }
+
+                .last-update-info {
+                    margin-left: auto;
+                    color: #6c757d;
+                }
+
+                .last-update-info small {
+                    font-size: 11px;
                 }
             `}</style>
         </>

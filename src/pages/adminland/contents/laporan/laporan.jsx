@@ -71,6 +71,25 @@ const Laporan = () => {
         }
     };
 
+    const formatTanggalWaktuIndonesia = (dateString) => {
+        const date = new Date(dateString);
+        const optionsTanggal = { 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric' 
+        };
+        const optionsWaktu = {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false // format 24 jam
+        };
+        
+        const tanggal = date.toLocaleDateString('id-ID', optionsTanggal);
+        const waktu = date.toLocaleTimeString('id-ID', optionsWaktu);
+        
+        return `${tanggal} ${waktu}`;
+    };
+
     // Fungsi untuk generate HTML laporan - BAGIAN YANG DIPERBAIKI
     const generateLaporanHTML = (data) => {
         const periode = tanggalAwal === tanggalAkhir 
@@ -111,7 +130,7 @@ const Laporan = () => {
                                 <th style="width: 30px;">No</th>
                                 <th style="width: 80px;">Tanggal Mulai</th>
                                 <th style="width: 80px;">Tanggal Selesai</th>
-                                <th style="width: 100px;">Nama</th>
+                                <th style="width: 120px;">Nama</th>
                                 <th style="width: 150px;">Dokter</th>
                                 <th style="width: 200px;">Diagnosa</th>
                                 <th style="width: 100px;">Pemilik</th>
@@ -126,8 +145,8 @@ const Laporan = () => {
                             ${data.rekap_pasien?.map((pasien, index) => `
                                 <tr>
                                     <td>${index + 1}</td>
-                                    <td>${new Date(pasien.tanggal_mulai).toLocaleDateString('id-ID')}</td>
-                                    <td>${new Date(pasien.tanggal_selesai).toLocaleDateString('id-ID')}</td>
+                                    <td>${formatTanggalWaktuIndonesia(pasien.tanggal_mulai)}</td>
+                                    <td>${formatTanggalWaktuIndonesia(pasien.tanggal_selesai)}</td>
                                     <td>${pasien.nama || '-'}</td>
                                     <td class="wrap-cell">${pasien.dokter || '-'}</td>
                                     <td class="wrap-cell">${pasien.diagnosa || '-'}</td>
@@ -165,7 +184,7 @@ const Laporan = () => {
                             ${data.rekap_obat?.map((obat, index) => `
                                 <tr>
                                     <td>${index + 1}</td>
-                                    <td>${new Date(obat.tanggal).toLocaleDateString('id-ID')}</td>
+                                    <td>${formatTanggalWaktuIndonesia(obat.tanggal)}</td>
                                     <td>${obat.pasien || '-'}</td>
                                     <td>${obat.klien || '-'}</td>
                                     <td class="wrap-cell">${obat.obat || '-'}</td>
@@ -205,7 +224,7 @@ const Laporan = () => {
                             ${data.rekap_pelayanan?.map((pelayanan, index) => `
                                 <tr>
                                     <td>${index + 1}</td>
-                                    <td>${new Date(pelayanan.tanggal).toLocaleDateString('id-ID')}</td>
+                                    <td>${formatTanggalWaktuIndonesia(pelayanan.tanggal)}</td>
                                     <td>${pelayanan.pasien || '-'}</td>
                                     <td>${pelayanan.klien || '-'}</td>
                                     <td class="wrap-cell">${pelayanan.pelayanan || '-'}</td>
@@ -398,7 +417,10 @@ const Laporan = () => {
                 .obat-table td:nth-child(2),
                 .pelayanan-table td:nth-child(2) {
                     text-align: center;
-                    white-space: nowrap;
+                    white-space: normal;
+                    word-wrap: break-word;
+                    font-size: 9px; /* Sedikit lebih kecil untuk muat */
+                    line-height: 1.2;
                 }
                 
                 /* No Antri - center alignment */
@@ -644,7 +666,10 @@ const Laporan = () => {
                         .obat-table td:nth-child(2),
                         .pelayanan-table td:nth-child(2) {
                             text-align: center;
-                            white-space: nowrap;
+                            white-space: normal;
+                            word-wrap: break-word;
+                            font-size: 9px; /* Sedikit lebih kecil untuk muat */
+                            line-height: 1.2;
                         }
                         
                         /* No Antri - center alignment */
