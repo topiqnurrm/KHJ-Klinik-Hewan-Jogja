@@ -71,7 +71,7 @@ const Laporan = () => {
         }
     };
 
-    // Fungsi untuk generate HTML laporan
+    // Fungsi untuk generate HTML laporan - BAGIAN YANG DIPERBAIKI
     const generateLaporanHTML = (data) => {
         const periode = tanggalAwal === tanggalAkhir 
             ? formatTanggalIndonesia(tanggalAwal)
@@ -105,38 +105,40 @@ const Laporan = () => {
                 <!-- Rekap Pasien -->
                 <div class="section">
                     <h3>Rekap Pasien</h3>
-                    <table class="report-table">
+                    <table class="report-table pasien-table">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Tanggal</th>
-                                <th>Nama</th>
-                                <th>Dokter</th>
-                                <th>Diagnosa</th>
-                                <th>Pemilik</th>
-                                <th>No Antri</th>
-                                <th>Kategori</th>
-                                <th>Jenis Layanan</th>
-                                <th>Biaya</th>
-                                <th>Status</th>
+                                <th style="width: 30px;">No</th>
+                                <th style="width: 80px;">Tanggal Mulai</th>
+                                <th style="width: 80px;">Tanggal Selesai</th>
+                                <th style="width: 100px;">Nama</th>
+                                <th style="width: 150px;">Dokter</th>
+                                <th style="width: 200px;">Diagnosa</th>
+                                <th style="width: 100px;">Pemilik</th>
+                                <th style="width: 60px;">No Antri</th>
+                                <th style="width: 80px;">Kategori</th>
+                                <th style="width: 100px;">Jenis Layanan</th>
+                                <th style="width: 80px;">Biaya</th>
+                                <th style="width: 70px;">Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${data.rekap_pasien?.map((pasien, index) => `
                                 <tr>
                                     <td>${index + 1}</td>
-                                    <td>${new Date(pasien.tanggal).toLocaleDateString('id-ID')}</td>
+                                    <td>${new Date(pasien.tanggal_mulai).toLocaleDateString('id-ID')}</td>
+                                    <td>${new Date(pasien.tanggal_selesai).toLocaleDateString('id-ID')}</td>
                                     <td>${pasien.nama || '-'}</td>
-                                    <td>${pasien.dokter || '-'}</td>
-                                    <td>${pasien.diagnosa || '-'}</td>
+                                    <td class="wrap-cell">${pasien.dokter || '-'}</td>
+                                    <td class="wrap-cell">${pasien.diagnosa || '-'}</td>
                                     <td>${pasien.pemilik || '-'}</td>
                                     <td>${pasien.no_antri || '-'}</td>
                                     <td>${pasien.kategori || '-'}</td>
-                                    <td>${pasien.jenis_layanan || '-'}</td>
+                                    <td class="wrap-cell">${pasien.jenis_layanan || '-'}</td>
                                     <td>Rp ${formatRupiah(pasien.biaya || 0)}</td>
                                     <td>${pasien.status || '-'}</td>
                                 </tr>
-                            `).join('') || '<tr><td colspan="11">Tidak ada data</td></tr>'}
+                            `).join('') || '<tr><td colspan="12">Tidak ada data</td></tr>'}
                         </tbody>
                     </table>
                 </div>
@@ -144,20 +146,19 @@ const Laporan = () => {
                 <!-- Rekap Obat -->
                 <div class="section">
                     <h3>Rekap Obat</h3>
-                    <table class="report-table">
+                    <table class="report-table obat-table">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Tanggal</th>
-                                <th>Pasien</th>
-                                <th>Klien</th>
-                                <th>Dokter</th>
-                                <th>Obat</th>
-                                <th>Jenis</th>
-                                <th>Kategori</th>
-                                <th>Harga</th>
-                                <th>Qty</th>
-                                <th>Total</th>
+                                <th style="width: 30px;">No</th>
+                                <th style="width: 80px;">Tanggal</th>
+                                <th style="width: 100px;">Pasien</th>
+                                <th style="width: 100px;">Klien</th>
+                                <th style="width: 150px;">Obat</th>
+                                <th style="width: 80px;">Jenis</th>
+                                <th style="width: 80px;">Kategori</th>
+                                <th style="width: 80px;">Harga</th>
+                                <th style="width: 40px;">Qty</th>
+                                <th style="width: 80px;">Total</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -167,17 +168,16 @@ const Laporan = () => {
                                     <td>${new Date(obat.tanggal).toLocaleDateString('id-ID')}</td>
                                     <td>${obat.pasien || '-'}</td>
                                     <td>${obat.klien || '-'}</td>
-                                    <td>${obat.dokter || '-'}</td>
-                                    <td>${obat.obat || '-'}</td>
+                                    <td class="wrap-cell">${obat.obat || '-'}</td>
                                     <td>${obat.jenis || '-'}</td>
                                     <td>${obat.kategori || '-'}</td>
                                     <td>Rp ${formatRupiah(obat.harga || 0)}</td>
                                     <td>${obat.qty || 0}</td>
                                     <td>Rp ${formatRupiah(obat.total || 0)}</td>
                                 </tr>
-                            `).join('') || '<tr><td colspan="11">Tidak ada data</td></tr>'}
+                            `).join('') || '<tr><td colspan="10">Tidak ada data</td></tr>'}
                             <tr class="total-row">
-                                <td colspan="10"><strong>Total Obat</strong></td>
+                                <td colspan="9"><strong>Total Obat</strong></td>
                                 <td><strong>Rp ${formatRupiah(data.total_obat || 0)}</strong></td>
                             </tr>
                         </tbody>
@@ -187,19 +187,18 @@ const Laporan = () => {
                 <!-- Rekap Pelayanan -->
                 <div class="section">
                     <h3>Rekap Pelayanan / Jasa</h3>
-                    <table class="report-table">
+                    <table class="report-table pelayanan-table">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Tanggal</th>
-                                <th>Pasien</th>
-                                <th>Klien</th>
-                                <th>Dokter</th>
-                                <th>Pelayanan</th>
-                                <th>Kategori</th>
-                                <th>Harga</th>
-                                <th>Qty</th>
-                                <th>Total</th>
+                                <th style="width: 30px;">No</th>
+                                <th style="width: 80px;">Tanggal</th>
+                                <th style="width: 100px;">Pasien</th>
+                                <th style="width: 100px;">Klien</th>
+                                <th style="width: 150px;">Pelayanan</th>
+                                <th style="width: 80px;">Kategori</th>
+                                <th style="width: 80px;">Harga</th>
+                                <th style="width: 40px;">Qty</th>
+                                <th style="width: 80px;">Total</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -209,16 +208,15 @@ const Laporan = () => {
                                     <td>${new Date(pelayanan.tanggal).toLocaleDateString('id-ID')}</td>
                                     <td>${pelayanan.pasien || '-'}</td>
                                     <td>${pelayanan.klien || '-'}</td>
-                                    <td>${pelayanan.dokter || '-'}</td>
-                                    <td>${pelayanan.pelayanan || '-'}</td>
+                                    <td class="wrap-cell">${pelayanan.pelayanan || '-'}</td>
                                     <td>${pelayanan.kategori || '-'}</td>
                                     <td>Rp ${formatRupiah(pelayanan.harga || 0)}</td>
                                     <td>${pelayanan.qty || 0}</td>
                                     <td>Rp ${formatRupiah(pelayanan.total || 0)}</td>
                                 </tr>
-                            `).join('') || '<tr><td colspan="10">Tidak ada data</td></tr>'}
+                            `).join('') || '<tr><td colspan="9">Tidak ada data</td></tr>'}
                             <tr class="total-row">
-                                <td colspan="9"><strong>Total Pelayanan</strong></td>
+                                <td colspan="8"><strong>Total Pelayanan</strong></td>
                                 <td><strong>Rp ${formatRupiah(data.total_pelayanan || 0)}</strong></td>
                             </tr>
                         </tbody>
@@ -356,34 +354,74 @@ const Laporan = () => {
                     width: 100%;
                     border-collapse: collapse;
                     margin-bottom: 8px; /* Kurangi margin */
+                    table-layout: auto; /* UBAH dari fixed ke auto agar kolom menyesuaikan isi */
                 }
                 
                 .report-table th, 
                 .report-table td {
                     border: 1px solid #000;
-                    padding: 4px 3px; /* Kurangi padding */
+                    padding: 2px 3px; /* Kurangi padding vertikal dari 4px ke 2px */
                     text-align: left;
-                    vertical-align: top;
+                    vertical-align: top !important; /* Paksa semua cell ke atas */
                     font-size: 10px;
+                    line-height: 1.1 !important; /* Kurangi line height */
+                }
+                
+                /* Styling khusus untuk cell yang perlu wrap text */
+                .report-table .wrap-cell {
+                    vertical-align: top !important;
+                    padding-top: 2px !important; /* Padding top minimal */
+                    padding-bottom: 2px !important;
+                    line-height: 1.1 !important; /* Line height untuk readability */
+                    white-space: normal; /* Izinkan text wrapping */
+                    word-wrap: break-word;
+                    word-break: break-word;
                 }
                 
                 .report-table th {
                     background-color: #e0e0e0;
                     font-weight: bold;
                     text-align: center;
+                    vertical-align: middle; /* Header tetap center */
+                    white-space: nowrap; /* Header tidak wrap */
                 }
                 
-                .report-table td:first-child,
-                .report-table td:nth-child(2),
-                .report-table td:nth-child(7),
-                .report-table td:nth-child(10) {
+                /* Alignment khusus untuk kolom tertentu */
+                .report-table td:first-child {
                     text-align: center;
+                    white-space: nowrap;
                 }
                 
-                .report-table td:nth-child(9),
-                .report-table td:nth-child(10),
-                .report-table td:nth-child(11) {
+                /* Tanggal columns - center alignment, no wrap */
+                .pasien-table td:nth-child(2),
+                .pasien-table td:nth-child(3),
+                .obat-table td:nth-child(2),
+                .pelayanan-table td:nth-child(2) {
+                    text-align: center;
+                    white-space: nowrap;
+                }
+                
+                /* No Antri - center alignment */
+                .pasien-table td:nth-child(8) {
+                    text-align: center;
+                    white-space: nowrap;
+                }
+                
+                /* Qty columns - center alignment */
+                .obat-table td:nth-child(9),
+                .pelayanan-table td:nth-child(8) {
+                    text-align: center;
+                    white-space: nowrap;
+                }
+                
+                /* Currency columns - right alignment */
+                .pasien-table td:nth-child(11),
+                .obat-table td:nth-child(8),
+                .obat-table td:nth-child(10),
+                .pelayanan-table td:nth-child(7),
+                .pelayanan-table td:nth-child(9) {
                     text-align: right;
+                    white-space: nowrap;
                 }
                 
                 .total-row {
@@ -456,6 +494,7 @@ const Laporan = () => {
                             /* Hanya cegah page break di tengah tabel */
                             .report-table {
                                 page-break-inside: auto;
+                                table-layout: auto;
                             }
                             
                             .report-table thead {
@@ -561,34 +600,74 @@ const Laporan = () => {
                             width: 100%;
                             border-collapse: collapse;
                             margin-bottom: 8px;
+                            table-layout: auto;
                         }
                         
                         .report-table th, 
                         .report-table td {
                             border: 1px solid #000;
-                            padding: 4px 3px;
+                            padding: 2px 3px;
                             text-align: left;
-                            vertical-align: top;
+                            vertical-align: top !important;
                             font-size: 10px;
+                            line-height: 1.1 !important;
+                        }
+                        
+                        /* Styling khusus untuk cell yang perlu wrap text */
+                        .report-table .wrap-cell {
+                            vertical-align: top !important;
+                            padding-top: 2px !important;
+                            padding-bottom: 2px !important;
+                            line-height: 1.1 !important;
+                            white-space: normal;
+                            word-wrap: break-word;
+                            word-break: break-word;
                         }
                         
                         .report-table th {
                             background-color: #e0e0e0;
                             font-weight: bold;
                             text-align: center;
+                            vertical-align: middle;
+                            white-space: nowrap;
                         }
                         
-                        .report-table td:first-child,
-                        .report-table td:nth-child(2),
-                        .report-table td:nth-child(7),
-                        .report-table td:nth-child(10) {
+                        /* Alignment khusus untuk kolom tertentu */
+                        .report-table td:first-child {
                             text-align: center;
+                            white-space: nowrap;
                         }
                         
-                        .report-table td:nth-child(9),
-                        .report-table td:nth-child(10),
-                        .report-table td:nth-child(11) {
+                        /* Tanggal columns - center alignment, no wrap */
+                        .pasien-table td:nth-child(2),
+                        .pasien-table td:nth-child(3),
+                        .obat-table td:nth-child(2),
+                        .pelayanan-table td:nth-child(2) {
+                            text-align: center;
+                            white-space: nowrap;
+                        }
+                        
+                        /* No Antri - center alignment */
+                        .pasien-table td:nth-child(8) {
+                            text-align: center;
+                            white-space: nowrap;
+                        }
+                        
+                        /* Qty columns - center alignment */
+                        .obat-table td:nth-child(9),
+                        .pelayanan-table td:nth-child(8) {
+                            text-align: center;
+                            white-space: nowrap;
+                        }
+                        
+                        /* Currency columns - right alignment */
+                        .pasien-table td:nth-child(11),
+                        .obat-table td:nth-child(8),
+                        .obat-table td:nth-child(10),
+                        .pelayanan-table td:nth-child(7),
+                        .pelayanan-table td:nth-child(9) {
                             text-align: right;
+                            white-space: nowrap;
                         }
                         
                         .total-row {
