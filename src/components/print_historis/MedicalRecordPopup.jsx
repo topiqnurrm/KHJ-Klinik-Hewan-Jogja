@@ -113,7 +113,7 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
       console.error("Error fetching medical record data:", err);
       setError("Gagal mengambil data rekam medis");
       setBookingData(null);
-      setKunjunganData(null);
+      setKunjungarData(null);
       setRekamMedisData(null);
       setRetribusiData(null);
     } finally {
@@ -178,6 +178,66 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
     }
     return status;
   };
+
+  // Function to get the correct billing amount for house call
+  const getHouseCallBilling = () => {
+    // Check if jenis_layanan is house call
+    const isHouseCall = bookingData?.jenis_layanan?.toLowerCase() === "house call";
+    if (!isHouseCall) return null;
+
+    // Priority 1: Check grand_total in retribusiData
+    if (retribusiData?.grand_total) {
+      const grandTotal = typeof retribusiData.grand_total === 'object' && retribusiData.grand_total.$numberDecimal
+        ? parseFloat(retribusiData.grand_total.$numberDecimal)
+        : retribusiData.grand_total;
+      return grandTotal;
+    }
+
+    // Priority 2: Check biaya in kunjunganData
+    if (kunjunganData?.biaya) {
+      const biaya = typeof kunjunganData.biaya === 'object' && kunjunganData.biaya.$numberDecimal
+        ? parseFloat(kunjunganData.biaya.$numberDecimal)
+        : kunjunganData.biaya;
+      return biaya;
+    }
+
+    // Priority 3: Check total_tagihan in retribusiData (fallback)
+    if (retribusiData?.total_tagihan) {
+      const totalTagihan = typeof retribusiData.total_tagihan === 'object' && retribusiData.total_tagihan.$numberDecimal
+        ? parseFloat(retribusiData.total_tagihan.$numberDecimal)
+        : retribusiData.total_tagihan;
+      return totalTagihan;
+    }
+
+    // Priority 4: Check total_tagihan in dokter data
+    const dokterWithTotal = filteredDokters
+      .filter(dokter => dokter.total_tagihan)
+      .pop();
+    
+    if (dokterWithTotal) {
+      const totalTagihan = typeof dokterWithTotal.total_tagihan === 'object' && dokterWithTotal.total_tagihan.$numberDecimal
+        ? parseFloat(dokterWithTotal.total_tagihan.$numberDecimal)
+        : dokterWithTotal.total_tagihan;
+      return totalTagihan;
+    }
+
+    // Priority 5: Parse from hasil text (case insensitive)
+    const dokterWithHasil = filteredDokters
+      .filter(dokter => dokter.hasil && /total\s*tagihan/i.test(dokter.hasil))
+      .pop();
+    
+    if (dokterWithHasil) {
+      const hasilText = dokterWithHasil.hasil;
+      const totalMatch = hasilText.match(/total\s*tagihan[:\s]*rp?\s*([\d.,]+)/i);
+      
+      if (totalMatch) {
+        const totalValue = parseInt(totalMatch[1].replace(/[.,]/g, ''));
+        return totalValue;
+      }
+    }
+
+    return null;
+  };
   
   const filteredAdministrasis = bookingData?.administrasis1?.filter(item => 
     ["menunggu respon administrasi", "disetujui administrasi", "ditolak administrasi", "dibatalkan administrasi"].includes(item.status_administrasi)
@@ -191,6 +251,10 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
     ["sedang diperiksa", "dirawat inap", "menunggu pembayaran", "selesai", "mengambil obat"].includes(item.status)
   ) || [];
   
+  // Check if jenis_layanan is house call
+  const isHouseCall = bookingData?.jenis_layanan?.toLowerCase() === "house call";
+  
+  // Show retribusi section - always show if retribusi data exists and status is selesai
   const showRetribusi = retribusiData && retribusiData.status_retribusi === "selesai";
 
   const isPaymentWaitingMedication = (status) => {
@@ -319,7 +383,7 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
                 </div>
               )}
 
-              {/* RETRIBUSI SECTION */}
+              {/* RETRIBUSI SECTION - Updated for house call */}
               {showRetribusi && (
                 <div className="record-section">
                   <div className="record-item">
@@ -333,7 +397,24 @@ const MedicalRecordPopup = ({ isOpen, onClose, bookingId }) => {
                       )}</span>
                     </div>
                     <div className="record-body">
-                      <p>-</p>
+                      {isHouseCall ? (
+                        <>
+                          {(() => {
+                            const billingAmount = getHouseCallBilling();
+                            
+                            if (billingAmount !== null) {
+                              return (
+                                <p><strong>Total Tagihan:</strong> Rp {billingAmount.toLocaleString('id-ID')}</p>
+                              );
+                            }
+                            
+                            return <p><strong>Total Tagihan:</strong> Data tidak tersedia</p>;
+                          })()}
+                          <p><strong>Metode Pembayaran:</strong> {retribusiData?.metode_bayar || "N/A"}</p>
+                        </>
+                      ) : (
+                        <p>-</p>
+                      )}
                     </div>
                   </div>
                 </div>

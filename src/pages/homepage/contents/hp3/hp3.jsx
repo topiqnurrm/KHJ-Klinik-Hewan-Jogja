@@ -49,10 +49,10 @@ function Hp3() {
             <li><span>Membaca Informasi Layanan.</span> <br/>Sebelum melakukan pemesanan online, harap membaca informasi yang tersedia untuk memahami <br/>prosedur dan layanan yang kami tawarkan.</li>
             <li><span>Mengisi Data Hewan Pasien.</span> <br/>Masukkan data hewan, keluhan, dan informasi lain yang diperlukan untuk pemeriksaan.</li>
             {/* <li><span>Memilih Jenis Layanan.</span> <br/>Setelah memilih Booking Online, Anda akan diminta memilih jenis layanan medis.</li> */}
-            <li><span>Layanan Medis dan Non-Medis.</span> <br/>Pilih layanan yang Anda butuhkan.</li>
+            <li><span>pemilihan Layanan dan jenis layanan.</span> <br/>Pilih layanan yang Anda butuhkan (grooming, pemeriksaan umum, dll), dan juga pilih jenis layanan (onsite, house call, dan offline).</li>
             <li><span>Konfirmasi Pendaftaran.</span> <br/>Setelah pendaftaran, Anda akan bisa konsultasi melalui WhatsApp petugas administrasi. Anda juga dapat memantau perkembangan pemeriksaan di bagian riwayat pemeriksaan hewan saya (kanan atas).</li>
-            <li><span>Datang untuk Pemeriksaan.</span> <br/>Jika semua sudah terkonfirmasi dan sudah tiba waktunya pemeriksaan sesuai jadwal, maka datanglah ke klinik kami sesuai jadwal anda (akan mendapatkan nomor antri).</li>
-            <li><span>Pembayaran dan Pengambilan Obat.</span> <br/>Lakukan pembayaran dan pengambilan obat dan layanan Anda selesai.</li>
+            <li><span>Datang untuk Pemeriksaan / menunggu petugas datang.</span> <br/>Jika semua sudah terkonfirmasi dan sudah tiba waktunya pemeriksaan sesuai jadwal, maka datanglah ke klinik kami sesuai jadwal anda (akan mendapatkan nomor antri) atau tunggu petugas klinik datang bila jenis pelayanan anda house call.</li>
+            <li><span>Pembayaran dan Pengambilan Obat.</span> <br/>Lakukan pembayaran dan pengambilan obat (mengambil obat untuk onsite dan offline) dan layanan Anda selesai.</li>
           </ol>
         </div>
 
@@ -62,8 +62,10 @@ function Hp3() {
           <div className="info-box" style={{ backgroundImage: `url(${bg})` }}>
             <h3>Informasi Layanan !</h3>
             <ul>
-              <li><span>Layanan Onsite </span>: Pemeriksaan di klinik kami.</li>
-              <li><span>Layanan House Call </span>: Pemeriksaan di lokasi pemilik atau lokasi yang disepakati.</li>
+              {/* <li><span>Layanan Onsite </span>: Pemeriksaan di klinik kami.</li>
+              <li><span>Layanan House Call </span>: Pemeriksaan di lokasi pemilik atau lokasi yang disepakati.</li> */}
+              <li><span>Jenis Layanan (Onsite, House Call, dan Offline)</span>: Pemeriksaan di klinik kami (onsite), Pemeriksaan di lokasi pemilik atau lokasi yang disepakati (house call), pemeriksaan offline dengan mendaftar dari klinik langsung.</li>
+              
               <li><span>Layanan Medis </span>: Pemeriksaan umum dan khusus, seperti laboratorium, injeksi, dll.</li>
               <li><span>Layanan Non-Medis </span>: Layanan grooming.</li>
             </ul>

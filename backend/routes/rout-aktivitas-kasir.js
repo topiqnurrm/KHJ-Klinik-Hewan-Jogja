@@ -134,8 +134,6 @@ router.get('/all', async (req, res) => {
   }
 });
 
-//update nama jenis hewan , nama klien dll
-// Endpoint untuk mengupdate status pembayaran dan memproses pembayaran
 router.put('/update/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -146,10 +144,14 @@ router.put('/update/:id', async (req, res) => {
       kembali, 
       update_booking, 
       booking_data,
-      // New parameters
       update_kunjungan,
-      kunjungan_data
+      kunjungan_data,
+      update_rekam_medis,
+      rekam_medis_data,
+      jenis_layanan
     } = req.body;
+    
+    console.log('Received update request:', { id, body: req.body }); // Debug log
     
     // Validasi input
     if (!metode_bayar) {
@@ -157,46 +159,92 @@ router.put('/update/:id', async (req, res) => {
     }
     
     // Pastikan pembayaran sesuai dengan total tagihan
-    const retribusi = await RetribusiPembayaran.findById(id);
+    const retribusi = await RetribusiPembayaran.findById(id)
+      .populate({
+        path: 'id_kunjungan',
+        populate: {
+          path: 'id_booking',
+          select: 'jenis_layanan'
+        }
+      });
+      
     if (!retribusi) {
       return res.status(404).json({ message: 'Data pembayaran tidak ditemukan' });
     }
     
-    const grandTotal = parseFloat(retribusi.grand_total.toString());
-    const pembayaran = parseFloat(jumlah_pembayaran);
+    // Deteksi jenis layanan dengan error handling
+    let detectedJenisLayanan = '';
+    try {
+      if (jenis_layanan) {
+        detectedJenisLayanan = jenis_layanan;
+      } else if (retribusi.jenis_layanan) {
+        detectedJenisLayanan = retribusi.jenis_layanan;
+      } else if (retribusi.id_kunjungan?.jenis_layanan) {
+        detectedJenisLayanan = retribusi.id_kunjungan.jenis_layanan;
+      } else if (retribusi.id_kunjungan?.id_booking?.jenis_layanan) {
+        detectedJenisLayanan = retribusi.id_kunjungan.id_booking.jenis_layanan;
+      }
+    } catch (error) {
+      console.error('Error detecting jenis layanan:', error);
+      detectedJenisLayanan = '';
+    }
     
-    if (pembayaran < grandTotal) {
+    console.log('Detected jenis layanan:', detectedJenisLayanan);
+    
+    // Tentukan status akhir berdasarkan jenis layanan
+    let finalStatus = status_retribusi;
+    let bookingStatus = 'mengambil obat';
+    let kunjunganStatus = 'mengambil obat';
+    
+    // Jika jenis layanan adalah house call, langsung selesai
+    if (detectedJenisLayanan && detectedJenisLayanan.toLowerCase().includes('house call')) {
+      if (status_retribusi === 'selesai') {
+        finalStatus = 'selesai';
+        bookingStatus = 'selesai';
+        kunjunganStatus = 'selesai';
+      }
+      console.log('House call detected, setting status to selesai');
+    }
+    
+    // Validasi pembayaran dengan error handling
+    let grandTotal = 0;
+    let pembayaran = 0;
+    
+    try {
+      grandTotal = parseFloat(retribusi.grand_total?.toString() || '0');
+      pembayaran = parseFloat(jumlah_pembayaran || '0');
+    } catch (error) {
+      console.error('Error parsing payment amounts:', error);
+      return res.status(400).json({ message: 'Format pembayaran tidak valid' });
+    }
+    
+    if (pembayaran < grandTotal && status_retribusi === 'selesai') {
       return res.status(400).json({ message: 'Jumlah pembayaran tidak cukup' });
     }
     
-    // Check if rekam_medis should be updated
-    if (req.body.update_rekam_medis && req.body.rekam_medis_data) {
-      const rekamMedisData = req.body.rekam_medis_data;
-      
-      // Find the corresponding rekam_medis record
-      const rekamMedis = await RekamMedis.findOne({ id_kunjungan: retribusi.id_kunjungan });
-      
-      if (rekamMedis) {
-        // REVISI: Menangani flag add_doctor_status untuk menambahkan status baru
-        if (rekamMedisData.add_doctor_status) {
-          // Buat objek baru untuk status dokter yang akan ditambahkan
+    // Update rekam medis dengan error handling
+    if (update_rekam_medis && rekam_medis_data) {
+      try {
+        const rekamMedis = await RekamMedis.findOne({ id_kunjungan: retribusi.id_kunjungan });
+        
+        if (rekamMedis && rekam_medis_data.add_doctor_status) {
+          const statusToAdd = detectedJenisLayanan && detectedJenisLayanan.toLowerCase().includes('house call') 
+            ? 'selesai' 
+            : rekam_medis_data.doctor_updates?.status || finalStatus;
+            
           const newDoctorStatus = {
-            status: rekamMedisData.doctor_updates.status,
-            hasil: rekamMedisData.doctor_updates.hasil,
-            id_user: rekamMedisData.doctor_updates.id_user,
-            tanggal: rekamMedisData.doctor_updates.tanggal || new Date()
+            status: statusToAdd,
+            hasil: rekam_medis_data.doctor_updates?.hasil || '',
+            id_user: rekam_medis_data.doctor_updates?.id_user,
+            tanggal: rekam_medis_data.doctor_updates?.tanggal || new Date()
           };
           
-          // Tambahkan status baru ke array dokters
-          // REVISI: Tambahkan pengecekan apakah dokters sudah ada
           if (!rekamMedis.dokters) {
             rekamMedis.dokters = [];
           }
           
           rekamMedis.dokters.push(newDoctorStatus);
-          await rekamMedis.save();
           
-          // Tambahkan juga ke array statuses jika diperlukan
           if (!rekamMedis.statuses) {
             rekamMedis.statuses = [];
           }
@@ -204,35 +252,9 @@ router.put('/update/:id', async (req, res) => {
           rekamMedis.statuses.push(newDoctorStatus);
           await rekamMedis.save();
         }
-        // Tetap sertakan logika lama untuk backward compatibility
-        else if (rekamMedisData.update_all_doctors && rekamMedis.dokters && rekamMedis.dokters.length > 0) {
-          // Update all doctors' status and hasil
-          rekamMedis.dokters = rekamMedis.dokters.map(dokter => {
-            return {
-              ...dokter.toObject(),
-              status: rekamMedisData.doctor_updates.status || dokter.status,
-              hasil: rekamMedisData.doctor_updates.hasil || dokter.hasil
-            };
-          });
-          
-          // Save the updated rekam_medis document
-          await rekamMedis.save();
-        } else if (rekamMedisData.doctor_id) {
-          // Update specific doctor if ID is provided
-          rekamMedis.dokters = rekamMedis.dokters.map(dokter => {
-            if (dokter._id.toString() === rekamMedisData.doctor_id) {
-              return {
-                ...dokter.toObject(),
-                status: rekamMedisData.doctor_updates.status || dokter.status,
-                hasil: rekamMedisData.doctor_updates.hasil || dokter.hasil
-              };
-            }
-            return dokter;
-          });
-          
-          // Save the updated rekam_medis document
-          await rekamMedis.save();
-        }
+      } catch (error) {
+        console.error('Error updating rekam medis:', error);
+        // Don't return error, continue with payment update
       }
     }
 
@@ -240,130 +262,153 @@ router.put('/update/:id', async (req, res) => {
     const updatedPembayaran = await RetribusiPembayaran.findByIdAndUpdate(
       id,
       { 
-        status_retribusi, 
+        status_retribusi: finalStatus, 
         metode_bayar,
-        jumlah_pembayaran: jumlah_pembayaran.toString(),
-        kembali: kembali.toString() 
+        jumlah_pembayaran: jumlah_pembayaran?.toString() || '0',
+        kembali: kembali?.toString() || '0'
       },
       { new: true }
     );
     
-    // Dapatkan informasi lengkap tentang kunjungan
-    const kunjungan = retribusi.id_kunjungan ? 
-                      await Kunjungan.findById(retribusi.id_kunjungan).populate({
-                        path: 'id_booking',
-                        populate: {
-                          path: 'id_pasien'
-                        }
-                      }) : null;
+    // Update kunjungan dengan error handling
+    let kunjungan = null;
+    try {
+      if (retribusi.id_kunjungan) {
+        kunjungan = await Kunjungan.findById(retribusi.id_kunjungan).populate({
+          path: 'id_booking',
+          populate: {
+            path: 'id_pasien'
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching kunjungan:', error);
+    }
                   
     if (kunjungan) {
-      // Persiapkan data untuk update
-      const kunjunganUpdateData = { 
-        'administrasis2.$[elem].status_kunjungan': 'selesai'
-      };
-      
-      // Ambil data dari booking dan pasien jika tersedia
-      if (kunjungan.id_booking) {
-        const booking = kunjungan.id_booking;
-        const pasien = booking.id_pasien;
+      try {
+        // Persiapkan data untuk update
+        const kunjunganUpdateData = {};
         
-        // Perbarui data kunjungan dengan data dari booking/pasien jika belum ada
-        if (!kunjungan.nama_klein || kunjungan.nama_klein === '') {
-          // Cari data pemilik dari administrasis1 yang terbaru
-          if (booking.administrasis1 && booking.administrasis1.length > 0) {
-            const latestAdministrasi = booking.administrasis1
-              .sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal))[0];
-            
-            if (latestAdministrasi.id_user) {
-              const user = await User.findById(latestAdministrasi.id_user);
-              if (user) {
-                kunjunganUpdateData.nama_klein = user.nama;
+        if (kunjungan.id_booking) {
+          const booking = kunjungan.id_booking;
+          const pasien = booking.id_pasien;
+          
+          // Update data kunjungan dengan data dari booking/pasien jika belum ada
+          if (!kunjungan.nama_klein || kunjungan.nama_klein === '') {
+            if (booking.administrasis1 && booking.administrasis1.length > 0) {
+              const latestAdministrasi = booking.administrasis1
+                .sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal))[0];
+              
+              if (latestAdministrasi.id_user) {
+                const user = await User.findById(latestAdministrasi.id_user);
+                if (user) {
+                  kunjunganUpdateData.nama_klein = user.nama;
+                }
               }
             }
           }
-        }
-        
-        // Update nama hewan jika kosong
-        if (!kunjungan.nama_hewan || kunjungan.nama_hewan === '') {
-          kunjunganUpdateData.nama_hewan = booking.nama || '';
-        }
-        
-        // Update jenis layanan jika kosong
-        if (!kunjungan.jenis_layanan || kunjungan.jenis_layanan === '') {
-          kunjunganUpdateData.jenis_layanan = booking.jenis_layanan || '';
-        }
-        
-        // Update data dari model pasien jika ada
-        if (pasien) {
-          if (!kunjungan.jenis || kunjungan.jenis === '') {
-            kunjunganUpdateData.jenis = pasien.jenis || '';
+          
+          if (!kunjungan.nama_hewan || kunjungan.nama_hewan === '') {
+            kunjunganUpdateData.nama_hewan = booking.nama || '';
           }
           
-          if (!kunjungan.jenis_kelamin || kunjungan.jenis_kelamin === '-') {
-            kunjunganUpdateData.jenis_kelamin = pasien.jenis_kelamin || '-';
+          if (!kunjungan.jenis_layanan || kunjungan.jenis_layanan === '') {
+            kunjunganUpdateData.jenis_layanan = booking.jenis_layanan || '';
           }
           
-          if (!kunjungan.ras || kunjungan.ras === '-') {
-            kunjunganUpdateData.ras = pasien.ras || '-';
+          if (pasien) {
+            if (!kunjungan.jenis || kunjungan.jenis === '') {
+              kunjunganUpdateData.jenis = pasien.jenis || '';
+            }
+            
+            if (!kunjungan.jenis_kelamin || kunjungan.jenis_kelamin === '-') {
+              kunjunganUpdateData.jenis_kelamin = pasien.jenis_kelamin || '-';
+            }
+            
+            if (!kunjungan.ras || kunjungan.ras === '-') {
+              kunjunganUpdateData.ras = pasien.ras || '-';
+            }
+            
+            if (!kunjungan.umur_hewan || kunjungan.umur_hewan === '-') {
+              kunjunganUpdateData.umur_hewan = pasien.umur || '-';
+            }
+            
+            if (!kunjungan.kategori || kunjungan.kategori === '') {
+              kunjunganUpdateData.kategori = pasien.kategori || '';
+            }
           }
           
-          if (!kunjungan.umur_hewan || kunjungan.umur_hewan === '-') {
-            kunjunganUpdateData.umur_hewan = pasien.umur || '-';
+          // Update status booking
+          if (update_booking) {
+            await Booking.findByIdAndUpdate(
+              booking._id,
+              { status_booking: bookingStatus },
+              { new: true }
+            );
           }
-          
-          if (!kunjungan.kategori || kunjungan.kategori === '') {
-            kunjunganUpdateData.kategori = pasien.kategori || '';
+
+          // Update administrasis2
+          if (update_kunjungan && kunjungan_data) {
+            await Kunjungan.findByIdAndUpdate(
+              kunjungan._id,
+              { 
+                $push: { 
+                  administrasis2: {
+                    id_user: kunjungan_data.id_user,
+                    catatan: kunjungan_data.catatan || '',
+                    status_kunjungan: kunjunganStatus,
+                    tanggal: new Date()
+                  } 
+                } 
+              },
+              { new: true }
+            );
           }
         }
         
-        // Update status booking jika diminta
-        if (update_booking) {
-          await Booking.findByIdAndUpdate(
-            booking._id,
-            { status_booking: 'mengambil obat' },
+        // Update data kunjungan jika ada perubahan
+        if (Object.keys(kunjunganUpdateData).length > 0) {
+          await Kunjungan.findByIdAndUpdate(
+            kunjungan._id,
+            kunjunganUpdateData,
             { new: true }
           );
         }
-
-        // Add this section to handle the new administrasis2 update
-        if (update_kunjungan && kunjungan_data) {
-          // Push new entry to administrasis2 array
+        
+        // Update status administrasis2 yang masih menunggu
+        if (status_retribusi === 'selesai') {
           await Kunjungan.findByIdAndUpdate(
             kunjungan._id,
             { 
-              $push: { 
-                administrasis2: {
-                  id_user: kunjungan_data.id_user,
-                  catatan: kunjungan_data.catatan,
-                  status_kunjungan: kunjungan_data.status_kunjungan,
-                  tanggal: new Date()
-                } 
-              } 
+              'administrasis2.$[elem].status_kunjungan': kunjunganStatus
             },
-            { new: true }
+            { 
+              arrayFilters: [{ 'elem.status_kunjungan': 'menunggu pembayaran' }],
+              new: true 
+            }
           );
         }
+      } catch (error) {
+        console.error('Error updating kunjungan:', error);
+        // Don't return error, continue with response
       }
-      
-      // Update data kunjungan
-      await Kunjungan.findByIdAndUpdate(
-        kunjungan._id,
-        kunjunganUpdateData,
-        { 
-          arrayFilters: [{ 'elem.status_kunjungan': 'menunggu pembayaran' }],
-          new: true 
-        }
-      );
     }
+    
+    console.log('Update completed successfully');
     
     res.status(200).json({
       message: 'Pembayaran berhasil diproses',
-      pembayaran: updatedPembayaran
+      pembayaran: updatedPembayaran,
+      finalStatus: finalStatus
     });
   } catch (error) {
     console.error('Gagal memproses pembayaran:', error);
-    res.status(500).json({ message: 'Terjadi kesalahan saat memproses pembayaran', error: error.message });
+    res.status(500).json({ 
+      message: 'Terjadi kesalahan saat memproses pembayaran', 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 

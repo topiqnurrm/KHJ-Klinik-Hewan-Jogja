@@ -27,11 +27,41 @@ export const getPembayaranDetail = async (id) => {
 // Mengupdate status pembayaran dan proses pembayaran
 export const updateStatusPembayaran = async (id, dataUpdate) => {
   try {
+    console.log('Sending update request:', { id, dataUpdate }); // Debug log
+    
+    // Validasi data sebelum dikirim
+    if (!id) {
+      throw new Error('ID pembayaran tidak valid');
+    }
+    
+    if (!dataUpdate || typeof dataUpdate !== 'object') {
+      throw new Error('Data update tidak valid');
+    }
+    
     // Pastikan data dikirimkan dengan format yang benar
-    const response = await axios.put(`${API_URL}/update/${id}`, dataUpdate);
+    const response = await axios.put(`${API_URL}/update/${id}`, dataUpdate, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      timeout: 30000 // 30 detik timeout
+    });
+    
+    console.log('Update response:', response.data); // Debug log
     return response.data;
   } catch (error) {
     console.error('Gagal mengupdate status pembayaran:', error);
+    
+    // Log error detail untuk debugging
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+      console.error('Response headers:', error.response.headers);
+    } else if (error.request) {
+      console.error('Request made but no response:', error.request);
+    } else {
+      console.error('Error setting up request:', error.message);
+    }
+    
     throw error;
   }
 };

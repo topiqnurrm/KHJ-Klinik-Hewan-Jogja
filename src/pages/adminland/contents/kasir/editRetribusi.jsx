@@ -330,46 +330,71 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
     const handleConfirmSelesai = async () => {
     try {
         setIsLoading(true);
+        setError(''); // Clear previous errors
         
-        // Get user data from localStorage correctly
+        // Get user data from localStorage with better error handling
         let userId = null;
+        try {
         const userStr = localStorage.getItem('user');
         if (userStr) {
-        try {
             const userData = JSON.parse(userStr);
-            userId = userData._id; // Extract the _id from the user object
+            userId = userData._id;
+        }
         } catch (e) {
-            console.error('Error parsing user data from localStorage:', e);
+        console.error('Error parsing user data from localStorage:', e);
+        }
+        
+        // Deteksi jenis layanan dari detailData dengan fallback
+        let jenisLayanan = '';
+        if (detailData) {
+        if (detailData.jenis_layanan && detailData.jenis_layanan !== '') {
+            jenisLayanan = detailData.jenis_layanan;
+        } else if (detailData.id_kunjungan?.jenis_layanan) {
+            jenisLayanan = detailData.id_kunjungan.jenis_layanan;
         }
         }
         
-        // Make sure we're sending both payment data and status updates
+        console.log('Jenis layanan yang terdeteksi:', jenisLayanan);
+        
+        // Tentukan status berdasarkan jenis layanan
+        const isHouseCall = jenisLayanan && jenisLayanan.toLowerCase().includes('house call');
+        const finalStatus = isHouseCall ? 'selesai' : 'mengambil obat';
+        const bookingStatus = isHouseCall ? 'selesai' : 'mengambil obat';
+        const kunjunganStatus = isHouseCall ? 'selesai' : 'mengambil obat';
+        
+        console.log('Final status akan menjadi:', finalStatus);
+        
+        // Pastikan semua nilai numerik dalam format yang benar
+        const jumlahPembayaranStr = formData.jumlah_pembayaran?.toString() || '0';
+        const kembalianStr = formData.kembali?.toString() || '0';
+        
         const dataToBeSent = {
-        status_retribusi: 'mengambil obat', // Change status to 'mengambil obat'
-        // Include these fields to maintain consistency with previous data
-        metode_bayar: formData.metode_bayar,
-        kembali: formData.kembali.toString(),
-        jumlah_pembayaran: formData.jumlah_pembayaran.toString(),
+        status_retribusi: finalStatus,
+        metode_bayar: formData.metode_bayar || 'cash',
+        kembali: kembalianStr,
+        jumlah_pembayaran: jumlahPembayaranStr,
+        jenis_layanan: jenisLayanan,
         
-        // Add data to update booking status and ensure kunjungan data is complete
+        // Update booking status
         update_booking: true,
         booking_data: {
-            status_booking: 'mengambil obat',
+            status_booking: bookingStatus,
         },
-        // Update kunjungan with status and user ID
+        
+        // Update kunjungan
         update_kunjungan: true,
         kunjungan_data: {
             id_user: userId,
-            catatan: `Kembalian: ${formData.kembali}`,
-            status_kunjungan: 'mengambil obat'
+            catatan: `Kembalian: ${formData.kembali || 0}`,
+            status_kunjungan: kunjunganStatus
         },
         
-        // Revisi untuk menambahkan status dokter baru
+        // Update rekam medis
         update_rekam_medis: true,
         rekam_medis_data: {
-            add_doctor_status: true, // Flag untuk menambahkan status baru
+            add_doctor_status: true,
             doctor_updates: {
-            status: 'mengambil obat',
+            status: finalStatus,
             hasil: `Total Tagihan: ${formatCurrency(grandTotal)}`,
             id_user: userId,
             tanggal: new Date().toISOString()
@@ -377,20 +402,30 @@ const EditRetribusi = ({ pembayaranItem, onClose, onUpdate }) => {
         }
         };
         
-        // Add logging for debugging
-        console.log('Sending status update with data:', dataToBeSent);
+        console.log('Data yang akan dikirim ke API:', dataToBeSent);
         
-        // Now actually send to the API
         const response = await updateStatusPembayaran(pembayaranItem._id, dataToBeSent);
-        console.log('API Response:', response); // Log the response
+        console.log('API Response:', response);
         
-        setIsLoading(false);
+        setShowSelesaiConfirmation(false);
         onUpdate(); // Refresh data in parent component
         onClose(); // Close the modal
+        
     } catch (err) {
-        setError('Gagal mengupdate pembayaran');
-        setIsLoading(false);
         console.error('Error updating payment:', err);
+        
+        // Tampilkan error yang lebih informatif
+        let errorMessage = 'Gagal mengupdate pembayaran';
+        if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+        } else if (err.message) {
+        errorMessage = err.message;
+        }
+        
+        setError(errorMessage);
+        setShowSelesaiConfirmation(false);
+    } finally {
+        setIsLoading(false);
     }
     };
      
