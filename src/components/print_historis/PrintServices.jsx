@@ -238,7 +238,7 @@ export const printRetribusi = (pembayaranItem, detailData, paymentData) => {
   const printContent = `
     <div style="font-family: Arial, sans-serif; padding: 10px; width: 80mm; max-width: 80mm;">
       <div style="text-align: center; margin-bottom: 10px; border-bottom: 1px solid #000; padding-bottom: 5px;">
-        <h1 style="font-size: 16px; font-weight: bold; margin: 0;">KLINIK HEWAN JOGJA</h1>
+        <h1 style="font-size: 16px; font-weight: bold; margin: 0;">Laporan Kunjungan </br>Poliklinik Hewan Jogja (KHJ)</h1>
         <p style="font-size: 14px; margin: 5px 0;">RETRIBUSI PEMBAYARAN</p>
       </div>
       
@@ -394,7 +394,7 @@ export const printRekamMedis = (pembayaranItem, detailData) => {
   const printContent = `
     <div style="font-family: Arial, sans-serif; padding: 10px; width: 80mm; max-width: 80mm;">
       <div style="text-align: center; margin-bottom: 10px; border-bottom: 1px solid #000; padding-bottom: 5px;">
-        <h1 style="font-size: 16px; font-weight: bold; margin: 0;">KLINIK HEWAN JOGJA</h1>
+        <h1 style="font-size: 16px; font-weight: bold; margin: 0;">Laporan Kunjungan </br>Poliklinik Hewan Jogja (KHJ)</h1>
         <p style="font-size: 14px; margin: 5px 0;">REKAM MEDIS</p>
       </div>
       

@@ -96,10 +96,16 @@ const Laporan = () => {
             ? formatTanggalIndonesia(tanggalAwal)
             : `${formatTanggalIndonesia(tanggalAwal)} - ${formatTanggalIndonesia(tanggalAkhir)}`;
 
+        // Hitung total biaya pasien dari data rekap_pasien
+        const totalBiayaPasien = hitungTotalBiayaPasien(data.rekap_pasien);
+        const totalObat = data.total_obat || 0;
+        const totalPelayanan = data.total_pelayanan || 0;
+        const totalPendapatan = totalBiayaPasien + totalObat + totalPelayanan;
+
         return `
             <div class="print-content">
                 <div class="header">
-                    <h1>Laporan Kunjungan KHJ (Klinik Hewan Jogja)</h1>
+                    <h1>Laporan Kunjungan Poliklinik Hewan Jogja (KHJ)</h1>
                     <h2>Periode: ${periode}</h2>
                     
                     <!-- Summary Cards -->
@@ -107,16 +113,17 @@ const Laporan = () => {
                         <div class="summary-card">
                             <div class="summary-title">Total Pasien</div>
                             <div class="summary-value">${data.rekap_pasien?.length || 0}</div>
+                            <div class="summary-subtitle">Rp ${formatRupiah(totalBiayaPasien)}</div>
                         </div>
                         <div class="summary-card">
                             <div class="summary-title">Total Obat</div>
                             <div class="summary-value">${data.rekap_obat?.length || 0} Item</div>
-                            <div class="summary-subtitle">Rp ${formatRupiah(data.total_obat || 0)}</div>
+                            <div class="summary-subtitle">Rp ${formatRupiah(totalObat)}</div>
                         </div>
                         <div class="summary-card">
                             <div class="summary-title">Total Pelayanan</div>
                             <div class="summary-value">${data.rekap_pelayanan?.length || 0} Item</div>
-                            <div class="summary-subtitle">Rp ${formatRupiah(data.total_pelayanan || 0)}</div>
+                            <div class="summary-subtitle">Rp ${formatRupiah(totalPelayanan)}</div>
                         </div>
                     </div>
                 </div>
@@ -158,6 +165,11 @@ const Laporan = () => {
                                     <td>${pasien.status || '-'}</td>
                                 </tr>
                             `).join('') || '<tr><td colspan="12">Tidak ada data</td></tr>'}
+                            <tr class="total-row">
+                                <td colspan="10"><strong>Total Biaya Pasien</strong></td>
+                                <td><strong>Rp ${formatRupiah(totalBiayaPasien)}</strong></td>
+                                <td></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -197,7 +209,7 @@ const Laporan = () => {
                             `).join('') || '<tr><td colspan="10">Tidak ada data</td></tr>'}
                             <tr class="total-row">
                                 <td colspan="9"><strong>Total Obat</strong></td>
-                                <td><strong>Rp ${formatRupiah(data.total_obat || 0)}</strong></td>
+                                <td><strong>Rp ${formatRupiah(totalObat)}</strong></td>
                             </tr>
                         </tbody>
                     </table>
@@ -236,7 +248,7 @@ const Laporan = () => {
                             `).join('') || '<tr><td colspan="9">Tidak ada data</td></tr>'}
                             <tr class="total-row">
                                 <td colspan="8"><strong>Total Pelayanan</strong></td>
-                                <td><strong>Rp ${formatRupiah(data.total_pelayanan || 0)}</strong></td>
+                                <td><strong>Rp ${formatRupiah(totalPelayanan)}</strong></td>
                             </tr>
                         </tbody>
                     </table>
@@ -244,6 +256,19 @@ const Laporan = () => {
 
                 <div class="total-pendapatan">
                     <h3>Total Pendapatan: Rp ${formatRupiah(data.total_pendapatan || 0)}</h3>
+                </div>
+                <div class="total-pendapatan">
+                    <h3>Ringkasan Pendapatan</h3>
+                    <div class="pendapatan-breakdown">
+                        <div class="breakdown-item">
+                            <span>Total Obat:</span>
+                            <span>Rp ${formatRupiah(totalObat)}</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Total Pelayanan:</span>
+                            <span>Rp ${formatRupiah(totalPelayanan)}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -496,7 +521,7 @@ const Laporan = () => {
                 window.printJS({
                     printable: tempDiv,
                     type: 'html',
-                    documentTitle: 'Laporan Kunjungan KHJ (Klinik Hewan Jogja)',
+                    documentTitle: 'Laporan Kunjungan Poliklinik Hewan Jogja (KHJ)',
                     css: `
                         @media print {
                             body { 
@@ -756,6 +781,15 @@ const Laporan = () => {
         const today = getTodayDate();
         setTanggalAwal(today);
         setTanggalAkhir(today);
+    };
+
+    const hitungTotalBiayaPasien = (rekapPasien) => {
+        if (!rekapPasien || !Array.isArray(rekapPasien)) return 0;
+        
+        return rekapPasien.reduce((total, pasien) => {
+            const biaya = parseFloat(pasien.biaya) || 0;
+            return total + biaya;
+        }, 0);
     };
 
     return (
